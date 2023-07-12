@@ -6,12 +6,11 @@ const fileSystem = require("fs");
 const bcrypt = require("bcrypt");
 
 app.get("/health", (req, res) => {
-  console.log("Health API hit");
   res.sendStatus(200);
 });
 
-app.get("/getfilefroms3", async (req, res) => {
-  let providedApiKey = req.query.api_key;
+app.get("/fenice", async (req, res) => {
+  let providedApiKey = req.header("api_key");
   const storedApiKey = process.env.API_KEY;
 
   bcrypt.compare(providedApiKey, storedApiKey, (err, result) => {
