@@ -18,4 +18,4 @@ COPY --chown=node:node . .
 
 EXPOSE 3000
 
-CMD [ "nodemon", "node", "server.js" ]
+CMD [ "node", "server.js" ]
