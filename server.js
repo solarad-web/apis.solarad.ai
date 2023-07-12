@@ -6,7 +6,7 @@ const fileSystem = require('fs');
 const bcrypt = require('bcrypt');
 
 app.get('/health', (req, res) => {
-    res.send(req.query.filename);
+    res.sendStatus(200);
 });
 
 app.get('/getfilefroms3', async (req, res) => {
@@ -31,10 +31,9 @@ app.get('/getfilefroms3', async (req, res) => {
     });
 });
 
-
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || `localhost`;
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
     console.log(`Server is running at http://${HOST}:${PORT}`);
 });
