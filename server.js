@@ -6,6 +6,7 @@ const fileSystem = require("fs");
 const bcrypt = require("bcrypt");
 
 app.get("/health", (req, res) => {
+  console.log("Health API hit");
   res.sendStatus(200);
 });
 
