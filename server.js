@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const fileSystem = require("fs");
 const bcrypt = require("bcrypt");
+const csv = require('csv-parser');
 
 app.get("/health", (req, res) => {
   res.sendStatus(200);
@@ -11,28 +12,62 @@ app.get("/health", (req, res) => {
 
 app.get("/fenice", async (req, res) => {
   let providedApiKey = req.header("api_key");
-  const storedApiKey = process.env.API_KEY;
-
+  const storedApiKey = process.env.API_KEY;    
   bcrypt.compare(providedApiKey, storedApiKey, (err, result) => {
     if (result) {
-      let site_id = req.query.site_id;
-      var filePath = `/home/Fenice/site_${site_id}.csv`;
-      var stat = fileSystem.statSync(filePath);
+      try {
+        let site_id = req.query.site_id;
+        var filePath = `/home/Fenice/site_${site_id}.csv`;     
+        var stat = fileSystem.statSync(filePath);
 
-      res.set(
-        "Content-Disposition",
-        `attachment; filename=site_${site_id}.csv`
-      );
-      res.set("Content-Type", "text/csv");
-      res.set("Content-Length", stat.size);
+        res.set(
+          "Content-Disposition",
+          `attachment; filename=site_${site_id}.csv`
+        );
+        res.set("Content-Type", "text/csv");
+        res.set("Content-Length", stat.size);
 
-      var readStream = fileSystem.createReadStream(filePath);
-      readStream.pipe(res);
+        // Read and process the CSV file
+        const results = [];
+        let columnExists = false;
+        fileSystem.createReadStream(filePath)
+          .pipe(csv())
+          .on('headers', (headers) => {
+            // Check if the specified column exists in the CSV file
+            if (headers.includes(`ENTRY_TIME`)) {
+              columnExists = true;
+            }
+          })
+          .on('data', (data) => {
+            // Remove the specified column from each row
+            delete data[`ENTRY_TIME`];
+            results.push(data);
+          })
+          .on('end', () => {
+            const modifiedCsv = columnExists ? convertToCsv(results) : fileSystem.readFileSync(filePath);
+            // Create a new CSV file with modified data
+
+            // Send back the modified CSV file
+            res.send(modifiedCsv);
+          });
+      }
+      catch (error) {
+        res.send(`No such file or directory exists - ${filePath}`);
+        return;
+      }
     } else {
       res.status(401).send("Unauthorized");
     }
   });
 });
+
+// Helper function to convert data to CSV format
+function convertToCsv(data) {
+  const header = Object.keys(data[0]).join(',') + '\n';
+  const rows = data.map((row) => Object.values(row).join(',') + '\n');
+  return header + rows.join('');
+}
+
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || `localhost`;
