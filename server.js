@@ -3,6 +3,8 @@ const app = express();
 const dotenv = require("dotenv");
 dotenv.config();
 const fileSystem = require("fs");
+const papa = require('papaparse');
+const moment = require('moment-timezone');
 const bcrypt = require("bcrypt");
 const csv = require('csv-parser');
 const pool = require('./db');
@@ -71,7 +73,7 @@ app.get("/getgraphsconfig", async (req, res) => {
     const email = req.query.email;
     const config = await pool.query("SELECT * FROM emaillist WHERE user_email = $1", [email]);
 
-    if(config.rowCount === 0){
+    if (config.rowCount === 0) {
       res.json("Email Not Present");
       return;
     }
@@ -93,11 +95,46 @@ app.get("/getgraphsconfig", async (req, res) => {
 
 app.get('/getGraphData', async (req, res) => {
   try {
-      
-  } catch (error) {
-    console.log(error.message);
+    var filePath = req.query.endpoint;
+    var stat = fileSystem.statSync(filePath);
+
+    res.set(
+      "Content-Disposition",
+      `attachment; filename=graphData.csv`
+    );
+    res.set("Content-Type", "text/csv");
+    res.set("Content-Length", stat.size);
+
+    fileSystem.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error reading the CSV file.' });
+      }
+
+      // Parse the CSV data
+      const parsedData = papa.parse(data, { header: true });
+
+      // Determine the server's local timezone
+      const localTimezone = moment.tz.guess();
+
+      // Update the 'Time' column and convert to the local timezone
+      const updatedData = parsedData.data.map((row) => {
+        const utcTime = moment.utc(row.Time, 'YYYY-MM-DD HH:mm:ss');
+        const localTime = utcTime.tz(localTimezone);
+        row.Time = localTime.format('YYYY-MM-DD HH:mm:ss');
+        return row;
+      });
+
+      // Convert the updated data back to CSV format
+      const csvFile = papa.unparse({ fields: parsedData.meta.fields, data: updatedData });
+      res.send(csvFile);
+    });
   }
-})
+  catch (error) {
+    console.log(error);
+    res.send(`No such file or directory exists - ${filePath}`);
+    return;
+  }
+});
 
 
 
