@@ -5,6 +5,10 @@ dotenv.config();
 const fileSystem = require("fs");
 const bcrypt = require("bcrypt");
 const csv = require('csv-parser');
+const pool = require('./db');
+const cors = require("cors");
+
+app.use(cors());
 
 app.get("/health", (req, res) => {
   res.sendStatus(200);
@@ -12,12 +16,12 @@ app.get("/health", (req, res) => {
 
 app.get("/fenice", async (req, res) => {
   let providedApiKey = req.header("api_key");
-  const storedApiKey = process.env.API_KEY;    
+  const storedApiKey = process.env.API_KEY;
   bcrypt.compare(providedApiKey, storedApiKey, (err, result) => {
     if (result) {
       try {
         let site_id = req.query.site_id;
-        var filePath = `/home/Fenice/site_${site_id}.csv`;     
+        var filePath = `/home/Fenice/site_${site_id}.csv`;
         var stat = fileSystem.statSync(filePath);
 
         res.set(
@@ -60,6 +64,43 @@ app.get("/fenice", async (req, res) => {
     }
   });
 });
+
+
+app.get("/getgraphsconfig", async (req, res) => {
+  try {
+    const email = req.query.email;
+    const config = await pool.query("SELECT * FROM emaillist WHERE user_email = $1", [email]);
+
+    if(config.rowCount === 0){
+      res.json("Email Not Present");
+      return;
+    }
+
+    const gen_forecast = config.rows[0].generation_forecast;
+    const ghi_graph = config.rows[0].ghi_graph;
+    const poa_graph = config.rows[0].poa_graph;
+    const monthly_ts = config.rows[0].monthly_ts;
+    const weather_insights = config.rows[0].weather_insights;
+
+    res.json({ "gen_forecast": gen_forecast, "ghi_graph": ghi_graph, "poa_graph": poa_graph, "monthly_ts": monthly_ts, "weather_insights": weather_insights });
+  } catch (error) {
+    console.log(error.message);
+    res.send(error.message);
+    return;
+  }
+});
+
+
+app.get('/getGraphData', async (req, res) => {
+  try {
+      
+  } catch (error) {
+    console.log(error.message);
+  }
+})
+
+
+
 
 // Helper function to convert data to CSV format
 function convertToCsv(data) {
