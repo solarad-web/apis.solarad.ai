@@ -153,7 +153,7 @@ app.get('/getGraphData', async (req, res) => {
       res.send(csvFile);
     });
   } catch (error) {
-    res.status(500).json({ error: 'Error processing the CSV file.' });
+    res.send(error.message);
   }
 });
 
