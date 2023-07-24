@@ -122,7 +122,7 @@ app.get('/getGraphData', async (req, res) => {
 
     fileSystem.readFile(filePath, 'utf8', (err, data) => {
       if (err) {
-        return res.status(500).json({ error: 'Error reading the CSV file.' });
+        return res.send(err.message);
       }
 
       // Parse the CSV data with header: true to get headers as an array
