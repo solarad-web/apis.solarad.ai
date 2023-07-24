@@ -111,7 +111,7 @@ app.get("/getgraphsconfig", async (req, res) => {
 app.get('/getGraphData', async (req, res) => {
   try {
     var filePath = req.query.endpoint;
-    var stat = fileSystem.statSync(`home/csv/${filePath}`);
+    var stat = fileSystem.statSync(`/home/csv/${filePath}`);
 
     res.set(
       "Content-Disposition",
