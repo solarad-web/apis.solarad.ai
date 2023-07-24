@@ -21,10 +21,7 @@ app.get("/fenice", async (req, res) => {
           let site_id = req.query.site_id;
           var filePath = `/home/Fenice/site_${site_id}.csv`;
           var stat = fileSystem.statSync(filePath);
-        } catch (err) {
-          res.send(err.message);
-          return;
-        }
+        
         res.set(
           "Content-Disposition",
           `attachment; filename=site_${site_id}.csv`
@@ -32,6 +29,10 @@ app.get("/fenice", async (req, res) => {
         res.set("Content-Type", "text/csv");
         res.set("Content-Length", stat.size);
 
+      } catch (err) {
+        res.send(err.message);
+        return;
+      }
         // Read and process the CSV file
         const results = [];
         let columnExists = false;
@@ -62,7 +63,7 @@ app.get("/fenice", async (req, res) => {
         }
       }
       catch (error) {
-        res.send(`No such file or directory exists - ${filePath}`);
+        res.send(error.message);
         return;
       }
     } else {
