@@ -12,9 +12,10 @@ const cors = require("cors");
 
 app.use(cors());
 
+
 app.get("/health", (req, res) => {
   res.sendStatus(200);
-});
+})
 
 app.get("/fenice", async (req, res) => {
   let providedApiKey = req.header("api_key");
@@ -23,7 +24,7 @@ app.get("/fenice", async (req, res) => {
     if (result) {
       try {
         let site_id = req.query.site_id;
-        var filePath = `/home/Fenice/site_${site_id}.csv`;
+        var filePath = `home/Fenice/site_${site_id}.csv`;
         var stat = fileSystem.statSync(filePath);
 
         res.set(
@@ -35,6 +36,7 @@ app.get("/fenice", async (req, res) => {
 
         // Read and process the CSV file
         const results = [];
+        const noChangeResults = [];
         let columnExists = false;
         fileSystem.createReadStream(filePath)
           .pipe(csv())
@@ -43,14 +45,18 @@ app.get("/fenice", async (req, res) => {
             if (headers.includes(`ENTRY_TIME`)) {
               columnExists = true;
             }
+            if (headers.includes(`Time`)) {
+              headers[headers.indexOf('Time')] = 'Date';
+            }
           })
           .on('data', (data) => {
             // Remove the specified column from each row
+            noChangeResults.push(data);
             delete data[`ENTRY_TIME`];
             results.push(data);
           })
           .on('end', () => {
-            const modifiedCsv = columnExists ? convertToCsv(results) : fileSystem.readFileSync(filePath);
+            const modifiedCsv = columnExists ? convertToCsv(results) : convertToCsv(noChangeResults);
             // Create a new CSV file with modified data
 
             // Send back the modified CSV file
@@ -70,6 +76,8 @@ app.get("/fenice", async (req, res) => {
 
 app.get("/getgraphsconfig", async (req, res) => {
   try {
+    
+
     const email = req.query.email;
     const config = await pool.query("SELECT * FROM emaillist WHERE user_email = $1", [email]);
 
@@ -110,29 +118,32 @@ app.get('/getGraphData', async (req, res) => {
         return res.status(500).json({ error: 'Error reading the CSV file.' });
       }
 
-      // Parse the CSV data
+      // Parse the CSV data with header: true to get headers as an array
       const parsedData = papa.parse(data, { header: true });
+
+      // Rename the 'Time' column to 'Date'
+      const updatedHeader = parsedData.meta.fields.map((header) => {
+        return header === 'Time' ? 'Date' : header;
+      });
 
       // Determine the server's local timezone
       const localTimezone = moment.tz.guess();
 
-      // Update the 'Time' column and convert to the local timezone
+      // Update the 'Time' column to 'Date' and convert to the local timezone
       const updatedData = parsedData.data.map((row) => {
         const utcTime = moment.utc(row.Time, 'YYYY-MM-DD HH:mm:ss');
         const localTime = utcTime.tz(localTimezone);
-        row.Time = localTime.format('YYYY-MM-DD HH:mm:ss');
+        row.Date = localTime.format('YYYY-MM-DD HH:mm:ss'); // Rename 'Time' to 'Date'
+        delete row.Time; // Remove the 'Time' column from the data
         return row;
       });
 
-      // Convert the updated data back to CSV format
-      const csvFile = papa.unparse({ fields: parsedData.meta.fields, data: updatedData });
+      // Convert the updated data back to CSV format with the updated header
+      const csvFile = papa.unparse({ fields: updatedHeader, data: updatedData });
       res.send(csvFile);
     });
-  }
-  catch (error) {
-    console.log(error);
-    res.send(`No such file or directory exists - ${filePath}`);
-    return;
+  } catch (error) {
+    res.status(500).json({ error: 'Error processing the CSV file.' });
   }
 });
 
