@@ -110,19 +110,19 @@ app.get("/getgraphsconfig", async (req, res) => {
 
 app.get('/getGraphData', async (req, res) => {
   try {
-    try{
-    var filePath = req.query.endpoint;
-    var stat = fileSystem.statSync(`/home/csv/${filePath}`);
+    try {
+      var filePath = req.query.endpoint;
+      var stat = fileSystem.statSync(`/home/csv/${filePath}`);
 
-    res.set(
-      "Content-Disposition",
-      `attachment; filename=graphData.csv`
-    );
-    res.set("Content-Type", "text/csv");
-    res.set("Content-Length", stat.size);
+      res.set(
+        "Content-Disposition",
+        `attachment; filename=graphData.csv`
+      );
+      res.set("Content-Type", "text/csv");
+      res.set("Content-Length", stat.size);
 
     }
-    catch(err){
+    catch (err) {
       res.send(err.message);
       return;
     }
@@ -156,7 +156,7 @@ app.get('/getGraphData', async (req, res) => {
       res.send(csvFile);
     });
   } catch (error) {
-    res.status(500).json({ error: 'Error processing the CSV file.' });
+    res.send(error.message);
   }
 });
 
