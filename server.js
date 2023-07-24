@@ -113,7 +113,7 @@ app.get('/getGraphData', async (req, res) => {
     var client = req.query.client;
     var site = req.query.site;
     var timeframe = req.query.timeframe;
-    var filepath = `/home/csv/(${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
+    var filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
 
     try {
       fileSystem.readFile(filepath, 'utf8', (err, data) => {
