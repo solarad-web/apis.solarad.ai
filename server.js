@@ -18,53 +18,60 @@ app.get("/health", (req, res) => {
 })
 
 app.get("/fenice", async (req, res) => {
+  ``
   let providedApiKey = req.header("api_key");
   const storedApiKey = process.env.API_KEY;
   bcrypt.compare(providedApiKey, storedApiKey, (err, result) => {
     if (result) {
       try {
-        let site_id = req.query.site_id;
-        var filePath = `home/Fenice/site_${site_id}.csv`;
-        var stat = fileSystem.statSync(filePath);
+        try {
+          let site_id = req.query.site_id;
+          var filePath = `/home/Fenice/site_${site_id}.csv`;
+          var stat = fileSystem.statSync(filePath);
 
-        res.set(
-          "Content-Disposition",
-          `attachment; filename=site_${site_id}.csv`
-        );
-        res.set("Content-Type", "text/csv");
-        res.set("Content-Length", stat.size);
+          res.set(
+            "Content-Disposition",
+            `attachment; filename=site_${site_id}.csv`
+          );
+          res.set("Content-Type", "text/csv");
+          res.set("Content-Length", stat.size);
 
+        } catch (err) {
+          res.send(err.message);
+          return;
+        }
         // Read and process the CSV file
         const results = [];
         const noChangeResults = [];
         let columnExists = false;
-        fileSystem.createReadStream(filePath)
-          .pipe(csv())
-          .on('headers', (headers) => {
-            // Check if the specified column exists in the CSV file
-            if (headers.includes(`ENTRY_TIME`)) {
-              columnExists = true;
-            }
-            if (headers.includes(`Time`)) {
-              headers[headers.indexOf('Time')] = 'Date';
-            }
-          })
-          .on('data', (data) => {
-            // Remove the specified column from each row
-            noChangeResults.push(data);
-            delete data[`ENTRY_TIME`];
-            results.push(data);
-          })
-          .on('end', () => {
-            const modifiedCsv = columnExists ? convertToCsv(results) : convertToCsv(noChangeResults);
-            // Create a new CSV file with modified data
+        try {
+          fileSystem.createReadStream(filePath)
+            .pipe(csv())
+            .on('headers', (headers) => {
+              // Check if the specified column exists in the CSV file
+              if (headers.includes(`ENTRY_TIME`)) {
+                columnExists = true;
+              }
+            })
+            .on('data', (data) => {
+              // Remove the specified column from each row
+              delete data[`ENTRY_TIME`];
+              results.push(data);
+            })
+            .on('end', () => {
+              const modifiedCsv = columnExists ? convertToCsv(results) : fileSystem.readFileSync(filePath);
+              // Create a new CSV file with modified data
 
-            // Send back the modified CSV file
-            res.send(modifiedCsv);
-          });
+              // Send back the modified CSV file
+              res.send(modifiedCsv);
+            });
+        } catch (err) {
+          res.send(err.message);
+          return;
+        }
       }
       catch (error) {
-        res.send(`No such file or directory exists - ${filePath}`);
+        res.send(error.message);
         return;
       }
     } else {
@@ -76,7 +83,7 @@ app.get("/fenice", async (req, res) => {
 
 app.get("/getgraphsconfig", async (req, res) => {
   try {
-    
+
 
     const email = req.query.email;
     const config = await pool.query("SELECT * FROM emaillist WHERE user_email = $1", [email]);
