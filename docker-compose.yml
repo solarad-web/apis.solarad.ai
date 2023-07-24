@@ -16,8 +16,8 @@ services:
     volumes:
       - .:/app/
       - /app/node_modules
-      - ./home/Fenice/:/home/ec2-user/s3-solaradoutput/Fenice/
-      - ./home/csv/:/home/ec2-user/s3-solaradoutput/csv/clients/
+      - /home/ec2-user/s3-solaradoutput/Fenice/:/home/Fenice/
+      - /home/ec2-user/s3-solaradoutput/csv/clients/:/home/csv/
 
 
   postgres:
