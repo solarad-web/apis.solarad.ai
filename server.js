@@ -110,6 +110,7 @@ app.get("/getgraphsconfig", async (req, res) => {
 
 app.get('/getGraphData', async (req, res) => {
   try {
+    try{
     var filePath = req.query.endpoint;
     var stat = fileSystem.statSync(`/home/csv/${filePath}`);
 
@@ -120,6 +121,11 @@ app.get('/getGraphData', async (req, res) => {
     res.set("Content-Type", "text/csv");
     res.set("Content-Length", stat.size);
 
+    }
+    catch(err){
+      res.send(err.message);
+      return;
+    }
     fileSystem.readFile(stat, 'utf8', (err, data) => {
       if (err) {
         return res.send(err.message);
