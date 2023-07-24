@@ -16,6 +16,9 @@ services:
     volumes:
       - .:/app/
       - /app/node_modules
+      - /home/ec2-user/s3-solaradoutput/Fenice/:/home/Fenice/
+      - /home/ec2-user/s3-solaradoutput/csv/clients/:/home/csv/
+
 
   postgres:
     image: postgres:15
