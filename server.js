@@ -113,14 +113,14 @@ app.get('/getGraphData', async (req, res) => {
     var client = req.query.client;
     var site = req.query.site;
     var timeframe = req.query.timeframe;
-    var stat = fileSystem.statSync(`/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`);
+    var stat = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
 
-    res.set(
-      "Content-Disposition",
-      `attachment; filename=graphData.csv`
-    );
-    res.set("Content-Type", "text/csv");
-    res.set("Content-Length", stat.size);
+    // res.set(
+    //   "Content-Disposition",
+    //   `attachment; filename=graphData.csv`
+    // );
+    // res.set("Content-Type", "text/csv");
+    // res.set("Content-Length", stat.size);
 
     try{
     fileSystem.readFile(stat, 'utf8', (err, data) => {
