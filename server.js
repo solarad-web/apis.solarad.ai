@@ -10,7 +10,7 @@ app.get("/health", (req, res) => {
   res.sendStatus(200);
 });
 
-app.get("/fenice", async (req, res) => {
+app.get("/fenice", async (req, res) => {``
   let providedApiKey = req.header("api_key");
   const storedApiKey = process.env.API_KEY;    
   bcrypt.compare(providedApiKey, storedApiKey, (err, result) => {
