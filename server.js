@@ -120,7 +120,7 @@ app.get('/getGraphData', async (req, res) => {
     res.set("Content-Type", "text/csv");
     res.set("Content-Length", stat.size);
 
-    fileSystem.readFile(filePath, 'utf8', (err, data) => {
+    fileSystem.readFile(stat, 'utf8', (err, data) => {
       if (err) {
         return res.send(err.message);
       }
