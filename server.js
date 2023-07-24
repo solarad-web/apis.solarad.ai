@@ -113,46 +113,39 @@ app.get('/getGraphData', async (req, res) => {
     var client = req.query.client;
     var site = req.query.site;
     var timeframe = req.query.timeframe;
-    var stat = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
+    var filepath = `/home/csv/(${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
 
-    // res.set(
-    //   "Content-Disposition",
-    //   `attachment; filename=graphData.csv`
-    // );
-    // res.set("Content-Type", "text/csv");
-    // res.set("Content-Length", stat.size);
+    try {
+      fileSystem.readFile(filepath, 'utf8', (err, data) => {
+        if (err) {
+          return res.send(err.message);
+        }
 
-    try{
-    fileSystem.readFile(stat, 'utf8', (err, data) => {
-      if (err) {
-        return res.send(err.message);
-      }
+        // Parse the CSV data with header: true to get headers as an array
+        const parsedData = papa.parse(data, { header: true });
 
-      // Parse the CSV data with header: true to get headers as an array
-      const parsedData = papa.parse(data, { header: true });
+        // Rename the 'Time' column to 'Date'
+        const updatedHeader = parsedData.meta.fields.map((header) => {
+          return header === 'Time' ? 'Date' : header;
+        });
 
-      // Rename the 'Time' column to 'Date'
-      const updatedHeader = parsedData.meta.fields.map((header) => {
-        return header === 'Time' ? 'Date' : header;
+        // Determine the server's local timezone
+        const localTimezone = moment.tz.guess();
+
+        // Update the 'Time' column to 'Date' and convert to the local timezone
+        const updatedData = parsedData.data.map((row) => {
+          const utcTime = moment.utc(row.Time, 'YYYY-MM-DD HH:mm:ss');
+          const localTime = utcTime.tz(localTimezone);
+          row.Date = localTime.format('YYYY-MM-DD HH:mm:ss'); // Rename 'Time' to 'Date'
+          delete row.Time; // Remove the 'Time' column from the data
+          return row;
+        });
+
+        // Convert the updated data back to CSV format with the updated header
+        const csvFile = papa.unparse({ fields: updatedHeader, data: updatedData });
+        res.send(csvFile);
       });
-
-      // Determine the server's local timezone
-      const localTimezone = moment.tz.guess();
-
-      // Update the 'Time' column to 'Date' and convert to the local timezone
-      const updatedData = parsedData.data.map((row) => {
-        const utcTime = moment.utc(row.Time, 'YYYY-MM-DD HH:mm:ss');
-        const localTime = utcTime.tz(localTimezone);
-        row.Date = localTime.format('YYYY-MM-DD HH:mm:ss'); // Rename 'Time' to 'Date'
-        delete row.Time; // Remove the 'Time' column from the data
-        return row;
-      });
-
-      // Convert the updated data back to CSV format with the updated header
-      const csvFile = papa.unparse({ fields: updatedHeader, data: updatedData });
-      res.send(csvFile);
-    });
-  } catch(err){res.send(err.message)}
+    } catch (err) { res.send(err.message) }
   } catch (error) {
     res.send(error.message);
   }
