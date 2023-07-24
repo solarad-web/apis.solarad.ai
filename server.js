@@ -10,16 +10,21 @@ app.get("/health", (req, res) => {
   res.sendStatus(200);
 });
 
-app.get("/fenice", async (req, res) => {``
+app.get("/fenice", async (req, res) => {
+  ``
   let providedApiKey = req.header("api_key");
-  const storedApiKey = process.env.API_KEY;    
+  const storedApiKey = process.env.API_KEY;
   bcrypt.compare(providedApiKey, storedApiKey, (err, result) => {
     if (result) {
       try {
-        let site_id = req.query.site_id;
-        var filePath = `/home/Fenice/site_${site_id}.csv`;     
-        var stat = fileSystem.statSync(filePath);
-
+        try {
+          let site_id = req.query.site_id;
+          var filePath = `/home/Fenice/site_${site_id}.csv`;
+          var stat = fileSystem.statSync(filePath);
+        } catch (err) {
+          res.send(err.message);
+          return;
+        }
         res.set(
           "Content-Disposition",
           `attachment; filename=site_${site_id}.csv`
@@ -30,26 +35,31 @@ app.get("/fenice", async (req, res) => {``
         // Read and process the CSV file
         const results = [];
         let columnExists = false;
-        fileSystem.createReadStream(filePath)
-          .pipe(csv())
-          .on('headers', (headers) => {
-            // Check if the specified column exists in the CSV file
-            if (headers.includes(`ENTRY_TIME`)) {
-              columnExists = true;
-            }
-          })
-          .on('data', (data) => {
-            // Remove the specified column from each row
-            delete data[`ENTRY_TIME`];
-            results.push(data);
-          })
-          .on('end', () => {
-            const modifiedCsv = columnExists ? convertToCsv(results) : fileSystem.readFileSync(filePath);
-            // Create a new CSV file with modified data
+        try {
+          fileSystem.createReadStream(filePath)
+            .pipe(csv())
+            .on('headers', (headers) => {
+              // Check if the specified column exists in the CSV file
+              if (headers.includes(`ENTRY_TIME`)) {
+                columnExists = true;
+              }
+            })
+            .on('data', (data) => {
+              // Remove the specified column from each row
+              delete data[`ENTRY_TIME`];
+              results.push(data);
+            })
+            .on('end', () => {
+              const modifiedCsv = columnExists ? convertToCsv(results) : fileSystem.readFileSync(filePath);
+              // Create a new CSV file with modified data
 
-            // Send back the modified CSV file
-            res.send(modifiedCsv);
-          });
+              // Send back the modified CSV file
+              res.send(modifiedCsv);
+            });
+        } catch (err) {
+          res.send(err.message);
+          return;
+        }
       }
       catch (error) {
         res.send(`No such file or directory exists - ${filePath}`);
