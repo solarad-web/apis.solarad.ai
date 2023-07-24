@@ -24,7 +24,7 @@ app.get("/fenice", async (req, res) => {
     if (result) {
       try {
         let site_id = req.query.site_id;
-        var filePath = `/home/ec2-user/s3-solaradoutput/Fenice//site_${site_id}.csv`;
+        var filePath = `/home/ec2-user/s3-solaradoutput/Fenice/site_${site_id}.csv`;
         var stat = fileSystem.statSync(filePath);
 
         res.set(
