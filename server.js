@@ -3,8 +3,6 @@ const app = express();
 const dotenv = require("dotenv");
 dotenv.config();
 const fileSystem = require("fs");
-const papa = require('papaparse');
-const moment = require('moment-timezone');
 const bcrypt = require("bcrypt");
 const csv = require('csv-parser');
 const pool = require('./db');
@@ -90,7 +88,7 @@ app.get("/getgraphsconfig", async (req, res) => {
       res.json("Email Not Present");
       return;
     }
-    
+
     const gen_forecast = config.rows[0].generation_forecast;
     const ghi_graph = config.rows[0].ghi_graph;
     const poa_graph = config.rows[0].poa_graph;
@@ -123,43 +121,32 @@ app.get('/getGraphData', async (req, res) => {
     var site = req.query.site;
     var timeframe = req.query.timeframe;
     var filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
-
     try {
-      fileSystem.readFile(filepath, 'utf8', (err, data) => {
-        if (err) {
-          return res.send(err.message);
+      const results = [];
+      fileSystem.createReadStream(filepath)
+            .pipe(csv())
+            .on('headers', (headers) => {
+              // Check if the specified column exists in the CSV file
+              if (headers.includes(`Time`)) {
+                if(timeframe === "Daily")headers[headers.indexOf('Time')] = `Date`;
+                else if(timeframe === "Monthly")headers[headers.indexOf('Time')] = `Month`;
+              }
+            })
+            .on('data', (data) => {
+              results.push(data);
+            })
+            .on('end', () => {
+              const modifiedCsv = convertToCsv(results);
+              // Create a new CSV file with modified data
+
+              // Send back the modified CSV file
+              res.send(modifiedCsv);
+            });
+        } catch (err) {
+          res.send(err.message);
+          return;
         }
-
-        // Parse the CSV data with header: true to get headers as an array
-        const parsedData = papa.parse(data, { header: true });
-
-        // Rename the 'Time' column to 'Date'
-        const updatedHeader = parsedData.meta.fields.map((header) => {
-          return timeframe === 'Subhourly' || timeframe === 'Hourly'
-          ? header === 'Time' ? 'Date' : header
-          : header;
-        });
-
-        // Determine the server's local timezone
-        const localTimezone = moment.tz.guess();
-
-        // Update the 'Time' column to 'Date' and convert to the local timezone
-        const updatedData = parsedData.data.map((row) => {
-          const utcTime = moment.utc(row.Time, 'YYYY-MM-DD HH:mm:ss');
-          const localTime = utcTime.tz(localTimezone);
-          row.Date = localTime.format('YYYY-MM-DD HH:mm:ss'); // Rename 'Time' to 'Date'
-          delete row.Time; // Remove the 'Time' column from the data
-          return row;
-        });
-
-        // Convert the updated data back to CSV format with the updated header
-        const csvFile = papa.unparse({ fields: updatedHeader, data: updatedData });
-        res.send(csvFile);
-      });
     } catch (err) { res.send(err.message) }
-  } catch (error) {
-    res.send(error.message);
-  }
 });
 
 
