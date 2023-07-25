@@ -90,7 +90,7 @@ app.get("/getgraphsconfig", async (req, res) => {
       res.json("Email Not Present");
       return;
     }
-
+    
     const gen_forecast = config.rows[0].generation_forecast;
     const ghi_graph = config.rows[0].ghi_graph;
     const poa_graph = config.rows[0].poa_graph;
