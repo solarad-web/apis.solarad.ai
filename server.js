@@ -18,7 +18,6 @@ app.get("/health", (req, res) => {
 })
 
 app.get("/fenice", async (req, res) => {
-  ``
   let providedApiKey = req.header("api_key");
   const storedApiKey = process.env.API_KEY;
   bcrypt.compare(providedApiKey, storedApiKey, (err, result) => {
@@ -55,11 +54,12 @@ app.get("/fenice", async (req, res) => {
             })
             .on('data', (data) => {
               // Remove the specified column from each row
+              noChangeResults.push(data);
               delete data[`ENTRY_TIME`];
               results.push(data);
             })
             .on('end', () => {
-              const modifiedCsv = columnExists ? convertToCsv(results) : fileSystem.readFileSync(filePath);
+              const modifiedCsv = columnExists ? convertToCsv(results) : convertToCsv(noChangeResults);
               // Create a new CSV file with modified data
 
               // Send back the modified CSV file
@@ -83,8 +83,6 @@ app.get("/fenice", async (req, res) => {
 
 app.get("/getgraphsconfig", async (req, res) => {
   try {
-
-
     const email = req.query.email;
     const config = await pool.query("SELECT * FROM emaillist WHERE user_email = $1", [email]);
 
@@ -98,8 +96,19 @@ app.get("/getgraphsconfig", async (req, res) => {
     const poa_graph = config.rows[0].poa_graph;
     const monthly_ts = config.rows[0].monthly_ts;
     const weather_insights = config.rows[0].weather_insights;
+    const sites = config.rows[0].sites;
+    const conSites = config.rows[0].consolidated_sites;
 
-    res.json({ "gen_forecast": gen_forecast, "ghi_graph": ghi_graph, "poa_graph": poa_graph, "monthly_ts": monthly_ts, "weather_insights": weather_insights });
+    res.json({
+      "gen_forecast": gen_forecast,
+      "ghi_graph": ghi_graph,
+      "poa_graph": poa_graph,
+      "monthly_ts": monthly_ts,
+      "weather_insights": weather_insights,
+      "sites": sites,
+      "consolidated_sites": conSites
+    });
+
   } catch (error) {
     console.log(error.message);
     res.send(error.message);
@@ -126,7 +135,9 @@ app.get('/getGraphData', async (req, res) => {
 
         // Rename the 'Time' column to 'Date'
         const updatedHeader = parsedData.meta.fields.map((header) => {
-          return header === 'Time' ? 'Date' : header;
+          return timeframe === 'Subhourly' || timeframe === 'Hourly'
+          ? header === 'Time' ? 'Date' : header
+          : header;
         });
 
         // Determine the server's local timezone
