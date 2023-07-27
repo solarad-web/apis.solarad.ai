@@ -1,12 +1,8 @@
-CREATE TABLE IF NOT EXISTS emaillist (
+CREATE TABLE IF NOT EXISTS user_details (
   id SERIAL PRIMARY KEY,
   user_email TEXT,
-  generation_forecast BOOLEAN,
-  ghi_graph BOOLEAN,
-  poa_graph BOOLEAN,
-  weather_insights BOOLEAN,
-  monthly_ts BOOLEAN,
-  sites VARCHAR[],
-  consolidated_sites VARCHAR[],
-  info JSON
+  user_fname VARCHAR,
+  user_lname VARCHAR,
+  company VARCHAR,
+  passhash VARCHAR
 );
