@@ -16,8 +16,8 @@ services:
     volumes:
       - .:/app/
       - /app/node_modules
-      - /home/ec2-user/s3-solaradoutput/Fenice/:/home/Fenice/
-      - /home/ec2-user/s3-solaradoutput/csv/clients/:/home/csv/
+      # - /home/ec2-user/efs-solarad-output/Fenice/:/home/Fenice/
+      # - /home/ec2-user/efs-solarad-output/csv/clients/:/home/csv/
 
 
   postgres:
@@ -28,9 +28,14 @@ services:
       # copy the sql script to fill tables
       - ./sql/fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
       - ./tmp/db:/var/lib/postgresql@15/data:rw
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "35432:5432"
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: db
+
+
+volumes:
+  pgdata:

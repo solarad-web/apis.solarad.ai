@@ -10,7 +10,7 @@ const cors = require("cors");
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { Readable } = require('stream');
-const { sendMagicLinkEmail } = require("./mailer");
+const { sendMagicLinkEmail, sendResetPasswordLink } = require("./mailer");
 
 app.use(cors());
 
@@ -27,6 +27,15 @@ app.get("/fenice", async (req, res) => {
         try {
           let site_id = req.query.site_id;
           var filePath = `/home/Fenice/site_${site_id}.csv`;
+
+          fileSystem.access(filePath, fileSystem.constants.F_OK, (err) => {
+            if (err) {
+              // If the file doesn't exist, respond with an appropriate message
+              res.status(404).send('Filepath does not exist.');
+              return;
+            }
+          })
+
           var stat = fileSystem.statSync(filePath);
 
           res.set(
@@ -92,7 +101,7 @@ app.get("/getgraphsconfig", async (req, res) => {
     const apiResponse = await axios.get('https://gm33of7aig.execute-api.ap-south-1.amazonaws.com/dev/get-utility-sites');
 
     const sites = [];
-    
+
     // Convert the API response data into a readable stream
     const readableStream = new Readable();
     readableStream.push(apiResponse.data);
@@ -124,14 +133,22 @@ app.get("/getgraphsconfig", async (req, res) => {
   }
 });
 
-
-
 app.get('/getGraphData', async (req, res) => {
   try {
     var client = req.query.client;
     var site = req.query.site;
     var timeframe = req.query.timeframe;
     var filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
+
+    // Check if the file exists
+    fileSystem.access(filepath, fileSystem.constants.F_OK, (err) => {
+      if (err) {
+        // If the file doesn't exist, respond with an appropriate message
+        res.status(404).send('Filepath does not exist.');
+        return;
+      }
+    })
+
     try {
       const results = [];
       fileSystem.createReadStream(filepath)
@@ -157,7 +174,7 @@ app.get('/getGraphData', async (req, res) => {
       res.send(err.message);
       return;
     }
-  } catch (err) { res.send(err.message) }
+  } catch (err) { res.send(err.message); return; }
 });
 
 
@@ -182,7 +199,7 @@ app.get("/signUp", async (req, res) => {
     await sendMagicLinkEmail({ email: email, token: token, fname: fname });
     res.status(200).send('Email Sent');
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
     res.status(500).send(error.message);
   }
 })
@@ -196,7 +213,6 @@ app.get("/signIn", async (req, res) => {
 
 
   //get passhash from postgres
-
   const data = await pool.query(`SELECT * FROM user_details WHERE user_email = $1`, [email]);
 
   if (data.rowCount === 0) {
@@ -218,10 +234,6 @@ app.get("/signIn", async (req, res) => {
     res.status(500).send("Something Went Wrong!");
   }
 })
-
-
-
-
 
 
 app.get("/verify", async (req, res) => {
@@ -248,7 +260,15 @@ app.get("/verify", async (req, res) => {
 });
 
 
+app.get('/forgotPassword', async (req, res) => {
+  try {
+    const email = req.query.email;
+    await sendResetPasswordLink({ email: email });
+    res.send("Email Sent");
+  } catch (error) {
 
+  }
+})
 
 
 
