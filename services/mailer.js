@@ -161,7 +161,7 @@ function sendMagicLinkEmail({ email, token, fname }) {
         </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="e645d38f-6a78-4a74-bff2-1f7a3d82b058" data-mc-module-version="2019-10-22">
             <tbody>
             <tr>
-                <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#FCB03A;" height="100%" valign="top" bgcolor="#FCB03A" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 30px"><a href="http://localhost:80/verify?token=${token}">
+                <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#FCB03A;" height="100%" valign="top" bgcolor="#FCB03A" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 30px"><a href="http://localhost:80/dashboard/auth/verifyEmail?token=${token}">
         Verify Email
         </a></span></div><div></div></div></td>
             </tr>
@@ -204,12 +204,11 @@ function sendMagicLinkEmail({ email, token, fname }) {
 }
 
 
-function sendResetPasswordLink({ email }) {
+function sendResetPasswordLink({ email, fname }) {
     return sendGridMailer.send({
         to: email,
-        from: 'noreply@solarad.ai',
-        subject: "Finish Logging In",
-        // html: `<a href="http://localhost:3002/resetPassword?email=${email}">Reset Password</a>`,
+        from: process.env.FROM_EMAIL,
+        subject: "Reset Your Password",
         html: (`
             <head>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -365,7 +364,7 @@ function sendResetPasswordLink({ email }) {
             <tbody>
             <tr>
                 <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#FCB03A;" height="100%" valign="top" bgcolor="#FCB03A" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 30px"><a href="http://localhost:3002/resetPassword?email=${email}">
-        Verify Email
+        Reset Password
         </a></span></div><div></div></div></td>
             </tr>
             </tbody>
