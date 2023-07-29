@@ -207,7 +207,7 @@ function sendMagicLinkEmail({ email, token, fname }) {
 function sendResetPasswordLink({ email }) {
     return sendGridMailer.send({
         to: email,
-        from: process.env.FROM_EMAIL,
+        from: 'noreply@solarad.ai',
         subject: "Finish Logging In",
         // html: `<a href="http://localhost:3002/resetPassword?email=${email}">Reset Password</a>`,
         html: (`
@@ -408,6 +408,6 @@ function sendResetPasswordLink({ email }) {
 
 
 module.exports = {
-    sendMagicLinkEmail,
-    sendResetPasswordLink
+    sendResetPasswordLink,
+    sendMagicLinkEmail
 }

@@ -133,6 +133,7 @@ app.get("/getgraphsconfig", async (req, res) => {
   }
 });
 
+
 app.get('/getGraphData', async (req, res) => {
   try {
     var client = req.query.client;
@@ -263,10 +264,19 @@ app.get("/verify", async (req, res) => {
 app.get('/forgotPassword', async (req, res) => {
   try {
     const email = req.query.email;
+
+    const data = await pool.query(`SELECT * FROM user_details WHERE user_email = $1`, [email]);
+
+    if (data.rowCount === 0) {
+      res.send("Email Not Present");
+      return;
+    }
+
     await sendResetPasswordLink({ email: email });
     res.send("Email Sent");
   } catch (error) {
-
+    res.send(err.message);
+    return;
   }
 })
 
