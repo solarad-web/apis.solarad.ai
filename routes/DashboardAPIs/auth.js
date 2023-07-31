@@ -102,7 +102,11 @@ route.get('/forgotPassword', async (req, res, next) => {
             return;
         }
 
-        await sendResetPasswordLink({ email: email, fname: data.rows[0].user_fname });
+        const token = jwt.sign({ email: email }, process.env.JWT_SECRET, {
+            expiresIn: "1h",
+        })
+
+        await sendResetPasswordLink({ email: email, fname: data.rows[0].user_fname, token: token });
         res.send("Email Sent");
     } catch (error) {
         console.log(error);
@@ -111,9 +115,13 @@ route.get('/forgotPassword', async (req, res, next) => {
 })
 
 
+
 route.get('/resetPassword', async (req, res, next) => {
     try {
-        const email = req.query.email;
+        const token = req.query.token;
+        if (token == null) return res.sendStatus(401);
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        const email = decodedToken.email;
         const password = req.query.pwd;
         const passhash = await generateHash(password);
 
