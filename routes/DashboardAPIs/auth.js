@@ -34,8 +34,7 @@ route.get("/signUp", async (req, res, next) => {
         console.log(error.message);
         next(error);
     }
-})
-
+});
 
 route.get("/signIn", async (req, res, next) => {
     const email = req.query.email;
