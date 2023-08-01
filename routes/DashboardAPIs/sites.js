@@ -109,7 +109,7 @@ route.get('/getforecast', async (req, res, next) => {
         if (month < 10) month = `0${month}`;
         let day = date.getDate();
         if (day < 10) day = `0${day}`;
-        let filepath = `/home/forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${year}-${month}-${day}_ID.csv`;
+        let filepath = `/home/Forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${year}-${month}-${day}_ID.csv`;
 
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
