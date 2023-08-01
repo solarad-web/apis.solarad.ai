@@ -82,7 +82,7 @@ route.get("/verifyEmail", async (req, res, next) => {
         await pool.query(`INSERT INTO user_details (user_email, user_fname, user_lname, company, passhash)
       VALUES ($1, $2, $3, $4, $5)`, [email, fname, lname, company, passhash]);
 
-        res.send("Email Verified! You can log In to your account now.");
+        res.sendFile('./verifyEmail.html', { root: __dirname });
 
     } catch (error) {
         console.log(error);
