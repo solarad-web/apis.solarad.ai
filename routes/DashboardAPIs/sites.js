@@ -106,17 +106,15 @@ route.get('/getforecast', async (req, res, next) => {
         let date = new Date();
         let year = date.getFullYear();
         let month = date.getMonth() + 1;
-        let day = date.getDate() + 1;
+        if (month < 10) month = `0${month}`;
+        let day = date.getDate();
+        if (day < 10) day = `0${day}`;
         let filepath = `/home/forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${year}-${month}-${day}_ID.csv`;
 
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
-            //get the filepath of previous date
-            date = new Date();
-            year = date.getFullYear();
-            month = date.getMonth() + 1;
-            day = date.getDate();
-            filepath = `/home/forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${year}-${month}-${day}_ID.csv`;
+            res.status(404).send("File not found");
+            return; // Exit the function early
         }
 
         //send the csv file as response from filepath
@@ -130,14 +128,25 @@ route.get('/getforecast', async (req, res, next) => {
 })
 
 
+//get the current date and make sure to add a 0 before the month and day if they are single digit
+
+function getCurrentDate() {
+    let date = new Date();
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    if (month < 10) month = `0${month}`;
+    let day = date.getDate();
+    if (day < 10) day = `0${day}`;
+    return `${year}-${month}-${day}`;
+}
 
 
-        // Helper function to convert data to CSV format
-        function convertToCsv(data) {
-            const header = Object.keys(data[0]).join(',') + '\n';
-            const rows = data.map((row) => Object.values(row).join(',') + '\n');
-            return header + rows.join('');
-        }
+// Helper function to convert data to CSV format
+function convertToCsv(data) {
+    const header = Object.keys(data[0]).join(',') + '\n';
+    const rows = data.map((row) => Object.values(row).join(',') + '\n');
+    return header + rows.join('');
+}
 
 
-        module.exports = route;
+module.exports = route;
