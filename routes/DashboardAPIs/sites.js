@@ -97,13 +97,47 @@ route.get('/data', async (req, res, next) => {
 
 
 
+route.get('/getforecast', async (req, res, next) => {
+    try {
+        var client = req.query.client;
+        var site = req.query.site;
 
-// Helper function to convert data to CSV format
-function convertToCsv(data) {
-    const header = Object.keys(data[0]).join(',') + '\n';
-    const rows = data.map((row) => Object.values(row).join(',') + '\n');
-    return header + rows.join('');
-}
+        //get the current date
+        let date = new Date();
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
+        let day = date.getDate() + 1;
+        let filepath = `/home/forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${year}-${month}-${day}_ID.csv`;
+
+        // Check if the file exists
+        if (!fileSystem.existsSync(filepath)) {
+            //get the filepath of previous date
+            date = new Date();
+            year = date.getFullYear();
+            month = date.getMonth() + 1;
+            day = date.getDate();
+            filepath = `/home/forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${year}-${month}-${day}_ID.csv`;
+        }
+
+        //send the csv file as response from filepath
+        const readStream = fileSystem.createReadStream(filepath);
+        readStream.pipe(res);
+
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
 
 
-module.exports = route;
+
+
+        // Helper function to convert data to CSV format
+        function convertToCsv(data) {
+            const header = Object.keys(data[0]).join(',') + '\n';
+            const rows = data.map((row) => Object.values(row).join(',') + '\n');
+            return header + rows.join('');
+        }
+
+
+        module.exports = route;

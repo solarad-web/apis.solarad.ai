@@ -16,6 +16,7 @@ services:
     volumes:
       - .:/app/
       - /app/node_modules
+      - /home/ec2-user/efs-solarad-output/csv/clients:/home/Forecast/
       - /home/ec2-user/efs-solarad-output/Fenice/:/home/Fenice/
       - /home/ec2-user/efs-solarad-output/csv/clients/:/home/csv/
 
