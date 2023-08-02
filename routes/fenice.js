@@ -39,6 +39,7 @@ route.get("/", async (req, res, next) => {
 
                 // Read and process the CSV file
                 const results = [];
+                const unchangedResults = [];
                 let columnExists = false;
                 fileSystem.createReadStream(filePath)
                     .pipe(csv())
@@ -48,16 +49,14 @@ route.get("/", async (req, res, next) => {
                             columnExists = true;
                         }
                     })
-
-                fileSystem.createReadStream(filePath)
-                    .pipe(csv())
                     .on('data', (data) => {
                         // Remove the specified column from each row
-                        if (columnExists) delete data[`ENTRY_TIME`];
+                        unchangedResults.push(data);
+                        delete data[`ENTRY_TIME`];
                         results.push(data);
                     })
                     .on('end', () => {
-                        const modifiedCsv = convertToCsv(results)
+                        const modifiedCsv = columnExists? convertToCsv(results) : convertToCsv(unchangedResults);
                         res.send(modifiedCsv)
                     });
             } else {
