@@ -39,7 +39,6 @@ route.get("/", async (req, res, next) => {
 
                 // Read and process the CSV file
                 const results = [];
-                const noChangeResults = [];
                 let columnExists = false;
                 fileSystem.createReadStream(filePath)
                     .pipe(csv())
@@ -51,17 +50,20 @@ route.get("/", async (req, res, next) => {
                     })
                     .on('data', (data) => {
                         // Remove the specified column from each row
-                        noChangeResults.push(data);
                         delete data[`ENTRY_TIME`];
                         results.push(data);
                     })
                     .on('end', () => {
-                        const modifiedCsv = columnExists ? convertToCsv(results) : convertToCsv(noChangeResults);
-                        // Create a new CSV file with modified data
-
-                        // Send back the modified CSV file
-                        res.send(modifiedCsv);
+                        if (columnExists) {
+                            const modifiedCsv = convertToCsv(results)
+                            res.send(modifiedCsv);
+                        }
                     });
+
+                    if(columnExists == false){
+                        const responseCsv = fileSystem.createReadStream(filePath);
+                        responseCsv.pipe(res);
+                    }
             } else {
                 res.status(401).send("Unauthorized");
             }
@@ -78,9 +80,13 @@ route.get("/", async (req, res, next) => {
 
 // Helper function to convert data to CSV format
 function convertToCsv(data) {
+    if (!data || data.length === 0) {
+        return '';
+    }
     const header = Object.keys(data[0]).join(',') + '\n';
     const rows = data.map((row) => Object.values(row).join(',') + '\n');
     return header + rows.join('');
 }
+
 
 module.exports = route;

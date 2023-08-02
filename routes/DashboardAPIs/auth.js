@@ -136,6 +136,8 @@ route.get('/resetPassword', async (req, res, next) => {
 
 
 
+
+
 //generate hash value for password
 async function generateHash(password) {
     try {
@@ -147,6 +149,7 @@ async function generateHash(password) {
         throw new Error('Hash generation failed');
     }
 }
+
 
 
 module.exports = route;

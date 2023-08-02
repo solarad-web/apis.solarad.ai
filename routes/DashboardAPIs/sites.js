@@ -123,7 +123,7 @@ route.get('/getforecast', async (req, res, next) => {
         }
 
         //set the headers for the response as the original filename
-        res.setHeader('Content-disposition', `attachment; filename=${filepath.split('forecasts/')[1]}`);
+        res.setHeader('Content-disposition', `attachment; filename=Solarad_${site}_${client}_Forecast_${year}-${month}-${day}_ID.csv`);
         res.setHeader('Content-type', 'text/csv');
 
         //send the csv file as response from filepath
@@ -135,6 +135,7 @@ route.get('/getforecast', async (req, res, next) => {
         next(err);
     }
 })
+
 
 
 
