@@ -60,7 +60,9 @@ route.get('/data', async (req, res, next) => {
         var client = req.query.client;
         var site = req.query.site;
         var timeframe = req.query.timeframe;
-        var filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
+        let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
+        if(timeframe === 'Subhourly')filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
+
 
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
