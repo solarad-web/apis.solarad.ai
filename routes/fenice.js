@@ -28,6 +28,15 @@ route.get("/", async (req, res, next) => {
                     return; // Exit the function early
                 }
 
+                var stat = fileSystem.statSync(filePath);
+
+                res.set(
+                    "Content-Disposition",
+                    `attachment; filename=site_${site_id}.csv`
+                );
+                res.set("Content-Type", "text/csv");
+                res.set("Content-Length", stat.size);
+
                 // Read and process the CSV file
                 const results = [];
                 let columnExists = false;
@@ -39,22 +48,18 @@ route.get("/", async (req, res, next) => {
                             columnExists = true;
                         }
                     })
+
+                fileSystem.createReadStream(filePath)
+                    .pipe(csv())
                     .on('data', (data) => {
                         // Remove the specified column from each row
-                        delete data[`ENTRY_TIME`];
+                        if (columnExists) delete data[`ENTRY_TIME`];
                         results.push(data);
                     })
                     .on('end', () => {
-                        if (columnExists) {
-                            const modifiedCsv = convertToCsv(results)
-                            res.send(modifiedCsv);
-                        }
+                        const modifiedCsv = convertToCsv(results)
+                        res.send(modifiedCsv)
                     });
-
-                    if(columnExists == false){
-                        const responseCsv = fileSystem.createReadStream(filePath);
-                        responseCsv.pipe(res);
-                    }
             } else {
                 res.status(401).send("Unauthorized");
             }
