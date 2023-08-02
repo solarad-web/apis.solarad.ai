@@ -28,15 +28,6 @@ route.get("/", async (req, res, next) => {
                     return; // Exit the function early
                 }
 
-                var stat = fileSystem.statSync(filePath);
-
-                res.set(
-                    "Content-Disposition",
-                    `attachment; filename=site_${site_id}.csv`
-                );
-                res.set("Content-Type", "text/csv");
-                res.set("Content-Length", stat.size);
-
                 // Read and process the CSV file
                 const results = [];
                 let columnExists = false;
