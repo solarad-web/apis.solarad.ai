@@ -63,6 +63,9 @@ route.get('/data', async (req, res, next) => {
         let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
         if(timeframe === 'Subhourly')filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
 
+        //set the headers for the response as the original filename
+        res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
+        res.setHeader('Content-type', 'text/csv');
 
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
@@ -119,6 +122,10 @@ route.get('/getforecast', async (req, res, next) => {
             return; // Exit the function early
         }
 
+        //set the headers for the response as the original filename
+        res.setHeader('Content-disposition', `attachment; filename=${filepath.split('forecasts/')[1]}`);
+        res.setHeader('Content-type', 'text/csv');
+
         //send the csv file as response from filepath
         const readStream = fileSystem.createReadStream(filepath);
         readStream.pipe(res);
@@ -128,6 +135,7 @@ route.get('/getforecast', async (req, res, next) => {
         next(err);
     }
 })
+
 
 
 //get the current date and make sure to add a 0 before the month and day if they are single digit
