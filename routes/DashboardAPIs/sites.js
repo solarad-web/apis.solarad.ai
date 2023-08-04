@@ -44,7 +44,7 @@ route.get("/config", async (req, res, next) => {
                 }
                 else if(company === 'Demo'){
                     sites.push({
-                        'company': company,
+                        'company': row.company,
                         'site': row.sitename,
                         'ground_data_available': row.ground_data_available,
                         'show_ghi': row.show_ghi,
