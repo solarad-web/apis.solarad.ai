@@ -90,7 +90,7 @@ route.get('/data', async (req, res, next) => {
 
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
-            res.status(404).send("File not found");
+            res.send("File not found");
             return; // Exit the function early
         }
 
@@ -139,7 +139,7 @@ route.get('/getforecast', async (req, res, next) => {
 
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
-            res.status(404).send("File not found");
+            res.send("File not found");
             return; // Exit the function early
         }
 
