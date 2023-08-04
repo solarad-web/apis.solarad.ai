@@ -24,7 +24,6 @@ route.get("/signUp", async (req, res, next) => {
             res.send("Email Present");
             return;
         }
-        console.log(process.env.JWT_SECRET);
         const token = jwt.sign({ email: email, fname: fname, lname: lname, pwd: pwd, company: company }, process.env.JWT_SECRET, {
             expiresIn: "24h",
         })

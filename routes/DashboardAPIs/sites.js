@@ -42,25 +42,15 @@ route.get("/config", async (req, res, next) => {
                         'show_forecast': row.show_forecast
                     });
                 }
-                else if(company === 'Demo'){
-                    sites.push({
-                        'company': row.company,
-                        'site': row.sitename,
-                        'ground_data_available': row.ground_data_available,
-                        'show_ghi': row.show_ghi,
-                        'show_poa': row.show_poa,
-                        'show_forecast': row.show_forecast
-                    });
-                }
             })
             .on('end', () => {
                 if(sites.length === 0) {
                     sites.push({
                         'company': 'Demo',
-                        'site': 'No sites available',
+                        'site': 'Bhilai',
                         'ground_data_available': true,
                         'show_ghi': true,
-                        'show_poa': true,
+                        'show_poa': false,
                         'show_forecast': true
                     })
                 }
@@ -80,6 +70,8 @@ route.get('/data', async (req, res, next) => {
     try {
         var client = req.query.client;
         var site = req.query.site;
+        if(client === 'Demo') client = 'Refex';
+        if(site === 'Demo-Site') site = 'Bhilai';
         var timeframe = req.query.timeframe;
         let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
         if (timeframe === 'Subhourly') filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
@@ -127,6 +119,8 @@ route.get('/getforecast', async (req, res, next) => {
     try {
         var client = req.query.client;
         var site = req.query.site;
+        if(client === 'Demo') client = 'Refex';
+        if(site === 'Demo-Site') site = 'Bhilai';
 
         //get the current date
         let date = new Date();
@@ -156,21 +150,6 @@ route.get('/getforecast', async (req, res, next) => {
         next(err);
     }
 })
-
-
-
-
-//get the current date and make sure to add a 0 before the month and day if they are single digit
-
-function getCurrentDate() {
-    let date = new Date();
-    let year = date.getFullYear();
-    let month = date.getMonth() + 1;
-    if (month < 10) month = `0${month}`;
-    let day = date.getDate();
-    if (day < 10) day = `0${day}`;
-    return `${year}-${month}-${day}`;
-}
 
 
 // Helper function to convert data to CSV format
