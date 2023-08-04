@@ -42,8 +42,28 @@ route.get("/config", async (req, res, next) => {
                         'show_forecast': row.show_forecast
                     });
                 }
+                else if(company === 'Demo'){
+                    sites.push({
+                        'company': company,
+                        'site': row.sitename,
+                        'ground_data_available': row.ground_data_available,
+                        'show_ghi': row.show_ghi,
+                        'show_poa': row.show_poa,
+                        'show_forecast': row.show_forecast
+                    });
+                }
             })
             .on('end', () => {
+                if(sites.length === 0) {
+                    sites.push({
+                        'company': 'Demo',
+                        'site': 'No sites available',
+                        'ground_data_available': true,
+                        'show_ghi': true,
+                        'show_poa': true,
+                        'show_forecast': true
+                    })
+                }
                 res.send(sites); // Send the filtered CSV data as the response
             });
 
@@ -55,13 +75,14 @@ route.get("/config", async (req, res, next) => {
 
 
 
+
 route.get('/data', async (req, res, next) => {
     try {
         var client = req.query.client;
         var site = req.query.site;
         var timeframe = req.query.timeframe;
         let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
-        if(timeframe === 'Subhourly')filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
+        if (timeframe === 'Subhourly') filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
 
         //set the headers for the response as the original filename
         res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
