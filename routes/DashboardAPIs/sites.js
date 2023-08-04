@@ -48,10 +48,10 @@ route.get("/config", async (req, res, next) => {
                     sites.push({
                         'company': 'Demo',
                         'site': 'Bhilai',
-                        'ground_data_available': true,
-                        'show_ghi': true,
-                        'show_poa': false,
-                        'show_forecast': true
+                        'ground_data_available': 'True',
+                        'show_ghi': 'True',
+                        'show_poa': 'False',
+                        'show_forecast': 'True'
                     })
                 }
                 res.send(sites); // Send the filtered CSV data as the response
