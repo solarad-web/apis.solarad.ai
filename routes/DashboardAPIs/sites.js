@@ -73,8 +73,7 @@ route.get('/data', async (req, res, next) => {
         if(client === 'Demo') client = 'Refex';
         if(site === 'Demo-Site') site = 'Bhilai';
         var timeframe = req.query.timeframe;
-        let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}_UTC.csv`;
-        if (timeframe === 'Subhourly') filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
+        let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
 
         //set the headers for the response as the original filename
         res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
