@@ -7,7 +7,6 @@ dotenv.config();
 const fileSystem = require("fs");
 const csv = require('csv-parser');
 const pool = require('../../config/db');
-const axios = require('axios');
 const { Readable } = require('stream');
 
 
