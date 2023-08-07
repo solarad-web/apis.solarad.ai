@@ -114,7 +114,6 @@ route.get('/forgotPassword', async (req, res, next) => {
 })
 
 
-
 route.get('/resetPassword', async (req, res, next) => {
     try {
         const token = req.query.token;

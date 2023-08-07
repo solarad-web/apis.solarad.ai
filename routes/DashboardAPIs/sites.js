@@ -1,6 +1,6 @@
 const Router = require('express');
 const route = Router();
-
+const axios = require('axios');
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -79,8 +79,10 @@ route.get('/data', async (req, res, next) => {
         res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
         res.setHeader('Content-type', 'text/csv');
 
+        axios.post("https://hooks.slack.com/services/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", {text: `Message From The Node Server:  Test Message - ${filepath.split(`${timeframe.toLowerCase()}/`)[1]}}`})
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
+            axios.post("https://hooks.slack.com/services/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", {text: `Message From The Node Server:  Live Data csv not found - ${filepath.split(`${timeframe.toLowerCase()}/`)[1]}}`})
             res.send("File not found");
             return; // Exit the function early
         }
@@ -130,8 +132,10 @@ route.get('/getforecast', async (req, res, next) => {
         if (day < 10) day = `0${day}`;
         let filepath = `/home/Forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${year}-${month}-${day}_ID.csv`;
 
+        axios.post("https://hooks.slack.com/services/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", {text: `Message From The Node Server:  Test Message - ${filepath.split(`${timeframe.toLowerCase()}/`)[1]}}`})
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
+            axios.post("https://hooks.slack.com/services/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", {text: `Message From The Node Server:  Forecast Data csv not found - ${filepath.split(`${timeframe.toLowerCase()}/`)[1]}}`})
             res.send("File not found");
             return; // Exit the function early
         }

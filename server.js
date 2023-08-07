@@ -27,6 +27,11 @@ app.use("/dashboard/sites", dashboardData);
 app.use("/dashboard/auth", dashboardLogin);
 
 
+//Check if Live Data and Forecast is available
+
+
+
+
   //<--business logic code ends here-->
 
 
