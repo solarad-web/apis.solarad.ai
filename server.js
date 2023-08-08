@@ -146,10 +146,10 @@ async function checkForecastAvailability(readableStream) {
 }
 
 // Call the function immediately when the program starts
-checkLiveAndForecastAvailability();
+// checkLiveAndForecastAvailability();
 
 // Set an interval to run the function every hour
-setInterval(checkLiveAndForecastAvailability, 3600000);
+// setInterval(checkLiveAndForecastAvailability, 3600000);
 
 
 
