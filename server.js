@@ -87,7 +87,7 @@ async function checkLiveAvailability(readableStream) {
           ],
         };
         if (sites.length > 0) {
-          axios.post("https://hooks.slack.com/services/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", message)
+          axios.post("https://hooks.slack.com/services/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", message)
             .catch(err => {console.log(err); return});
           // await publishMessage(message);
 
@@ -134,7 +134,7 @@ async function checkForecastAvailability(readableStream) {
 
         };
         if (sites.length > 0) {
-          axios.post("https://hooks.slack.com/services/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", message)
+          axios.post("https://hooks.slack.com/services/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", message)
             .catch(err => {console.log(err); return});
           // await publishMessage(message);
         }
