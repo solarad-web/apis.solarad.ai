@@ -2,12 +2,14 @@ const Router = require('express');
 const route = Router();
 const axios = require('axios');
 const dotenv = require("dotenv");
+const moment = require('moment-timezone');
 dotenv.config();
 
 const fileSystem = require("fs");
 const csv = require('csv-parser');
 const pool = require('../../config/db');
 const { Readable } = require('stream');
+
 
 
 route.get("/config", async (req, res, next) => {
@@ -43,7 +45,7 @@ route.get("/config", async (req, res, next) => {
                 }
             })
             .on('end', () => {
-                if(sites.length === 0) {
+                if (sites.length === 0) {
                     sites.push({
                         'company': 'Demo',
                         'site': 'Bhilai',
@@ -69,8 +71,8 @@ route.get('/data', async (req, res, next) => {
     try {
         var client = req.query.client;
         var site = req.query.site;
-        if(client === 'Demo') client = 'Refex';
-        if(site === 'Demo-Site') site = 'Bhilai';
+        if (client === 'Demo') client = 'Refex';
+        if (site === 'Demo-Site') site = 'Bhilai';
         var timeframe = req.query.timeframe;
         let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
 
@@ -81,6 +83,7 @@ route.get('/data', async (req, res, next) => {
 
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
+            console.log('File not found')
             res.send("File not found");
             return; // Exit the function early
         }
@@ -112,12 +115,14 @@ route.get('/data', async (req, res, next) => {
 })
 
 
-
-
 route.get('/getforecast', async (req, res, next) => {
     try {
         var client = req.query.client;
         var site = req.query.site;
+        const inputDate = req.query.date;
+        const outputFormat = 'YYYY-MM-DD';
+        const formattedDate = moment(inputDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)').format(outputFormat);
+
         if(client === 'Demo') client = 'Refex';
         if(site === 'Demo-Site') site = 'Bhilai';
 
@@ -128,16 +133,17 @@ route.get('/getforecast', async (req, res, next) => {
         if (month < 10) month = `0${month}`;
         let day = date.getDate();
         if (day < 10) day = `0${day}`;
-        let filepath = `/home/Forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${year}-${month}-${day}_ID.csv`;
+        let filepath = `/home/Forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
 
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
+            console.log('File not found')
             res.send("File not found");
             return; // Exit the function early
         }
 
         //set the headers for the response as the original filename
-        res.setHeader('Content-disposition', `attachment; filename=Solarad_${site}_${client}_Forecast_${year}-${month}-${day}_ID.csv`);
+        res.setHeader('Content-disposition', `attachment; filename=Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`);
         res.setHeader('Content-type', 'text/csv');
 
         //send the csv file as response from filepath

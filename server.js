@@ -12,7 +12,7 @@ const { WebClient, LogLevel } = require("@slack/web-api");
 const cors = require("cors");
 app.use(cors());
 
-const client = new WebClient("xoxb-5219788280755-5724762300976-NuYgEy15vPac7UtPqZDLbPQU", {
+const client = new WebClient("xoxb-5219788280755-5724762300976-ZZDOcr8vSSHxwtcoXdR5SwBa", {
   // LogLevel can be imported and used to make debugging simpler
   // logLevel: LogLevel.DEBUG
 });
@@ -87,9 +87,9 @@ async function checkLiveAvailability(readableStream) {
           ],
         };
         if (sites.length > 0) {
-          axios.post("https://hooks.slack.com/services/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", message)
-            .catch(err => {console.log(err); return});
-          // await publishMessage(message);
+          // axios.post("https://hooks.slack.com/services/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", message)
+          //   .catch(err => {console.log(err); return});
+          await publishMessage(message);
 
         }
       }
@@ -134,9 +134,9 @@ async function checkForecastAvailability(readableStream) {
 
         };
         if (sites.length > 0) {
-          axios.post("https://hooks.slack.com/services/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", message)
-            .catch(err => {console.log(err); return});
-          // await publishMessage(message);
+          // axios.post("https://hooks.slack.com/services/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", message)
+          //   .catch(err => {console.log(err); return});
+          await publishMessage(message);
         }
       }
     });
@@ -160,11 +160,11 @@ async function publishMessage(message) {
 
 
 
-// Call the function immediately when the program starts
-checkLiveAndForecastAvailability();
+// // Call the function immediately when the program starts
+// checkLiveAndForecastAvailability();
 
-// Set an interval to run the function every hour
-setInterval(checkLiveAndForecastAvailability, 3600000);
+// // Set an interval to run the function every hour
+// setInterval(checkLiveAndForecastAvailability, 3600000);
 
 
 // async function findConversation(name) {
