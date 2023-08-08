@@ -6,12 +6,16 @@ const axios = require('axios')
 const { Readable } = require('stream');
 const csv = require('csv-parser');
 const fileSystem = require("fs");
-
+const { WebClient, LogLevel } = require("@slack/web-api");
 
 //Enable cors
 const cors = require("cors");
 app.use(cors());
 
+const client = new WebClient("xoxb-5219788280755-5724762300976-NuYgEy15vPac7UtPqZDLbPQU", {
+  // LogLevel can be imported and used to make debugging simpler
+  // logLevel: LogLevel.DEBUG
+});
 
 //get All Routes
 const fenice = require('./routes/fenice');
@@ -70,25 +74,23 @@ async function checkLiveAvailability(readableStream) {
         }
       }
     })
-    .on('end', () => {
+    .on('end', async () => {
       for (let i = 0; i < sites.length; i++) {
         const message = {
+          channel: 'C05MA66MUJU',
           attachments: [
             {
               color: '#FF0000', // Red color in hexadecimal
-              fields: [
-                {
-                  title: 'Alert From The Node Server',
-                  value: `Live Data File Not Found : ${sites[i].company} - ${sites[i].site} - ${sites[i].timeframe}`,
-                  short: true,
-                },
-              ],
+          text: `Alert From The Node Server: Live Data File Not Found : ${sites[i].company} - ${sites[i].site} - ${sites[i].timeframe}`,
+
             },
           ],
         };
         if (sites.length > 0) {
-          axios.post("https://hooks.slack.com/services/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", message)
+          axios.post("https://hooks.slack.com/services/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", message)
             .catch(err => {console.log(err); return});
+          // await publishMessage(message);
+
         }
       }
     });
@@ -121,36 +123,78 @@ async function checkForecastAvailability(readableStream) {
         }
       }
     })
-    .on('end', () => {
+    .on('end', async () => {
       for (let i = 0; i < sites.length; i++) {
         const message = {
-          attachments: [
-            {
-              color: '#FF0000', // Red color in hexadecimal
-              fields: [
-                {
-                  title: 'Alert From The Node Server',
-                  value: `Forecast Data File Not Found : ${sites[i].company} - ${sites[i].site} - ${sites[i].date}`,
-                  short: true,
-                },
-              ],
-            },
-          ],
+          channel: 'C05MA66MUJU',
+          attachments: [{
+            color: '#FF0000', // Red color in hexadecimal
+          text: `Alert From The Node Server: Forecast Data File Not Found : ${sites[i].company} - ${sites[i].site} - ${sites[i].date}`,
+          }],
+
         };
         if (sites.length > 0) {
-          axios.post("https://hooks.slack.com/services/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", message)
+          axios.post("https://hooks.slack.com/services/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", message)
             .catch(err => {console.log(err); return});
+          // await publishMessage(message);
         }
       }
     });
 }
 
+
+
+// Post a message to a channel your app is in using ID and message text
+async function publishMessage(message) {
+  try {
+    // Call the chat.postMessage method using the built-in WebClient
+    const result = await client.chat.postMessage(message);
+
+    // Print result, which includes information about the message (like TS)
+    console.log(result);
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+
+
 // Call the function immediately when the program starts
-// checkLiveAndForecastAvailability();
+checkLiveAndForecastAvailability();
 
 // Set an interval to run the function every hour
-// setInterval(checkLiveAndForecastAvailability, 3600000);
+setInterval(checkLiveAndForecastAvailability, 3600000);
 
+
+// async function findConversation(name) {
+//   try {
+//     // Call the conversations.list method using the built-in WebClient
+//     const result = await client.conversations.list({
+//       // The token you used to initialize your app
+//       token: "xoxb-5219788280755-5724762300976-NuYgEy15vPac7UtPqZDLbPQU"
+//     });
+
+//     for (const channel of result.channels) {
+//       console.log(channel.name);
+//       if (channel.name === name) {
+//         console.log(channel.id);
+//         // conversationId = channel.id;
+
+//         // // Print result
+//         // console.log("Found conversation ID: " + conversationId);
+//         // // Break from for loop
+//         break;
+//       }
+//     }
+//   }
+//   catch (error) {
+//     console.error(error);
+//   }
+// }
+
+// // Find conversation with a specified channel `name`
+// findConversation("alerts");
 
 
 //<--business logic code ends here-->
