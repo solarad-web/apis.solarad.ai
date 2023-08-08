@@ -87,8 +87,8 @@ async function checkLiveAvailability(readableStream) {
           ],
         };
         if (sites.length > 0) {
-          axios.post("https://hooks.slack.com/services/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", message)
-            .catch(err => console.log(err));
+          axios.post("https://hooks.slack.com/services/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", message)
+            .catch(err => {console.log(err); return});
         }
       }
     });
@@ -138,18 +138,18 @@ async function checkForecastAvailability(readableStream) {
           ],
         };
         if (sites.length > 0) {
-          axios.post("https://hooks.slack.com/services/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", message)
-            .catch(err => console.log(err));
+          axios.post("https://hooks.slack.com/services/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", message)
+            .catch(err => {console.log(err); return});
         }
       }
     });
 }
 
 // Call the function immediately when the program starts
-// checkLiveAndForecastAvailability();
+checkLiveAndForecastAvailability();
 
 // Set an interval to run the function every hour
-// setInterval(checkLiveAndForecastAvailability, 3600000);
+setInterval(checkLiveAndForecastAvailability, 3600000);
 
 
 
