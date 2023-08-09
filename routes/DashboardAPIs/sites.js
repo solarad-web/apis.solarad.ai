@@ -18,7 +18,7 @@ route.get("/config", async (req, res, next) => {
         const email = req.query.email;
         const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
         let company = await resJson.rows[0].company;
-        if (company === 'Demo') company = process.env.DEMO_COMPANY;
+
         // Make an HTTP request to the external API
         const apiResponse = await axios.get('https://gm33of7aig.execute-api.ap-south-1.amazonaws.com/dev/get-utility-sites');
 
