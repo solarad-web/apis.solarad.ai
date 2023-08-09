@@ -14,10 +14,11 @@ const { Readable } = require('stream');
 
 route.get("/config", async (req, res, next) => {
     try {
+        //if email is equal to bhramar@solarad.ai, then put the sites and client name together
         const email = req.query.email;
         const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
-        const company = await resJson.rows[0].company;
-
+        let company = await resJson.rows[0].company;
+        if (company === 'Demo') company = process.env.DEMO_COMPANY;
         // Make an HTTP request to the external API
         const apiResponse = await axios.get('https://gm33of7aig.execute-api.ap-south-1.amazonaws.com/dev/get-utility-sites');
 
@@ -33,7 +34,17 @@ route.get("/config", async (req, res, next) => {
             .pipe(csv())
             .on('data', (row) => {
                 // Check if the row has the company name
-                if (row.company === company) {
+                if (company === process.env.ADMIN_COMPANY) {
+                    sites.push({
+                        'company': row.company,
+                        'site': row.sitename,
+                        'ground_data_available': row.ground_data_available,
+                        'show_ghi': row.show_ghi,
+                        'show_poa': row.show_poa,
+                        'show_forecast': row.show_forecast
+                    });
+                }
+                else if (row.company === company) {
                     sites.push({
                         'company': row.company,
                         'site': row.sitename,
@@ -48,7 +59,7 @@ route.get("/config", async (req, res, next) => {
                 if (sites.length === 0) {
                     sites.push({
                         'company': 'Demo',
-                        'site': 'Bhilai',
+                        'site': 'Demo-Site',
                         'ground_data_available': 'True',
                         'show_ghi': 'True',
                         'show_poa': 'False',
@@ -71,8 +82,8 @@ route.get('/data', async (req, res, next) => {
     try {
         var client = req.query.client;
         var site = req.query.site;
-        if (client === 'Demo') client = 'Refex';
-        if (site === 'Demo-Site') site = 'Bhilai';
+        if (client === 'Demo') client = process.env.DEMO_COMPANY;
+        if (site === 'Demo-Site') site = process.env.DEMO_SITE;
         var timeframe = req.query.timeframe;
         let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
 
@@ -123,8 +134,8 @@ route.get('/getforecast', async (req, res, next) => {
         const outputFormat = 'YYYY-MM-DD';
         const formattedDate = moment(inputDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)').format(outputFormat);
 
-        if(client === 'Demo') client = 'Refex';
-        if(site === 'Demo-Site') site = 'Bhilai';
+        if (client === 'Demo') client = process.env.DEMO_COMPANY;
+        if (site === 'Demo-Site') site = process.env.DEMO_SITE;
 
         //get the current date
         let date = new Date();
