@@ -41,7 +41,9 @@ route.get("/config", async (req, res, next) => {
                         'ground_data_available': row.ground_data_available,
                         'show_ghi': row.show_ghi,
                         'show_poa': row.show_poa,
-                        'show_forecast': row.show_forecast
+                        'show_forecast': row.show_forecast,
+                        'lat': row.lat,
+                        'lon': row.lon
                     });
                 }
                 else if (row.company === company) {
@@ -51,7 +53,9 @@ route.get("/config", async (req, res, next) => {
                         'ground_data_available': row.ground_data_available,
                         'show_ghi': row.show_ghi,
                         'show_poa': row.show_poa,
-                        'show_forecast': row.show_forecast
+                        'show_forecast': row.show_forecast,
+                        'lat': row.lat,
+                        'lon': row.lon
                     });
                 }
             })
@@ -63,7 +67,9 @@ route.get("/config", async (req, res, next) => {
                         'ground_data_available': 'True',
                         'show_ghi': 'True',
                         'show_poa': 'False',
-                        'show_forecast': 'True'
+                        'show_forecast': 'True',
+                        'lat': '28.7041',
+                        'lon': '77.1025'
                     })
                 }
                 res.send(sites); // Send the filtered CSV data as the response
