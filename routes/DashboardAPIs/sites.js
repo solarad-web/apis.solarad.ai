@@ -25,8 +25,8 @@ route.get("/config", async (req, res, next) => {
         const sites = [];
 
         // Convert the API response data into a readable stream
-        const readableStream = new Readable();
-        readableStream.push(apiResponse.data);
+        const readableStream = new Readable()
+        readableStream.push(apiResponse.data)
         readableStream.push(null); // Signals the end of data
 
         // Process the CSV data
@@ -82,6 +82,48 @@ route.get("/config", async (req, res, next) => {
 });
 
 
+route.get("/getConfigAdmin", async (req, res, next) => {
+    try {
+
+        let company = req.query.company;
+
+        // Make an HTTP request to the external API
+        const apiResponse = await axios.get('https://gm33of7aig.execute-api.ap-south-1.amazonaws.com/dev/get-utility-sites');
+
+        const sites = [];
+
+        // Convert the API response data into a readable stream
+        const readableStream = new Readable()
+        readableStream.push(apiResponse.data)
+        readableStream.push(null); // Signals the end of data
+
+        // Process the CSV data
+        readableStream
+            .pipe(csv())
+            .on('data', (row) => {
+                if (row.company === company) {
+                    sites.push({
+                        'company': row.company,
+                        'site': row.sitename,
+                        'ground_data_available': row.ground_data_available,
+                        'show_ghi': row.show_ghi,
+                        'show_poa': row.show_poa,
+                        'show_forecast': row.show_forecast,
+                        'lat': row.lat,
+                        'lon': row.lon
+                    });
+                }
+            })
+            .on('end', () => {
+                res.send(sites); // Send the filtered CSV data as the response
+            });
+
+    }
+    catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
 
 
 route.get('/data', async (req, res, next) => {
