@@ -7,7 +7,7 @@ dotenv.config();
 const fileSystem = require("fs");
 const csv = require('csv-parser');
 const bcrypt = require("bcrypt");
-
+const pool = require('../../config/db');
 
 
 
@@ -56,7 +56,7 @@ route.get("/", async (req, res, next) => {
                         results.push(data);
                     })
                     .on('end', () => {
-                        const modifiedCsv = columnExists? convertToCsv(results) : convertToCsv(unchangedResults);
+                        const modifiedCsv = columnExists ? convertToCsv(results) : convertToCsv(unchangedResults);
                         res.send(modifiedCsv)
                     });
             } else {
@@ -69,6 +69,24 @@ route.get("/", async (req, res, next) => {
         next(err);
     }
 });
+
+
+route.get('/add-site', async (req, res, next) => {
+
+    // Make an HTTP request to the external API
+    let filepath = `/home/utility-sites`;
+
+    // Convert the API response data into a readable stream
+    const readableStream = fileSystem.createReadStream(filepath);
+
+    readableStream
+        .pipe(csv())
+        .on('data', async (row) => {
+            await pool.query(`INSERT INTO residential_sites (sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`, [row.sitename, row.company, row.lat, row.lon, row.ele, row.capacity, row.country, row.timezone, row.mount_config, row.tilt_angle, row.ground_data_available]);
+        })
+});
+
 
 
 
