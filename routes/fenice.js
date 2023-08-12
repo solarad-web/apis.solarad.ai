@@ -7,7 +7,7 @@ dotenv.config();
 const fileSystem = require("fs");
 const csv = require('csv-parser');
 const bcrypt = require("bcrypt");
-const pool = require('../../config/db');
+const pool = require("../config/db");
 
 
 
