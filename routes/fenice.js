@@ -78,7 +78,7 @@ route.get('/export-csv', async (req, res) => {
       const client = await pool.connect();
   
       // Query your PostgreSQL table
-      const queryResult = await client.query('SELECT * FROM your_table_name');
+      const queryResult = await client.query('SELECT * FROM residential_sites');
   
       // Create a writable stream for CSV data
       const csvStream = fastcsv.format({ headers: true });
