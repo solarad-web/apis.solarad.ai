@@ -89,12 +89,13 @@ route.get('/export-csv', async (req, res) => {
       // Send the generated CSV file as a response
       res.setHeader('Content-Disposition', 'attachment; filename="residential_sites.csv"');
       res.setHeader('Content-Type', 'text/csv');
-      res.sendFile('/residential_sites.csv');
+      res.sendFile(__dirname + './residential_sites.csv');
     } catch (error) {
       console.error('Error:', error);
       res.status(500).send('Internal Server Error');
     }
   });
+
 
 route.get('/add-site', async (req, res, next) => {
 
