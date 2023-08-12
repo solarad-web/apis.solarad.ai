@@ -3,7 +3,6 @@ const app = express();
 const dotenv = require("dotenv");
 dotenv.config();
 const axios = require('axios')
-const { Readable } = require('stream');
 const csv = require('csv-parser');
 const fileSystem = require("fs");
 
@@ -34,12 +33,10 @@ app.use("/dashboard/auth", dashboardLogin);
 
 async function checkLiveAndForecastAvailability() {
   // Make an HTTP request to the external API
-  const apiResponse = await axios.get('https://gm33of7aig.execute-api.ap-south-1.amazonaws.com/dev/get-utility-sites');
+  let filepath = `/home/utility-sites`;
 
   // Convert the API response data into a readable stream
-  const readableStream = new Readable();
-  readableStream.push(apiResponse.data);
-  readableStream.push(null); // Signals the end of data
+  const readableStream = fileSystem.createReadStream(filepath)
 
   await checkLiveAvailability(readableStream);
   await checkForecastAvailability(readableStream);

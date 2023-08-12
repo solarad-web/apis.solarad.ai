@@ -8,7 +8,6 @@ dotenv.config();
 const fileSystem = require("fs");
 const csv = require('csv-parser');
 const pool = require('../../config/db');
-const { Readable } = require('stream');
 
 
 
@@ -19,18 +18,23 @@ route.get("/config", async (req, res, next) => {
         const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
         let company = await resJson.rows[0].company;
 
-        // Make an HTTP request to the external API
-        const apiResponse = await axios.get('https://gm33of7aig.execute-api.ap-south-1.amazonaws.com/dev/get-utility-sites');
+         // Make an HTTP request to the external API
+         let filepath = `/home/utility-sites`;
 
-        const sites = [];
-
-        // Convert the API response data into a readable stream
-        const readableStream = new Readable()
-        readableStream.push(apiResponse.data)
-        readableStream.push(null); // Signals the end of data
-
-        // Process the CSV data
-        readableStream
+         const sites = [];
+ 
+         //set the headers for the response as the original filename
+         res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
+         res.setHeader('Content-type', 'text/csv');
+ 
+         // Check if the file exists
+         if (!fileSystem.existsSync(filepath)) {
+             res.send("File not found");
+             return; // Exit the function early
+         }
+ 
+         // Process the CSV data
+         fileSystem.createReadStream(filepath)
             .pipe(csv())
             .on('data', (row) => {
                 // Check if the row has the company name
@@ -88,17 +92,24 @@ route.get("/getConfigAdmin", async (req, res, next) => {
         let company = req.query.company;
 
         // Make an HTTP request to the external API
-        const apiResponse = await axios.get('https://gm33of7aig.execute-api.ap-south-1.amazonaws.com/dev/get-utility-sites');
+        let filepath = `/home/utility-sites`;
+
 
         const sites = [];
 
-        // Convert the API response data into a readable stream
-        const readableStream = new Readable()
-        readableStream.push(apiResponse.data)
-        readableStream.push(null); // Signals the end of data
+        //set the headers for the response as the original filename
+        res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
+        res.setHeader('Content-type', 'text/csv');
+
+
+        // Check if the file exists
+        if (!fileSystem.existsSync(filepath)) {
+            res.send("File not found");
+            return; // Exit the function early
+        }
 
         // Process the CSV data
-        readableStream
+        fileSystem.createReadStream(filepath)
             .pipe(csv())
             .on('data', (row) => {
                 if (row.company === company) {
@@ -212,6 +223,8 @@ route.get('/getforecast', async (req, res, next) => {
         next(err);
     }
 })
+
+
 
 
 // Helper function to convert data to CSV format
