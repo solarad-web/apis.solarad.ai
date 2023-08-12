@@ -171,8 +171,6 @@ route.get('/getforecast', async (req, res, next) => {
 })
 
 
-
-
 // Helper function to convert data to CSV format
 function convertToCsv(data) {
     const header = Object.keys(data[0]).join(',') + '\n';

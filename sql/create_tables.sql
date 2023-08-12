@@ -6,3 +6,34 @@ CREATE TABLE IF NOT EXISTS user_details (
   company VARCHAR,
   passhash VARCHAR
 );
+
+CREATE TABLE IF NOT EXISTS utility_sites (
+  site_id SERIAL PRIMARY KEY,
+  sitename VARCHAR,
+  company VARCHAR,
+  lat NUMERIC,
+  lon NUMERIC,
+  ele NUMERIC,
+  country VARCHAR,
+  timezone VARCHAR,
+  mount_config VARCHAR,
+  tilt_angle VARCHAR,
+  ground_data_available VARCHAR,
+  show_ghi VARCHAR,
+  show_poa VARCHAR,
+  show_forecast VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS residential_sites (
+  site_id SERIAL PRIMARY KEY,
+  sitename VARCHAR,
+  company VARCHAR,
+  lat NUMERIC,
+  lon NUMERIC,
+  ele NUMERIC,
+  country VARCHAR,
+  timezone VARCHAR,
+  mount_config VARCHAR,
+  tilt_angle VARCHAR,
+  ground_data_available VARCHAR,
+);
