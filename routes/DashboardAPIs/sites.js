@@ -23,10 +23,6 @@ route.get("/config", async (req, res, next) => {
 
          const sites = [];
  
-         //set the headers for the response as the original filename
-         res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
-         res.setHeader('Content-type', 'text/csv');
- 
          // Check if the file exists
          if (!fileSystem.existsSync(filepath)) {
              res.send("File not found");
@@ -96,11 +92,6 @@ route.get("/getConfigAdmin", async (req, res, next) => {
 
 
         const sites = [];
-
-        //set the headers for the response as the original filename
-        res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
-        res.setHeader('Content-type', 'text/csv');
-
 
         // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
