@@ -73,7 +73,7 @@ route.get("/", async (req, res, next) => {
 });
 
 // Define a route to generate and send CSV data
-app.get('/export-csv', async (req, res) => {
+route.get('/export-csv', async (req, res) => {
     try {
       const client = await pool.connect();
   
