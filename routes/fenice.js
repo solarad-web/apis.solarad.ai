@@ -9,6 +9,7 @@ const csv = require('csv-parser');
 const bcrypt = require("bcrypt");
 const pool = require("../config/db");
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const fastcsv = require('fast-csv');
 
 
 
@@ -71,25 +72,38 @@ route.get("/", async (req, res, next) => {
     }
 });
 
-route.get('/export-csv', async (req, res) => {
+// Define a route to generate and send CSV data
+app.get('/export-csv', async (req, res) => {
     try {
+      const client = await pool.connect();
+  
       // Query your PostgreSQL table
-      const queryResult = await pool.query('SELECT * FROM residential_sites');
+      const queryResult = await client.query('SELECT * FROM your_table_name');
   
-      // Create a CSV writer instance
-      const csvWriter = createCsvWriter({
-        path: 'residential_sites.csv', // Change the filename as needed
-        header: queryResult.fields.map(field => ({ id: field.name, title: field.name })),
-      });
+      // Create a writable stream for CSV data
+      const csvStream = fastcsv.format({ headers: true });
   
-      // Write the query result (rows) to the CSV file
-      await csvWriter.writeRecords(queryResult.rows);
+      // Write the headers to the CSV stream
+      const headers = [
+        'sitename', 'company', 'lat', 'lon', 'ele',
+        'capacity', 'country', 'timezone', 'mount_config',
+        'tilt_angle', 'ground_data_available'
+      ];
+      csvStream.write(headers);
   
+      // Write the query result (rows) to the CSV stream
+      queryResult.rows.forEach(row => csvStream.write(row));
+      csvStream.end();
   
-      // Send the generated CSV file as a response
+      // Close the database connection
+      client.release();
+  
+      // Set the response headers for CSV download
       res.setHeader('Content-Disposition', 'attachment; filename="residential_sites.csv"');
       res.setHeader('Content-Type', 'text/csv');
-      res.sendFile(__dirname + './residential_sites.csv');
+  
+      // Pipe the CSV stream to the response
+      csvStream.pipe(res);
     } catch (error) {
       console.error('Error:', error);
       res.status(500).send('Internal Server Error');
@@ -100,25 +114,25 @@ route.get('/export-csv', async (req, res) => {
 route.get('/add-site', async (req, res, next) => {
 
     // Make an HTTP request to the external API
-    try{
-    let filepath = `/home/residential-sites`;
+    try {
+        let filepath = `/home/residential-sites`;
 
-    // Convert the API response data into a readable stream
-    const readableStream = fileSystem.createReadStream(filepath);
+        // Convert the API response data into a readable stream
+        const readableStream = fileSystem.createReadStream(filepath);
 
-    readableStream
-        .pipe(csv())
-        .on('data', async (row) => {
-            await pool.query(`INSERT INTO residential_sites (sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available)
+        readableStream
+            .pipe(csv())
+            .on('data', async (row) => {
+                await pool.query(`INSERT INTO residential_sites (sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`, [row.sitename, row.company, row.lat, row.lon, row.ele, row.capacity, row.country, row.timezone, row.mount_config, row.tilt_angle, row.ground_data_available]);
-        })
+            })
 
         res.send("Sites added successfully");
     }
     catch (err) {
         console.log(err.message);
         next(err);
-    }   
+    }
 });
 
 
