@@ -15,7 +15,7 @@ app.use(cors());
 const fenice = require('./routes/fenice');
 const dashboardData = require('./routes/DashboardAPIs/sites');
 const dashboardLogin = require('./routes/DashboardAPIs/auth');
-
+const dashboardAdmin = require('./routes/DashboardAPIs/admin')
 
 //health API
 app.get("/health", (req, res) => {
@@ -27,6 +27,7 @@ app.get("/health", (req, res) => {
 app.use("/fenice", fenice);
 app.use("/dashboard/sites", dashboardData);
 app.use("/dashboard/auth", dashboardLogin);
+app.use("/dashboard/admin", dashboardAdmin);
 
 
 //Check if Live Data and Forecast are available
