@@ -74,7 +74,7 @@ route.get("/", async (req, res, next) => {
 route.get('/add-site', async (req, res, next) => {
 
     // Make an HTTP request to the external API
-    let filepath = `/home/utility-sites`;
+    let filepath = `/home/residential-sites`;
 
     // Convert the API response data into a readable stream
     const readableStream = fileSystem.createReadStream(filepath);
