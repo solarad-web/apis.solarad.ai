@@ -8,6 +8,7 @@ const fileSystem = require("fs");
 const csv = require('csv-parser');
 const bcrypt = require("bcrypt");
 const pool = require("../config/db");
+const createCsvWriter = require('csv-writer');
 
 
 
@@ -70,6 +71,30 @@ route.get("/", async (req, res, next) => {
     }
 });
 
+route.get('/export-csv', async (req, res) => {
+    try {
+      // Query your PostgreSQL table
+      const queryResult = await pool.query('SELECT * FROM residential_sites');
+  
+      // Create a CSV writer instance
+      const csvWriter = createCsvWriter({
+        path: 'residential_sites.csv', // Change the filename as needed
+        header: queryResult.fields.map(field => ({ id: field.name, title: field.name })),
+      });
+  
+      // Write the query result (rows) to the CSV file
+      await csvWriter.writeRecords(queryResult.rows);
+  
+  
+      // Send the generated CSV file as a response
+      res.setHeader('Content-Disposition', 'attachment; filename="residential_sites.csv"');
+      res.setHeader('Content-Type', 'text/csv');
+      res.sendFile('/residential_sites.csv');
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
 
 route.get('/add-site', async (req, res, next) => {
 
