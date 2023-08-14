@@ -1,11 +1,12 @@
 const Router = require("express");
 const route = Router();
-
+const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
 const fileSystem = require("fs");
 const csv = require('csv-parser');
 const pool = require("../../config/db");
+route.use(express.json());
 
 route.get("/getConfig", async (req, res, next) => {
     try {
@@ -84,7 +85,7 @@ route.post("/add-site", async (req, res, next) => {
         await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13)`,
          [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, mount_config, tilt_angle]);
 
-         res.send("Site added successfully");
+         res.send(data);
     }
     catch (err) {
         console.log(err);
