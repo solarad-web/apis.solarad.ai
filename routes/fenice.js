@@ -11,9 +11,7 @@ const pool = require("../config/db");
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const fastcsv = require('fast-csv');
 
-const app = express();
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+route.use(express.json());
 
 route.get("/", async (req, res, next) => {
     let providedApiKey = req.header("api_key");
