@@ -72,11 +72,11 @@ route.post("/add-site", async (req, res, next) => {
         let mount_config = data.mount_config;
         let tilt_angle = data.tilt_angle;
 
-       //create a query to check if the site already exists in utility_sites table
+        //create a query to check if the site already exists in utility_sites table
         //execute the query using pool
         const { rows } = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename]);
 
-        if(rows.length > 0){
+        if (rows.length > 0) {
             res.send("Site already exists");
             return;
         }
@@ -84,9 +84,9 @@ route.post("/add-site", async (req, res, next) => {
         //create a query to insert the site into utility_sites table
         //execute the query using pool
         await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14)`,
-         [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle]);
+            [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle]);
 
-         res.send('Site added successfully');
+        res.send('Site added successfully');
     }
     catch (err) {
         console.log(err);
@@ -121,7 +121,7 @@ route.post("/updateSite", async (req, res, next) => {
         const data = req.body;
 
         let company = data.company;
-        let site = data.site;
+        let sitename = data.sitename;
         let ground_data_available = data.ground_data_available;
         let show_ghi = data.show_ghi;
         let ele = data.ele;
@@ -129,45 +129,18 @@ route.post("/updateSite", async (req, res, next) => {
         let show_forecast = data.show_forecast;
         let lat = data.lat;
         let lon = data.lon;
+        let country = data.country;
         let timezone = data.timezone;
         let capacity = data.capacity;
         let mount_config = data.mount_config;
         let tilt_angle = data.tilt_angle;
 
-        // let filepath = `/home/utility-sites`;
+        //create a query to update the site in utility_sites table
+        //execute the query using pool
+        await pool.query(`UPDATE utility_sites SET ground_data_available=$1, show_ghi=$2, ele=$3, show_poa=$4, show_forecast=$5, lat=$6, lon=$7, timezone=$8, capacity=$9, country=$10, mount_config=$11, tilt_angle=$12 WHERE company=$13 AND sitename=$14`,
+            [ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, company, sitename]);
 
-        // // Check if the file exists
-        // if (!fileSystem.existsSync(filepath)) {
-        //     res.send("File not found");
-        //     return; // Exit the function early
-        // }
-
-        // // Process the CSV data
-        // let newSite = `0,${site},${company},${lat},${lon},${ele},${capacity},${timezone},${mount_config},${tilt_angle},${ground_data_available},${show_ghi},${show_poa},${show_forecast}\n`;
-
-        // let lines = fileSystem.readFileSync(filepath, 'utf-8')
-        //     .split('\n')
-        //     .filter(Boolean);
-
-        // let newLines = [];
-        // for (let i = 0; i < lines.length; i++) {
-        //     let line = lines[i];
-        //     let lineData = line.split(',');
-        //     if (lineData[1] === site && lineData[2] === company) {
-        //         newLines.push(newSite);
-        //     }
-        //     else {
-        //         newLines.push(line);
-        //     }
-        // }
-
-        // let newFile = newLines.join('\n');
-
-        // fileSystem.writeFile(filepath, newFile, function (err) {
-        //     if (err) throw err;
-        //     console.log('Saved!');
-        //     res.send("Saved");
-        // });
+        res.send('Site updated successfully');
 
     }
     catch (err) {
