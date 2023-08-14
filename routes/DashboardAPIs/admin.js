@@ -85,7 +85,7 @@ route.post("/add-site", async (req, res, next) => {
         await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13)`,
          [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, mount_config, tilt_angle]);
 
-         res.send(data);
+         res.send('Site added successfully');
     }
     catch (err) {
         console.log(err);
