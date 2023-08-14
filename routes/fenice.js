@@ -1,6 +1,6 @@
 const Router = require("express");
 const route = Router();
-
+const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -11,7 +11,6 @@ const pool = require("../config/db");
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const fastcsv = require('fast-csv');
 
-const express = require("express");
 const app = express();
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
