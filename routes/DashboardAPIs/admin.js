@@ -66,6 +66,7 @@ route.post("/add-site", async (req, res, next) => {
         let show_forecast = data.show_forecast;
         let lat = data.lat;
         let lon = data.lon;
+        let country = data.country;
         let timezone = data.timezone;
         let capacity = data.capacity;
         let mount_config = data.mount_config;
@@ -82,8 +83,8 @@ route.post("/add-site", async (req, res, next) => {
 
         //create a query to insert the site into utility_sites table
         //execute the query using pool
-        await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13)`,
-         [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, mount_config, tilt_angle]);
+        await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14)`,
+         [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle]);
 
          res.send('Site added successfully');
     }
