@@ -16,11 +16,11 @@ services:
     volumes:
       - .:/app/
       - /app/node_modules
-      # - /home/ec2-user/efs-solarad-output/csv/clients:/home/Forecast/
-      # - /home/ec2-user/efs-solarad-output/Fenice/:/home/Fenice/
-      # - /home/ec2-user/efs-solarad-output/csv/clients/:/home/csv/
-      # - /home/ec2-user/s3-truth/utility-sites.csv:/home/utility-sites
-      # - /home/ec2-user/s3-truth/residential-sites.csv:/home/residential-sites
+      - /home/ec2-user/efs-solarad-output/csv/clients:/home/Forecast/
+      - /home/ec2-user/efs-solarad-output/Fenice/:/home/Fenice/
+      - /home/ec2-user/efs-solarad-output/csv/clients/:/home/csv/
+      - /home/ec2-user/s3-truth/utility-sites.csv:/home/utility-sites
+      - /home/ec2-user/s3-truth/residential-sites.csv:/home/residential-sites
 
 
   postgres:
