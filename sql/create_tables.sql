@@ -29,13 +29,13 @@ CREATE TABLE IF NOT EXISTS residential_sites (
   site_id SERIAL PRIMARY KEY,
   sitename VARCHAR,
   company VARCHAR,
-  lat VARCHAR,
-  lon VARCHAR,
-  ele VARCHAR,
-  capacity VARCHAR,
+  lat NUMERIC,
+  lon NUMERIC,
+  ele NUMERIC,
+  capacity NUMERIC,
   country VARCHAR,
   timezone VARCHAR,
   mount_config VARCHAR,
-  tilt_angle VARCHAR,
+  tilt_angle NUMERIC,
   ground_data_available VARCHAR
 );
