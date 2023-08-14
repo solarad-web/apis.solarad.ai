@@ -171,37 +171,6 @@ route.get('/getforecast', async (req, res, next) => {
 })
 
 
-route.get('/addAllSitesToDb', async (req, res, next) => {
-    try {
-        // Make an HTTP request to the external API
-        let filepath = `/home/utility-sites`;
-
-        // Check if the file exists
-        if (!fileSystem.existsSync(filepath)) {
-            res.send("File not found");
-            return; // Exit the function early
-        }
-
-        // Convert the API response data into a readable stream
-        const readableStream = fileSystem.createReadStream(filepath)
-
-        readableStream
-            .pipe(csv())
-            .on('data', async (row) => {
-
-                await pool.query(`INSERT INTO utility_sites (sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available, show_ghi, show_poa, show_forecast)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`, [row.sitename, row.company, row.lat, row.lon, row.ele, row.capacity, row.country, row.timezone, row.mount_config, row.tilt_angle, row.ground_data_available, row.show_ghi, row.show_poa, row.show_forecast]);
-            })
-
-        res.send("Sites added successfully")
-    }
-    catch (err) {
-        console.log(err.message);
-        next(err);
-    }
-});
-
-
 // Helper function to convert data to CSV format
 function convertToCsv(data) {
     const header = Object.keys(data[0]).join(',') + '\n';

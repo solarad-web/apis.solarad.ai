@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const fileSystem = require("fs");
 const csv = require('csv-parser');
+const pool = require("../config/db");
 
 route.get("/getConfig", async (req, res, next) => {
     try {
@@ -51,12 +52,12 @@ route.get("/getConfig", async (req, res, next) => {
     }
 })
 
-route.post("/addSite", async (req, res, next) => {
+route.post("/add-site", async (req, res, next) => {
     try {
         const data = req.body;
 
         let company = data.company;
-        let site = data.site;
+        let sitename = data.sitename;
         let ground_data_available = data.ground_data_available;
         let show_ghi = data.show_ghi;
         let ele = data.ele;
@@ -69,23 +70,21 @@ route.post("/addSite", async (req, res, next) => {
         let mount_config = data.mount_config;
         let tilt_angle = data.tilt_angle;
 
-        // let filepath = `/home/utility-sites`;
+       //create a query to check if the site already exists in utility_sites table
+        //execute the query using pool
+        const { rows } = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename]);
 
-        // // Check if the file exists
-        // if (!fileSystem.existsSync(filepath)) {
-        //     res.send("File not found");
-        //     return; // Exit the function early
-        // }
+        if(rows.length > 0){
+            res.send("Site already exists");
+            return;
+        }
 
-        // // Process the CSV data
-        // let newSite = `0,${site},${company},${lat},${lon},${ele},${capacity},${timezone},${mount_config},${tilt_angle},${ground_data_available},${show_ghi},${show_poa},${show_forecast}\n`;
+        //create a query to insert the site into utility_sites table
+        //execute the query using pool
+        await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13)`,
+         [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, mount_config, tilt_angle]);
 
-        // fileSystem.appendFile(filepath, newSite, function (err) {
-        //     if (err) throw err;
-        //     console.log('Saved!');
-        //     res.send("Saved");
-        // });
-
+         res.send("Site added successfully");
     }
     catch (err) {
         console.log(err);
