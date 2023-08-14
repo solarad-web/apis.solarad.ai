@@ -189,7 +189,7 @@ route.get('/addAllSitesToDb', async (req, res, next) => {
             .pipe(csv())
             .on('data', async (row) => {
 
-                await pool.query(`INSERT INTO residential_sites (sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available, show_ghi, show_poa, show_forecast)
+                await pool.query(`INSERT INTO utility_sites (sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available, show_ghi, show_poa, show_forecast)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`, [row.sitename, row.company, row.lat, row.lon, row.ele, row.capacity, row.country, row.timezone, row.mount_config, row.tilt_angle, row.ground_data_available, row.show_ghi, row.show_poa, row.show_forecast]);
             })
 
