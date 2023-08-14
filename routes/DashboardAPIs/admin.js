@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const fileSystem = require("fs");
 const csv = require('csv-parser');
-const pool = require("../config/db");
+const pool = require("../../config/db");
 
 route.get("/getConfig", async (req, res, next) => {
     try {
