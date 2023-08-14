@@ -93,6 +93,28 @@ route.post("/add-site", async (req, res, next) => {
     }
 })
 
+route.get("/findSite", async (req, res, next) => {
+    try {
+        const site = req.query.site;
+        const company = req.query.company;
+
+        //create a query to check if the site exists in utility_sites table and then send the data of that site in an object
+        //execute the query using pool
+        const { rows } = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, site]);
+
+        if (rows.length === 0) {
+            res.send("Site not found");
+            return;
+        }
+
+        res.send(rows[0]);
+    }
+    catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
+
 route.post("/updateSite", async (req, res, next) => {
     try {
         const data = req.body;
