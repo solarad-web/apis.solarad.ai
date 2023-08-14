@@ -149,6 +149,33 @@ route.post("/updateSite", async (req, res, next) => {
     }
 })
 
+route.get("/deleteSite", async (req, res, next) => {
+    try {
+        const site = req.query.site;
+        const company = req.query.company;
+
+        //create a query to check if the site exists in utility_sites table
+        //execute the query using pool
+        const { rows } = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, site]);
+
+        if (rows.length === 0) {
+            res.send("Site not found");
+            return;
+        }
+
+        //create a query to delete the site from utility_sites table
+        //execute the query using pool
+        await pool.query(`DELETE FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, site]);
+
+        res.send('Site deleted successfully');
+    }
+    catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
+
+
 
 
 module.exports = route;
