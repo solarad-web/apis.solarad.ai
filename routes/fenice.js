@@ -8,7 +8,7 @@ const fileSystem = require("fs");
 const csv = require('csv-parser');
 const bcrypt = require("bcrypt");
 const pool = require("../config/db");
-const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+
 const fastcsv = require('fast-csv');
 
 route.use(express.json());
