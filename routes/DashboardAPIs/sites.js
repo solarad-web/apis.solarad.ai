@@ -132,43 +132,58 @@ route.get('/data', async (req, res, next) => {
 
 route.get('/getforecast', async (req, res, next) => {
     try {
-        var client = req.query.client;
-        var site = req.query.site;
-        const inputDate = req.query.date;
-        const outputFormat = 'YYYY-MM-DD';
-        const formattedDate = moment(inputDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)').format(outputFormat);
-
-        if (client === 'Demo') client = process.env.DEMO_COMPANY;
-        if (site === 'Demo-Site') site = process.env.DEMO_SITE;
-
-        //get the current date
-        let date = new Date();
-        let year = date.getFullYear();
-        let month = date.getMonth() + 1;
-        if (month < 10) month = `0${month}`;
-        let day = date.getDate();
-        if (day < 10) day = `0${day}`;
+      var client = req.query.client;
+      var site = req.query.site;
+      const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+      const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+      const outputFormat = 'YYYY-MM-DD';
+  
+      if (client === 'Demo') client = process.env.DEMO_COMPANY;
+      if (site === 'Demo-Site') site = process.env.DEMO_SITE;
+  
+      let mergedData = [];
+      let headers;
+  
+      for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, 'days')) {
+        let formattedDate = date.format(outputFormat);
         let filepath = `/home/Forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
-
-        // Check if the file exists
-        if (!fileSystem.existsSync(filepath)) {
-            res.send("File not found");
-            return; // Exit the function early
+  
+        if (fileSystem.existsSync(filepath)) {
+          const fileData = await new Promise((resolve, reject) => {
+            const rows = [];
+            fileSystem.createReadStream(filepath)
+              .pipe(csv())
+              .on('headers', (header) => {
+                if (!headers) headers = header;
+              })
+              .on('data', (row) => rows.push(row))
+              .on('end', () => resolve(rows))
+              .on('error', reject);
+          });
+  
+          mergedData = mergedData.concat(fileData);
         }
-
-        //set the headers for the response as the original filename
-        res.setHeader('Content-disposition', `attachment; filename=Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`);
-        res.setHeader('Content-type', 'text/csv');
-
-        //send the csv file as response from filepath
-        const readStream = fileSystem.createReadStream(filepath);
-        readStream.pipe(res);
-
+      }
+  
+      if (mergedData.length === 0) {
+        res.send("Files not found");
+        return;
+      }
+  
+      res.setHeader('Content-disposition', `attachment; filename=Solarad_${site}_${client}_Forecast_Merged.csv`);
+      res.setHeader('Content-type', 'text/csv');
+  
+      res.write(headers.join(',') + '\n'); // Write the headers
+      mergedData.forEach(row => {
+        res.write(Object.values(row).join(',') + '\n'); // Write the data
+      });
+      res.end();
+  
     } catch (err) {
-        console.log(err);
-        next(err);
+      console.log(err);
+      next(err);
     }
-})
+  });
 
 
 // Helper function to convert data to CSV format
