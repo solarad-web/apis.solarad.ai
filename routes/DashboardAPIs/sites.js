@@ -18,68 +18,31 @@ route.get("/config", async (req, res, next) => {
         const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
         let company = await resJson.rows[0].company;
 
-        // Make an HTTP request to the external API
-        let filepath = `/home/utility-sites`;
-
-        const sites = [];
-
-        // Check if the file exists
-        if (!fileSystem.existsSync(filepath)) {
-            res.send("File not found");
-            return; // Exit the function early
+        let sitesArr = await pool.query('SELECT * FROM utility_sites WHERE company = $1', [company])
+        if (company === process.env.ADMIN_COMPANY) {
+            sitesArr = await pool.query('SELECT * FROM utility_sites');
         }
 
-        // Process the CSV data
-        fileSystem.createReadStream(filepath)
-            .pipe(csv())
-            .on('data', (row) => {
-                // Check if the row has the company name
-                if (company === process.env.ADMIN_COMPANY) {
-                    sites.push({
-                        'company': row.company,
-                        'site': row.sitename,
-                        'ground_data_available': row.ground_data_available,
-                        'show_ghi': row.show_ghi,
-                        'show_poa': row.show_poa,
-                        'show_forecast': row.show_forecast,
-                        'lat': row.lat,
-                        'lon': row.lon
-                    });
-                }
-                else if (row.company === company) {
-                    sites.push({
-                        'company': row.company,
-                        'site': row.sitename,
-                        'ground_data_available': row.ground_data_available,
-                        'show_ghi': row.show_ghi,
-                        'show_poa': row.show_poa,
-                        'show_forecast': row.show_forecast,
-                        'lat': row.lat,
-                        'lon': row.lon
-                    });
-                }
+        if (sitesArr.length === 0) {
+            sitesArr.push({
+                'company': 'Demo',
+                'site': 'Demo-Site',
+                'ground_data_available': 'True',
+                'show_ghi': 'True',
+                'show_poa': 'False',
+                'show_forecast': 'True',
+                'lat': '28.7041',
+                'lon': '77.1025'
             })
-            .on('end', () => {
-                if (sites.length === 0) {
-                    sites.push({
-                        'company': 'Demo',
-                        'site': 'Demo-Site',
-                        'ground_data_available': 'True',
-                        'show_ghi': 'True',
-                        'show_poa': 'False',
-                        'show_forecast': 'True',
-                        'lat': '28.7041',
-                        'lon': '77.1025'
-                    })
-                }
-                res.send(sites); // Send the filtered CSV data as the response
-            });
+        }
+
+        res.send(sitesArr);
 
     } catch (error) {
         console.error('Error fetching data from the API:', error);
         next(error);
     }
-});
+})
 
 
 

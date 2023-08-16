@@ -5,6 +5,7 @@ dotenv.config();
 const axios = require('axios')
 const csv = require('csv-parser');
 const fileSystem = require("fs");
+const pool = require("./config/db");
 
 //Enable cors
 const cors = require("cors");
@@ -33,102 +34,92 @@ app.use("/dashboard/admin", dashboardAdmin);
 //Check if Live Data and Forecast are available
 
 async function checkLiveAndForecastAvailability() {
-  // Make an HTTP request to the external API
-  let filepath = `/home/utility-sites`;
 
-  // Convert the API response data into a readable stream
-  const readableStream = fileSystem.createReadStream(filepath)
+  const query = await pool.query(`SELECT * FROM utility_sites`)
+  const sites = query.rows
 
-  await checkLiveAvailability(readableStream);
-  await checkForecastAvailability(readableStream);
+  await checkLiveAvailability(sites)
+  await checkForecastAvailability(sites)
+
 }
 
-async function checkLiveAvailability(readableStream) {
+async function checkLiveAvailability(allSites) {
 
-  const sites = []
+  const missingSites = []
 
-  // Process the CSV data
-  readableStream
-    .pipe(csv())
-    .on('data', (row) => {
-      const timeframes = ['Daily', 'Monthly', 'Subhourly', 'Hourly'];
-      // Check if the row has the company name
-      for (let i = 0; i < timeframes.length; i++) {
-        let filepath = `/home/csv/${row.company}/${timeframes[i].toLowerCase()}/Solarad_${row.sitename}_${row.company}_${timeframes[i]}.csv`;
+  for (let i = 0; i < allSites.length; i++) {
+    const timeframes = ['Daily', 'Monthly', 'Subhourly', 'Hourly']
+    // Check if the row has the company name
+    for (let j = 0; j < timeframes.length; j++) {
+      let filepath = `/home/csv/${allSites[i].company}/${timeframes[j].toLowerCase()}/Solarad_${allSites[i].sitename}_${allSites[i].company}_${timeframes[j]}.csv`;
 
-        if (!fileSystem.existsSync(filepath)) {
-          sites.push({
-            'company': row.company,
-            'site': row.sitename,
-            'timeframe': timeframes[i]
-          });
-        }
+      if (!fileSystem.existsSync(filepath)) {
+        missingSites.push({
+          'company': allSites[i].company,
+          'site': allSites[i].sitename,
+          'timeframe': timeframes[j]
+        })
       }
-    })
-    .on('end', async () => {
-      for (let i = 0; i < sites.length; i++) {
-        const message = {
-          channel: 'C05MA66MUJU',
-          attachments: [
-            {
-              color: '#FF0000', // Red color in hexadecimal
-          text: `Alert From The Node Server: Live Data File Not Found : ${sites[i].company} - ${sites[i].site} - ${sites[i].timeframe}`,
+    }
+  }
 
-            },
-          ],
-        };
-        if (sites.length > 0) {
-          axios.post(process.env.SLACK_WEBHOOK, message)
-            .catch(err => {console.log(err); return});
+  for (let i = 0; i < missingSites.length; i++) {
+    const message = {
+      channel: 'C05MA66MUJU',
+      attachments: [
+        {
+          color: '#FF0000', // Red color in hexadecimal
+          text: `Alert From The Node Server: Live Data File Not Found : ${missingSites[i].company} - ${missingSites[i].site} - ${missingSites[i].timeframe}`,
 
-        }
-      }
-    });
+        },
+      ],
+    };
+    if (missingSites.length > 0) {
+      axios.post(process.env.SLACK_WEBHOOK, message)
+        .catch(err => { console.log(err); return });
+
+    }
+  }
 }
 
-async function checkForecastAvailability(readableStream) {
+async function checkForecastAvailability(allSites) {
 
-  const sites = [];
+  const missingSites = [];
 
-  // Process the CSV data
-  readableStream
-    .pipe(csv())
-    .on('data', (row) => {
-      //get the current date
-      if (row.show_forecast === 'True') {
-        let date = new Date();
-        let year = date.getFullYear();
-        let month = date.getMonth() + 1;
-        if (month < 10) month = `0${month}`;
-        let day = date.getDate();
-        if (day < 10) day = `0${day}`;
-        // Check if the row has the company name
-        let filepath = `/home/Forecast/${row.company}/forecasts/Solarad_${row.sitename}_${row.company}_Forecast_${year}-${month}-${day}_ID.csv`;
-        if (!fileSystem.existsSync(filepath)) {
-          sites.push({
-            'company': row.company,
-            'site': row.sitename,
-            'date': `${year}-${month}-${day}`
-          });
-        }
+  for (let i = 0; i < allSites.length; i++) {
+    if (allSites[i].show_forecast === 'True') {
+      let date = new Date();
+      let year = date.getFullYear();
+      let month = date.getMonth() + 1;
+      if (month < 10) month = `0${month}`;
+      let day = date.getDate();
+      if (day < 10) day = `0${day}`;
+      // Check if the allSites[i] has the company name
+      let filepath = `/home/Forecast/${allSites[i].company}/forecasts/Solarad_${allSites[i].sitename}_${allSites[i].company}_Forecast_${year}-${month}-${day}_ID.csv`;
+      if (!fileSystem.existsSync(filepath)) {
+        missingSites.push({
+          'company': allSites[i].company,
+          'site': allSites[i].sitename,
+          'date': `${year}-${month}-${day}`
+        });
       }
-    })
-    .on('end', async () => {
-      for (let i = 0; i < sites.length; i++) {
-        const message = {
-          channel: 'C05MA66MUJU',
-          attachments: [{
-            color: '#FF0000', // Red color in hexadecimal
-          text: `Alert From The Node Server: Forecast Data File Not Found : ${sites[i].company} - ${sites[i].site} - ${sites[i].date}`,
-          }],
+    }
+  }
 
-        };
-        if (sites.length > 0) {
-          axios.post(process.env.SLACK_WEBHOOK, message)
-            .catch(err => {console.log(err); return});
-        }
-      }
-    });
+  for (let i = 0; i < missingSites.length; i++) {
+    const message = {
+      channel: 'C05MA66MUJU',
+      attachments: [{
+        color: '#FF0000', // Red color in hexadecimal
+        text: `Alert From The Node Server: Forecast Data File Not Found : ${missingSites[i].company} - ${missingSites[i].site} - ${missingSites[i].date}`,
+      }],
+
+    };
+    if (missingSites.length > 0) {
+      axios.post(process.env.SLACK_WEBHOOK, message)
+        .catch(err => { console.log(err); return });
+    }
+  }
 }
 
 
