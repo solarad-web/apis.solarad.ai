@@ -18,11 +18,13 @@ route.get("/config", async (req, res, next) => {
         const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
         let company = await resJson.rows[0].company;
 
-        let sitesArr = await pool.query('SELECT * FROM utility_sites WHERE company = $1', [company])
+        let sitesQuery = await pool.query('SELECT * FROM utility_sites WHERE company = $1', [company])
         if (company === process.env.ADMIN_COMPANY) {
-            sitesArr = await pool.query('SELECT * FROM utility_sites');
+            sitesQuery = await pool.query('SELECT * FROM utility_sites');
         }
 
+        const sitesArr = sitesQuery.rows;
+        
         if (sitesArr.length === 0) {
             sitesArr.push({
                 'company': 'Demo',
