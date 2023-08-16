@@ -132,58 +132,62 @@ route.get('/data', async (req, res, next) => {
 
 route.get('/getforecast', async (req, res, next) => {
     try {
-      var client = req.query.client;
-      var site = req.query.site;
-      const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
-      const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
-      const outputFormat = 'YYYY-MM-DD';
-  
-      if (client === 'Demo') client = process.env.DEMO_COMPANY;
-      if (site === 'Demo-Site') site = process.env.DEMO_SITE;
-  
-      let mergedData = [];
-      let headers;
-  
-      for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, 'days')) {
-        let formattedDate = date.format(outputFormat);
-        let filepath = `/home/Forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
-  
-        if (fileSystem.existsSync(filepath)) {
-          const fileData = await new Promise((resolve, reject) => {
-            const rows = [];
-            fileSystem.createReadStream(filepath)
-              .pipe(csv())
-              .on('headers', (header) => {
-                if (!headers) headers = header;
-              })
-              .on('data', (row) => rows.push(row))
-              .on('end', () => resolve(rows))
-              .on('error', reject);
-          });
-  
-          mergedData = mergedData.concat(fileData);
+        var client = req.query.client;
+        var site = req.query.site;
+        const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        const outputFormat = 'YYYY-MM-DD';
+
+        if (client === 'Demo') client = process.env.DEMO_COMPANY;
+        if (site === 'Demo-Site') site = process.env.DEMO_SITE;
+
+        let mergedData = [];
+        let headersToConcat = ['Time', 'GHI_ID(W/m2)', 'Ground GHI', 'Gen_ID(W/m2)', 'AC_POWER_SUM'];
+
+        for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, 'days')) {
+            let formattedDate = date.format(outputFormat);
+            let filepath = `/home/Forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
+
+            if (fileSystem.existsSync(filepath)) {
+                const fileData = await new Promise((resolve, reject) => {
+                    const rows = [];
+                    fileSystem.createReadStream(filepath)
+                        .pipe(csv())
+                        .on('data', (row) => {
+                            // Only include the specified columns
+                            const filteredRow = {};
+                            headersToConcat.forEach(header => {
+                                filteredRow[header] = row[header];
+                            });
+                            rows.push(filteredRow);
+                        })
+                        .on('end', () => resolve(rows))
+                        .on('error', reject);
+                });
+
+                mergedData = mergedData.concat(fileData);
+            }
         }
-      }
-  
-      if (mergedData.length === 0) {
-        res.send("Files not found");
-        return;
-      }
-  
-      res.setHeader('Content-disposition', `attachment; filename=Solarad_${site}_${client}_Forecast_Merged.csv`);
-      res.setHeader('Content-type', 'text/csv');
-  
-      res.write(headers.join(',') + '\n'); // Write the headers
-      mergedData.forEach(row => {
-        res.write(Object.values(row).join(',') + '\n'); // Write the data
-      });
-      res.end();
-  
+
+        if (mergedData.length === 0) {
+            res.send("Files not found");
+            return;
+        }
+
+        res.setHeader('Content-disposition', `attachment; filename=Solarad_${site}_${client}_Forecast_Merged.csv`);
+        res.setHeader('Content-type', 'text/csv');
+
+        res.write(headersToConcat.join(',') + '\n'); // Write the specified headers
+        mergedData.forEach(row => {
+            res.write(headersToConcat.map(header => row[header]).join(',') + '\n'); // Write the specified columns
+        });
+        res.end();
+
     } catch (err) {
-      console.log(err);
-      next(err);
+        console.log(err);
+        next(err);
     }
-  });
+});
 
 
 // Helper function to convert data to CSV format
