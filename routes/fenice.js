@@ -133,6 +133,8 @@ route.post('/add-site', async (req, res, next) => {
 
                 const { latLonrows } = await pool.query(`SELECT * FROM residential_sites WHERE lat = $1 AND lon = $2`, [lat, lon]);
 
+                
+                console.log(latLonrows)
                 if (latLonrows.length > 0) {
                     //update the site with these details
                     await pool.query(`UPDATE residential_sites SET sitename = $1, company = $2, lat = $3, lon = $4, ele = $5, capacity = $6, country = $7, timezone = $8, mount_config = $9, tilt_angle = $10, ground_data_available = $11 WHERE lat = $3 AND lon = $4`,
@@ -140,7 +142,6 @@ route.post('/add-site', async (req, res, next) => {
 
                     res.send("Site updated successfully");
                 }
-
                 else {
                     const { rows } = await pool.query(`
         SELECT * FROM residential_sites
