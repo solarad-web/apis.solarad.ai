@@ -120,16 +120,16 @@ route.post('/add-site', async (req, res, next) => {
         bcrypt.compare(providedApiKey, storedApiKey, async (err, result) => {
             if (result) {
                 const sitename = req.body.sitename;
-                const company = req.body.company;
-                const lat = req.body.lat;
-                const lon = req.body.lon;
-                const ele = req.body.ele;
-                const capacity = req.body.capacity;
-                const country = req.body.country;
-                const timezone = req.body.timezone;
-                const mount_config = req.body.mount_config;
-                const tilt_angle = req.body.tilt_angle;
-                const ground_data_available = req.body.ground_data_available;
+                const company = req.body.company || "Fenice";
+                const lat = req.body.lat || 27;
+                const lon = req.body.lon || 78;
+                const ele = req.body.ele || 0;
+                const capacity = req.body.capacity || 0;
+                const country = req.body.country || "India";
+                const timezone = req.body.timezone || "Asia/Kolkata";
+                const mount_config = req.body.mount_config || "None";
+                const tilt_angle = req.body.tilt_angle || 0;
+                const ground_data_available = req.body.ground_data_available || "False";
 
                 const { latLonrows } = await pool.query(`SELECT * FROM residential_sites WHERE lat = $1 AND lon = $2`, [lat, lon]);
 
