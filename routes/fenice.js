@@ -112,21 +112,26 @@ route.get('/export-csv', async (req, res) => {
 
 
 route.post('/add-site', async (req, res, next) => {
-    // Make an HTTP request to the external API
-    try {
-        const sitename = req.body.sitename;
-        const company = req.body.company;
-        const lat = req.body.lat;
-        const lon = req.body.lon;
-        const ele = req.body.ele;
-        const capacity = req.body.capacity;
-        const country = req.body.country;
-        const timezone = req.body.timezone;
-        const mount_config = req.body.mount_config;
-        const tilt_angle = req.body.tilt_angle;
-        const ground_data_available = req.body.ground_data_available;
+    let providedApiKey = req.header("api_key");
+    const storedApiKey = process.env.API_KEY;
 
-        const { rows } = await pool.query(`
+
+    try {
+        bcrypt.compare(providedApiKey, storedApiKey, async (err, result) => {
+            if (result) {
+                const sitename = req.body.sitename;
+                const company = req.body.company;
+                const lat = req.body.lat;
+                const lon = req.body.lon;
+                const ele = req.body.ele;
+                const capacity = req.body.capacity;
+                const country = req.body.country;
+                const timezone = req.body.timezone;
+                const mount_config = req.body.mount_config;
+                const tilt_angle = req.body.tilt_angle;
+                const ground_data_available = req.body.ground_data_available;
+
+                const { rows } = await pool.query(`
         SELECT * FROM residential_sites
         WHERE sitename = $1
           AND company = $2
@@ -141,17 +146,23 @@ route.post('/add-site', async (req, res, next) => {
           AND ground_data_available = $11
       `, [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available]);
 
-        if (rows.length > 0) {
-            // Site with these details already exists
-            res.status(400).send('Site with these details already exists');
-            return;
-        }
+                if (rows.length > 0) {
+                    // Site with these details already exists
+                    res.status(400).send('Site with these details already exists');
+                    return;
+                }
 
-        await pool.query(`INSERT INTO residential_sites (sitename,  company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available)
+                await pool.query(`INSERT INTO residential_sites (sitename,  company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`, [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available])
 
 
-        res.send("Sites added successfully");
+                res.send("Sites added successfully");
+
+
+            } else {
+                res.status(401).send("Unauthorized");
+            }
+        });
     }
     catch (err) {
         console.log(err.message);
