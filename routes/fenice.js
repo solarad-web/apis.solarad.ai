@@ -131,7 +131,18 @@ route.post('/add-site', async (req, res, next) => {
                 const tilt_angle = req.body.tilt_angle;
                 const ground_data_available = req.body.ground_data_available;
 
-                const { rows } = await pool.query(`
+                const { latLonrows } = await pool.query(`SELECT * FROM residential_sites WHERE lat = $1 AND lon = $2`, [lat, lon]);
+
+                if (latLonrows.length > 0) {
+                    //update the site with these details
+                    await pool.query(`UPDATE residential_sites SET sitename = $1, company = $2, lat = $3, lon = $4, ele = $5, capacity = $6, country = $7, timezone = $8, mount_config = $9, tilt_angle = $10, ground_data_available = $11 WHERE lat = $3 AND lon = $4`,
+                        [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available]);
+
+                    res.send("Site updated successfully");
+                }
+
+                else {
+                    const { rows } = await pool.query(`
         SELECT * FROM residential_sites
         WHERE sitename = $1
           AND company = $2
@@ -146,18 +157,18 @@ route.post('/add-site', async (req, res, next) => {
           AND ground_data_available = $11
       `, [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available]);
 
-                if (rows.length > 0) {
-                    // Site with these details already exists
-                    res.status(400).send('Site with these details already exists');
-                    return;
-                }
+                    if (rows.length > 0) {
+                        // Site with these details already exists
+                        res.status(400).send('Site with these details already exists');
+                        return;
+                    }
 
-                await pool.query(`INSERT INTO residential_sites (sitename,  company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available)
+                    await pool.query(`INSERT INTO residential_sites (sitename,  company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`, [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available])
 
 
-                res.send("Sites added successfully");
-
+                    res.send("Sites added successfully");
+                }
 
             } else {
                 res.status(401).send("Unauthorized");
