@@ -155,6 +155,46 @@ route.get('/getforecast', async (req, res, next) => {
 });
 
 
+//get utility data api
+route.get('/get-utility-sites', async (req, res) => {
+    try {
+        const client = await pool.connect()
+
+        // Query your PostgreSQL table
+        const queryResult = await client.query('SELECT * FROM utility_sites')
+
+        // Create a writable stream for CSV data
+        const csvStream = fastcsv.format({ headers: true })
+
+        // Write the headers to the CSV stream
+        const headers = [
+            'sitename', 'company', 'lat', 'lon', 'ele',
+            'capacity', 'country', 'timezone', 'mount_config',
+            'tilt_angle', 'ground_data_available',
+            'show_ghi', 'show_poa', 'show_forecast'
+        ];
+        csvStream.write(headers);
+
+        // Write the query result (rows) to the CSV stream
+        queryResult.rows.forEach(row => csvStream.write(row));
+        csvStream.end();
+
+        // Close the database connection
+        client.release();
+
+        // Set the response headers for CSV download
+        res.setHeader('Content-Disposition', 'attachment; filename="residential_sites.csv"');
+        res.setHeader('Content-Type', 'text/csv');
+
+        // Pipe the CSV stream to the response
+        csvStream.pipe(res);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+})
+
+
 // Helper function to convert data to CSV format
 function convertToCsv(data) {
     const header = Object.keys(data[0]).join(',') + '\n';
