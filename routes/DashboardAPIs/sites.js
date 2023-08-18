@@ -4,6 +4,8 @@ const axios = require('axios');
 const dotenv = require("dotenv");
 const moment = require('moment-timezone');
 dotenv.config();
+const fastcsv = require('fast-csv');
+
 
 const fileSystem = require("fs");
 const csv = require('csv-parser');
@@ -183,7 +185,7 @@ route.get('/get-utility-sites', async (req, res) => {
         client.release();
 
         // Set the response headers for CSV download
-        res.setHeader('Content-Disposition', 'attachment; filename="residential_sites.csv"');
+        res.setHeader('Content-Disposition', 'attachment; filename="utility_sites.csv"');
         res.setHeader('Content-Type', 'text/csv');
 
         // Pipe the CSV stream to the response
