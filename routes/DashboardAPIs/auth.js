@@ -82,7 +82,7 @@ route.get("/verifyEmail", async (req, res, next) => {
       VALUES ($1, $2, $3, $4, $5)`, [email, fname, lname, company, passhash]);
 
         // res.sendFile('./verifyEmail.html', { root: __dirname });
-        res.redirect(`https://localhost:3002/loginfromemail?email=${email}&password=${pwd}`)
+        res.redirect(`http://localhost:3002/loginfromemail?email=${email}&password=${pwd}`)
 
     } catch (error) {
         console.log(error);
