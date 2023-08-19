@@ -81,8 +81,7 @@ route.get("/verifyEmail", async (req, res, next) => {
         await pool.query(`INSERT INTO user_details (user_email, user_fname, user_lname, company, passhash)
       VALUES ($1, $2, $3, $4, $5)`, [email, fname, lname, company, passhash]);
 
-        // res.sendFile('./verifyEmail.html', { root: __dirname });
-        res.redirect(`http://localhost:3002/emaillogin?email=${email}&password=${pwd}`)
+        res.redirect(`https://apis.solarad.ai/emaillogin?email=${email}&password=${pwd}`)
 
     } catch (error) {
         console.log(error);
