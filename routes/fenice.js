@@ -11,7 +11,7 @@ const pool = require("../config/db");
 
 const fastcsv = require('fast-csv');
 
-route.use(express.json());
+route.use(express.json())
 
 route.get("/", async (req, res, next) => {
     let providedApiKey = req.header("api_key");
@@ -131,7 +131,7 @@ route.post('/add-site', async (req, res, next) => {
                 const tilt_angle = req.body.tilt_angle || 0;
                 const ground_data_available = req.body.ground_data_available || "False";
 
-                const  latLonrows  = await pool.query(`SELECT * FROM residential_sites WHERE lat = $1 AND lon = $2`, [lat, lon]);
+                const latLonrows = await pool.query(`SELECT * FROM residential_sites WHERE lat = $1 AND lon = $2`, [lat, lon]);
 
 
                 if (latLonrows.rows.length > 0) {
