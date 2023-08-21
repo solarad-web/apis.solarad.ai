@@ -161,7 +161,7 @@ route.get("/addUser", async (req, res, next) => {
         const passhash = await generateHash(pwd);
         //create a query to check if the user already exists in users table
         //execute the query using pool
-        const user = await pool.query(`SELECT * FROM user_details WHERE email=$1`, [email]);
+        const user = await pool.query(`SELECT * FROM user_details WHERE user_email=$1`, [email]);
 
         if (user.rows.length > 0) {
             res.send("User already exists");
