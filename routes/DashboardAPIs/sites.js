@@ -198,12 +198,19 @@ route.get('/get-all-sites', async (req, res) => {
             const company = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
             let companySites = await pool.query('SELECT sitename FROM utility_sites WHERE company = $1', [company.rows[0].company]);
             if (company.rows[0].company === process.env.ADMIN_COMPANY) companySites = await pool.query('SELECT sitename FROM utility_sites');
+
+            //if companySites is empty, then push the demo site
+            if (companySites.rows.length === 0) {
+                companySites.rows.push({
+                    sitename: 'Demo-Site'
+                })
+            }
             sites.push({
                 email: email,
                 company: company.rows[0].company,
                 sites: companySites.rows.map(row => row.sitename)
             })
-            if (company === process.env.ADMIN_COMPANY) console.log(sites);
+
         }
         res.send(sites);
 
