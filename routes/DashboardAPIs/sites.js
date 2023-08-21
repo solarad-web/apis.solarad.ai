@@ -185,6 +185,33 @@ route.get('/get-utility-sites', async (req, res) => {
     }
 })
 
+//get utility data api
+route.get('/get-residential-sites', async (req, res) => {
+    try {
+        const queryResult = await pool.query('SELECT * FROM residential_sites')
+
+        const csvStream = fastcsv.format({ headers: true })
+
+        const headers = [
+            'sitename', 'company', 'lat', 'lon', 'ele',
+            'capacity', 'country', 'timezone', 'mount_config',
+            'tilt_angle', 'ground_data_available'
+        ];
+        csvStream.write(headers);
+
+        queryResult.rows.forEach(row => csvStream.write(row));
+        csvStream.end();
+
+        res.setHeader('Content-Disposition', 'attachment; filename="utility_sites.csv"');
+        res.setHeader('Content-Type', 'text/csv');
+
+        csvStream.pipe(res);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+})
+
 
 //create a route to get all the emails and their companies, then find the sites of each company and send the email and sites to the frontend
 route.get('/get-all-sites', async (req, res) => {
