@@ -20,7 +20,7 @@ route.get("/signUp", async (req, res, next) => {
     try {
         await pool.query(`INSERT INTO leads (user_email, user_fname, user_lname, company) VALUES 
         ($1, $2, $3, $4)`, [email, fname, lname, company]);
-        
+
         const data = await pool.query(`SELECT * FROM user_details WHERE user_email = $1`, [email]);
 
         if (data.rowCount != 0) {
@@ -84,7 +84,7 @@ route.get("/verifyEmail", async (req, res, next) => {
         await pool.query(`INSERT INTO user_details (user_email, user_fname, user_lname, company, passhash)
       VALUES ($1, $2, $3, $4, $5)`, [email, fname, lname, company, passhash]);
 
-        res.redirect(`https://apis.solarad.ai/emaillogin?email=${email}&password=${pwd}`)
+        res.redirect(`https://app.solarad.ai/emaillogin?email=${email}&password=${pwd}`)
 
     } catch (error) {
         console.log(error);

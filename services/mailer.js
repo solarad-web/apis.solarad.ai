@@ -162,7 +162,7 @@ body {font-family: 'Muli', sans-serif;}
 </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="e645d38f-6a78-4a74-bff2-1f7a3d82b058" data-mc-module-version="2019-10-22">
     <tbody>
     <tr>
-        <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#FCB03A;" height="100%" valign="top" bgcolor="#FCB03A" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 30px"><a href="https://app.solarad.ai/dashboard/auth/verifyEmail?token=${token}">
+        <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#FCB03A;" height="100%" valign="top" bgcolor="#FCB03A" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 30px"><a href="https://apis.solarad.ai/dashboard/auth/verifyEmail?token=${token}">
 Verify Email
 </a></span></div><div></div></div></td>
     </tr>
