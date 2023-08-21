@@ -189,7 +189,7 @@ route.get('/get-utility-sites', async (req, res) => {
 //create a route to get all the emails and their companies, then find the sites of each company and send the email and sites to the frontend
 route.get('/get-all-sites', async (req, res) => {
     try {
-        const queryResult = await pool.query('SELECT user_email FROM user_details');
+        const queryResult = await pool.query('SELECT DISTINCT user_email FROM user_details');
         const emails = queryResult.rows.map(row => row.user_email);
 
         let sites = [];
