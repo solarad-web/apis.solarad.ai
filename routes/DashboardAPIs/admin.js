@@ -3,42 +3,23 @@ const route = Router();
 const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
+const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
 const fileSystem = require("fs");
 const csv = require('csv-parser');
 const pool = require("../../config/db");
 route.use(express.json());
+const { sendMagicLinkEmailByAdmin } = require("../../services/mailer");
+
 
 route.get("/getConfig", async (req, res, next) => {
     try {
-
         let company = req.query.company;
 
         const query = await pool.query(`SELECT * FROM utility_sites WHERE company=$1`, [company])
         const companySites = query.rows
 
         res.send(companySites);
-
-        // const sites = [];
-        // // Process the CSV data
-        // fileSystem.createReadStream(filepath)
-        //     .pipe(csv())
-        //     .on('data', (row) => {
-        //         if (row.company === company) {
-        //             sites.push({
-        //                 'company': row.company,
-        //                 'site': row.sitename,
-        //                 'ground_data_available': row.ground_data_available,
-        //                 'show_ghi': row.show_ghi,
-        //                 'show_poa': row.show_poa,
-        //                 'show_forecast': row.show_forecast,
-        //                 'lat': row.lat,
-        //                 'lon': row.lon
-        //             });
-        //         }
-        //     })
-        //     .on('end', () => {
-        //         res.send(sites); // Send the filtered CSV data as the response
-        //     });
 
     }
     catch (err) {
@@ -168,6 +149,53 @@ route.get("/deleteSite", async (req, res, next) => {
         next(err);
     }
 })
+
+
+route.get("/addUser", async (req, res, next) => {
+    try {
+        const email = req.query.email;
+        const company = req.query.company;
+        const fname = req.query.fname;
+        const lname = req.query.lname;
+        const pwd = company.toLowerCase();
+        const passhash = await generateHash(pwd);
+        //create a query to check if the user already exists in users table
+        //execute the query using pool
+        const user = await pool.query(`SELECT * FROM user_details WHERE email=$1`, [email]);
+
+        if (user.rows.length > 0) {
+            res.send("User already exists");
+            return;
+        }
+
+        //create a query to insert the user into users table
+        //execute the query using pool
+        await pool.query(`INSERT INTO user_details (user_email, user_fname, user_lname, company, passhash)
+        VALUES ($1, $2, $3, $4, $5)`, [email, fname, lname, company, passhash]);
+
+        await sendMagicLinkEmailByAdmin({ email: email, password: pwd, fname: fname });
+        res.status(200).send('Email Sent');
+
+    }
+    catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
+
+
+//generate hash value for password
+async function generateHash(password) {
+    try {
+        const salt = await bcrypt.genSalt(11);
+        const hash = await bcrypt.hash(password, salt);
+        return hash;
+    } catch (error) {
+        console.log(error.message);
+        throw new Error('Hash generation failed');
+    }
+}
+
 
 
 
