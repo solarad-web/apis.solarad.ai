@@ -210,6 +210,7 @@ route.get('/get-all-sites', async (req, res) => {
                 company: company.rows[0].company,
                 sites: companySites.rows.map(row => row.sitename)
             })
+            if(company === process.env.ADMIN_COMPANY) console.log(sites);
         }
         res.send(sites);
 
