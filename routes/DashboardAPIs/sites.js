@@ -160,13 +160,10 @@ route.get('/getforecast', async (req, res, next) => {
 //get utility data api
 route.get('/get-utility-sites', async (req, res) => {
     try {
-        // Query your PostgreSQL table
         const queryResult = await pool.query('SELECT * FROM utility_sites')
 
-        // Create a writable stream for CSV data
         const csvStream = fastcsv.format({ headers: true })
 
-        // Write the headers to the CSV stream
         const headers = [
             'sitename', 'company', 'lat', 'lon', 'ele',
             'capacity', 'country', 'timezone', 'mount_config',
@@ -175,16 +172,12 @@ route.get('/get-utility-sites', async (req, res) => {
         ];
         csvStream.write(headers);
 
-        // Write the query result (rows) to the CSV stream
         queryResult.rows.forEach(row => csvStream.write(row));
         csvStream.end();
 
-
-        // Set the response headers for CSV download
         res.setHeader('Content-Disposition', 'attachment; filename="utility_sites.csv"');
         res.setHeader('Content-Type', 'text/csv');
 
-        // Pipe the CSV stream to the response
         csvStream.pipe(res);
     } catch (error) {
         console.error('Error:', error);
@@ -204,13 +197,14 @@ route.get('/get-all-sites', async (req, res) => {
             const email = emails[i];
             const company = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
             let companySites = await pool.query('SELECT sitename FROM utility_sites WHERE company = $1', [company.rows[0].company]);
-            if(company === process.env.ADMIN_COMPANY) companySites = await pool.query('SELECT sitename FROM utility_sites');
+            console.log(process.env.ADMIN_COMPANY)
+            if (company === process.env.ADMIN_COMPANY) companySites = await pool.query('SELECT sitename FROM utility_sites');
             sites.push({
                 email: email,
                 company: company.rows[0].company,
                 sites: companySites.rows.map(row => row.sitename)
             })
-            if(company === process.env.ADMIN_COMPANY) console.log(sites);
+            if (company === process.env.ADMIN_COMPANY) console.log(sites);
         }
         res.send(sites);
 
