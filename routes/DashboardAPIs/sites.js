@@ -203,7 +203,8 @@ route.get('/get-all-sites', async (req, res) => {
         for (let i = 0; i < emails.length; i++) {
             const email = emails[i];
             const company = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
-            const companySites = await pool.query('SELECT sitename FROM utility_sites WHERE company = $1', [company.rows[0].company]);
+            let companySites = await pool.query('SELECT sitename FROM utility_sites WHERE company = $1', [company.rows[0].company]);
+            if(company === process.env.ADMIN_COMPANY) companySites = await pool.query('SELECT sitename FROM utility_sites');
             sites.push({
                 email: email,
                 company: company.rows[0].company,
