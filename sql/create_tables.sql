@@ -39,3 +39,12 @@ CREATE TABLE IF NOT EXISTS residential_sites (
   tilt_angle NUMERIC,
   ground_data_available VARCHAR
 );
+
+CREATE TABLE IF NOT EXISTS leads (
+  id SERIAL PRIMARY KEY,
+  user_email TEXT,
+  user_fname VARCHAR,
+  user_lname VARCHAR,
+  company VARCHAR
+);
+

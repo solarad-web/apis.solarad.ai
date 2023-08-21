@@ -209,7 +209,7 @@ function sendMagicLinkEmailByAdmin({ email, password, fname }) {
     return sendGridMailer.send({
         to: email,
         from: process.env.FROM_EMAIL,
-        subject: "Finish Logging In",
+        subject: "Account Created",
         html: (`
         <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -358,15 +358,15 @@ body {font-family: 'Muli', sans-serif;}
 </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="a10dcb57-ad22-4f4d-b765-1d427dfddb4e" data-mc-module-version="2019-10-22">
     <tbody>
     <tr>
-        <td style="padding:18px 30px 18px 30px; line-height:22px; text-align:inherit; background-color:#F6F6F6;" height="100%" valign="top" bgcolor="#F6F6F6" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 18px">Please click the link below to verify your email address.</span></div><div></div></div></td>
+        <td style="padding:18px 30px 18px 30px; line-height:22px; text-align:inherit; background-color:#F6F6F6;" height="100%" valign="top" bgcolor="#F6F6F6" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 18px">Your account has been created. You can log into your account using the credentials below: </span></div><div></div></div></td>
     </tr>
     </tbody>
 </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="e645d38f-6a78-4a74-bff2-1f7a3d82b058" data-mc-module-version="2019-10-22">
     <tbody>
     <tr>
-        <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#FCB03A;" height="100%" valign="top" bgcolor="#FCB03A" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 30px"><a href="https://apis.solarad.ai/dashboard/auth/verifyEmail?token=${token}">
-Verify Email
-</a></span></div><div></div></div></td>
+        <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#FCB03A;" height="100%" valign="top" bgcolor="#FCB03A" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 30px">Email - ${email}</span></div><div></div></div></td>
+        <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#FCB03A;" height="100%" valign="top" bgcolor="#FCB03A" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 30px">Password - ${password}</span></div><div></div></div></td>
+
     </tr>
     </tbody>
 </table><table class="module" role="module" data-type="spacer" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="c37cc5b7-79f4-4ac8-b825-9645974c984e">

@@ -18,13 +18,16 @@ route.get("/signUp", async (req, res, next) => {
     const company = req.query.company;
 
     try {
+        await pool.query(`INSERT INTO leads (user_email, user_fname, user_lname, company) VALUES 
+        ($1, $2, $3, $4)`, [email, fname, lname, company]);
+        
         const data = await pool.query(`SELECT * FROM user_details WHERE user_email = $1`, [email]);
 
         if (data.rowCount != 0) {
             res.send("Email Present");
             return;
         }
-        const token = jwt.sign({ email: email, fname: fname, lname: lname, pwd: pwd, company: company }, process.env.JWT_SECRET, {
+        const token = jwt.sign({ email: email, fname: fname, lname: lname, pwd: pwd, company: "Demo" }, process.env.JWT_SECRET, {
             expiresIn: "24h",
         })
         await sendMagicLinkEmail({ email: email, token: token, fname: fname });
