@@ -26,7 +26,7 @@ route.get("/config", async (req, res, next) => {
         }
 
         const sitesArr = sitesQuery.rows;
-        
+
         if (sitesArr.length === 0) {
             sitesArr.push({
                 'company': 'Demo',
@@ -160,10 +160,8 @@ route.get('/getforecast', async (req, res, next) => {
 //get utility data api
 route.get('/get-utility-sites', async (req, res) => {
     try {
-        const client = await pool.connect()
-
         // Query your PostgreSQL table
-        const queryResult = await client.query('SELECT * FROM utility_sites')
+        const queryResult = await pool.query('SELECT * FROM utility_sites')
 
         // Create a writable stream for CSV data
         const csvStream = fastcsv.format({ headers: true })
@@ -181,8 +179,6 @@ route.get('/get-utility-sites', async (req, res) => {
         queryResult.rows.forEach(row => csvStream.write(row));
         csvStream.end();
 
-        // Close the database connection
-        client.release();
 
         // Set the response headers for CSV download
         res.setHeader('Content-Disposition', 'attachment; filename="utility_sites.csv"');
@@ -190,6 +186,32 @@ route.get('/get-utility-sites', async (req, res) => {
 
         // Pipe the CSV stream to the response
         csvStream.pipe(res);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+})
+
+
+//create a route to get all the emails and their companies, then find the sites of each company and send the email and sites to the frontend
+route.get('/get-all-sites', async (req, res) => {
+    try {
+        const queryResult = await pool.query('SELECT user_email FROM user_details');
+        const emails = queryResult.rows.map(row => row.user_email);
+
+        let sites = [];
+        for (let i = 0; i < emails.length; i++) {
+            const email = emails[i];
+            const company = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
+            const companySites = await pool.query('SELECT sitename FROM utility_sites WHERE company = $1', [company.rows[0].company]);
+            sites.push({
+                email: email,
+                company: company.rows[0].company,
+                sites: companySites.rows.map(row => row.sitename)
+            })
+        }
+        res.send(sites);
+
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
