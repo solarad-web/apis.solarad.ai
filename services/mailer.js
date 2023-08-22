@@ -369,6 +369,11 @@ body {font-family: 'Muli', sans-serif;}
     <tr>
     <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#FCB03A;" height="100%" valign="top" bgcolor="#FCB03A" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 30px">Password - ${password}</span></div><div></div></div></td>
     </tr>
+    <tr>
+    <td style="padding:18px 0px 18px 0px; line-height:22px; text-align:inherit; background-color:#FCB03A;" height="100%" valign="top" bgcolor="#FCB03A" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-size: 30px"><a href="https://app.solarad.ai/emaillogin?email=${email}&password=${password}">
+    Log Into Dashboard
+    </a></span></div><div></div></div></td>
+    </tr>
     </tbody>
 </table><table class="module" role="module" data-type="spacer" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="c37cc5b7-79f4-4ac8-b825-9645974c984e">
     <tbody>
