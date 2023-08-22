@@ -53,8 +53,16 @@ route.get('/data', async (req, res, next) => {
     try {
         var client = req.query.client;
         var site = req.query.site;
-        if (client === 'Demo') client = process.env.DEMO_COMPANY;
-        if (site === 'Demo-Site') site = process.env.DEMO_SITE;
+        let isDemoClient = false;
+        if (client === 'Demo') {
+            client = process.env.DEMO_COMPANY;
+            isDemoClient = true;
+        }
+        if (site === 'Demo-Site') {
+            site = process.env.DEMO_SITE;
+            isDemoClient = true;
+        }
+
         var timeframe = req.query.timeframe;
         let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
 
@@ -68,22 +76,45 @@ route.get('/data', async (req, res, next) => {
         }
 
         const results = [];
-        fileSystem.createReadStream(filepath)
-            .pipe(csv())
-            .on('headers', (headers) => {
-                if (headers.includes(`Time`)) {
-                    if (timeframe === "Daily") headers[headers.indexOf('Time')] = `Date`;
-                    else if (timeframe === "Monthly") headers[headers.indexOf('Time')] = `Month`;
-                }
-            })
-            .on('data', (data) => {
-                results.push(data);
-            })
-            .on('end', () => {
-                const modifiedCsv = convertToCsv(results);
+        if (isDemoClient) {
+            fileSystem.createReadStream(filepath)
+                .pipe(csv())
+                .on('headers', (headers) => {
+                    if (headers.includes(`Time`)) {
+                        if (timeframe === "Daily") headers[headers.indexOf('Time')] = `Date`;
+                        else if (timeframe === "Monthly") headers[headers.indexOf('Time')] = `Month`;
+                    }
+                })
+                .on('data', (data) => {
+                    data['Ground POA'] = data['POA'] * (Math.random() * (1.2 - 0.98) + 0.98);
+                    data['Ground GHI'] = data['GHI'] * (Math.random() * (1.2 - 0.98) + 0.98);
 
-                res.send(modifiedCsv);
-            });
+                    results.push(data);
+                })
+                .on('end', () => {
+                    const modifiedCsv = convertToCsv(results);
+
+                    res.send(modifiedCsv);
+                });
+        }
+        else {
+            fileSystem.createReadStream(filepath)
+                .pipe(csv())
+                .on('headers', (headers) => {
+                    if (headers.includes(`Time`)) {
+                        if (timeframe === "Daily") headers[headers.indexOf('Time')] = `Date`;
+                        else if (timeframe === "Monthly") headers[headers.indexOf('Time')] = `Month`;
+                    }
+                })
+                .on('data', (data) => {
+                    results.push(data);
+                })
+                .on('end', () => {
+                    const modifiedCsv = convertToCsv(results);
+
+                    res.send(modifiedCsv);
+                });
+        }
     } catch (err) {
         console.log(err);
         next(err);
@@ -95,12 +126,19 @@ route.get('/getforecast', async (req, res, next) => {
     try {
         var client = req.query.client;
         var site = req.query.site;
+        let isDemoClient = false;
         const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const outputFormat = 'YYYY-MM-DD';
 
-        if (client === 'Demo') client = process.env.DEMO_COMPANY;
-        if (site === 'Demo-Site') site = process.env.DEMO_SITE;
+        if (client === 'Demo') {
+            client = process.env.DEMO_COMPANY;
+            isDemoClient = true;
+        }
+        if (site === 'Demo-Site') {
+            site = process.env.DEMO_SITE;
+            isDemoClient = true;
+        }
 
         let mergedData = [];
         let headersToConcat = ['Time', 'GHI_ID(W/m2)', 'Ground GHI', 'Gen_ID(W/m2)', 'AC_POWER_SUM', 'POA(W/m2)', 'Ground POA'];
@@ -110,23 +148,53 @@ route.get('/getforecast', async (req, res, next) => {
             let filepath = `/home/Forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
 
             if (fileSystem.existsSync(filepath)) {
-                const fileData = await new Promise((resolve, reject) => {
-                    const rows = [];
-                    fileSystem.createReadStream(filepath)
-                        .pipe(csv())
-                        .on('data', (row) => {
+                if (isDemoClient) {
+                    const fileData = await new Promise((resolve, reject) => {
+                        const rows = [];
+                        fileSystem.createReadStream(filepath)
+                            .pipe(csv())
+                            .on('data', (row) => {
 
-                            const filteredRow = {};
-                            headersToConcat.forEach(header => {
-                                filteredRow[header] = row[header];
-                            });
-                            rows.push(filteredRow);
-                        })
-                        .on('end', () => resolve(rows))
-                        .on('error', reject);
-                });
+                                const filteredRow = {};
+                                headersToConcat.forEach(header => {
+                                    if (header === 'Ground GHI') {
+                                        filteredRow[header] = row['GHI_ID(W/m2)'] * (Math.random() * (1.2 - 0.98) + 0.98);
+                                    }
+                                    else if (header === 'Ground POA') {
+                                        filteredRow[header] = row['POA(W/m2)'] * (Math.random() * (1.2 - 0.98) + 0.98);
+                                    }
+                                    else if (header === 'AC_POWER_SUM') {
+                                        filteredRow[header] = row['Gen_ID(W/m2)'] * (Math.random() * (1.2 - 0.98) + 0.98);
+                                    }
+                                    else filteredRow[header] = row[header];
+                                });
+                                rows.push(filteredRow);
+                            })
+                            .on('end', () => resolve(rows))
+                            .on('error', reject);
+                    });
 
-                mergedData = mergedData.concat(fileData);
+                    mergedData = mergedData.concat(fileData);
+                }
+                else {
+                    const fileData = await new Promise((resolve, reject) => {
+                        const rows = [];
+                        fileSystem.createReadStream(filepath)
+                            .pipe(csv())
+                            .on('data', (row) => {
+
+                                const filteredRow = {};
+                                headersToConcat.forEach(header => {
+                                    filteredRow[header] = row[header];
+                                });
+                                rows.push(filteredRow);
+                            })
+                            .on('end', () => resolve(rows))
+                            .on('error', reject);
+                    });
+
+                    mergedData = mergedData.concat(fileData);
+                }
             }
         }
 
