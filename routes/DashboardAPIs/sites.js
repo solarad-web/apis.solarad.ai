@@ -86,8 +86,8 @@ route.get('/data', async (req, res, next) => {
                     }
                 })
                 .on('data', (data) => {
-                    data['Ground POA'] = data['POA'] * (Math.random() * (1.2 - 0.98) + 0.98);
-                    data['Ground GHI'] = data['GHI'] * (Math.random() * (1.2 - 0.98) + 0.98);
+                    data['Ground POA'] = (data['POA'] * (Math.random() * (1.2 - 0.98) + 0.98)).toFixed(2);
+                    data['Ground GHI'] = (data['GHI'] * (Math.random() * (1.2 - 0.98) + 0.98)).toFixed(2);
 
                     results.push(data);
                 })
@@ -158,13 +158,13 @@ route.get('/getforecast', async (req, res, next) => {
                                 const filteredRow = {};
                                 headersToConcat.forEach(header => {
                                     if (header === 'Ground GHI') {
-                                        filteredRow[header] = row['GHI_ID(W/m2)'] * (Math.random() * (1.2 - 0.98) + 0.98);
+                                        filteredRow[header] = (row['GHI_ID(W/m2)'] * (Math.random() * (1.2 - 0.98) + 0.98)).toFixed(2);
                                     }
                                     else if (header === 'Ground POA') {
-                                        filteredRow[header] = row['POA(W/m2)'] * (Math.random() * (1.2 - 0.98) + 0.98);
+                                        filteredRow[header] = (row['POA(W/m2)'] * (Math.random() * (1.2 - 0.98) + 0.98)).toFixed(2);
                                     }
                                     else if (header === 'AC_POWER_SUM') {
-                                        filteredRow[header] = row['Gen_ID(W/m2)'] * (Math.random() * (1.2 - 0.98) + 0.98);
+                                        filteredRow[header] = (row['Gen_ID(W/m2)'] * (Math.random() * (1.2 - 0.98) + 0.98)).toFixed(2);
                                     }
                                     else filteredRow[header] = row[header];
                                 });
