@@ -32,7 +32,7 @@ route.get("/config", async (req, res, next) => {
                 'site': 'Demo-Site',
                 'ground_data_available': 'True',
                 'show_ghi': 'True',
-                'show_poa': 'False',
+                'show_poa': 'True',
                 'show_forecast': 'True',
                 'lat': '28.7041',
                 'lon': '77.1025'
