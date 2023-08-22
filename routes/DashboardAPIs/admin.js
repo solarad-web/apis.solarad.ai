@@ -4,9 +4,6 @@ const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
 const bcrypt = require("bcrypt");
-const jwt = require('jsonwebtoken');
-const fileSystem = require("fs");
-const csv = require('csv-parser');
 const pool = require("../../config/db");
 route.use(express.json());
 const { sendMagicLinkEmailByAdmin } = require("../../services/mailer");
@@ -47,8 +44,6 @@ route.post("/add-site", async (req, res, next) => {
         let mount_config = data.mount_config;
         let tilt_angle = data.tilt_angle;
 
-        //create a query to check if the site already exists in utility_sites table
-        //execute the query using pool
         const { rows } = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename]);
 
         if (rows.length > 0) {
@@ -56,8 +51,6 @@ route.post("/add-site", async (req, res, next) => {
             return;
         }
 
-        //create a query to insert the site into utility_sites table
-        //execute the query using pool
         await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14)`,
             [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle]);
 
@@ -74,8 +67,6 @@ route.get("/findSite", async (req, res, next) => {
         const site = req.query.site;
         const company = req.query.company;
 
-        //create a query to check if the site exists in utility_sites table and then send the data of that site in an object
-        //execute the query using pool
         const { rows } = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, site]);
 
         if (rows.length === 0) {
@@ -110,8 +101,6 @@ route.post("/updateSite", async (req, res, next) => {
         let mount_config = data.mount_config;
         let tilt_angle = data.tilt_angle;
 
-        //create a query to update the site in utility_sites table
-        //execute the query using pool
         await pool.query(`UPDATE utility_sites SET ground_data_available=$1, show_ghi=$2, ele=$3, show_poa=$4, show_forecast=$5, lat=$6, lon=$7, timezone=$8, capacity=$9, country=$10, mount_config=$11, tilt_angle=$12 WHERE company=$13 AND sitename=$14`,
             [ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, company, sitename]);
 
@@ -129,8 +118,6 @@ route.get("/deleteSite", async (req, res, next) => {
         const site = req.query.site;
         const company = req.query.company;
 
-        //create a query to check if the site exists in utility_sites table
-        //execute the query using pool
         const { rows } = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, site]);
 
         if (rows.length === 0) {
@@ -138,8 +125,6 @@ route.get("/deleteSite", async (req, res, next) => {
             return;
         }
 
-        //create a query to delete the site from utility_sites table
-        //execute the query using pool
         await pool.query(`DELETE FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, site]);
 
         res.send('Site deleted successfully');
@@ -159,17 +144,13 @@ route.get("/addUser", async (req, res, next) => {
         const lname = req.query.lname;
         const pwd = company.toLowerCase();
         const passhash = await generateHash(pwd);
-        //create a query to check if the user already exists in users table
-        //execute the query using pool
+
         const user = await pool.query(`SELECT * FROM user_details WHERE user_email=$1`, [email]);
 
         if (user.rows.length > 0) {
             res.send("User already exists");
             return;
         }
-
-        //create a query to insert the user into users table
-        //execute the query using pool
         await pool.query(`INSERT INTO user_details (user_email, user_fname, user_lname, company, passhash)
         VALUES ($1, $2, $3, $4, $5)`, [email, fname, lname, company, passhash]);
 
@@ -184,7 +165,30 @@ route.get("/addUser", async (req, res, next) => {
 })
 
 
-//generate hash value for password
+route.get('/updateUser', async (req, res, next) => {
+    try {
+        const email = req.query.email;
+        const company = req.query.company;
+
+        //if email doesnt exists res.send('Email doesn't exists')
+        const user = await pool.query(`SELECT * FROM user_details WHERE user_email=$1`, [email]);
+
+        if (user.rows.length === 0) {
+            res.send("User doesn't exists");
+            return;
+        }
+
+        await pool.query(`UPDATE user_details SET company=$1 WHERE user_email=$2`, [company, email]);
+
+        res.send('User updated successfully');
+    }
+    catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
+
+
 async function generateHash(password) {
     try {
         const salt = await bcrypt.genSalt(11);

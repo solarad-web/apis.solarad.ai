@@ -24,10 +24,9 @@ route.get("/", async (req, res, next) => {
                 let site_id = req.query.site_id;
                 var filePath = `/home/Fenice/site_${site_id}.csv`;
 
-                // Check if the file exists
                 if (!fileSystem.existsSync(filePath)) {
                     res.status(404).send("File not found");
-                    return; // Exit the function early
+                    return;
                 }
 
                 var stat = fileSystem.statSync(filePath);
@@ -39,20 +38,17 @@ route.get("/", async (req, res, next) => {
                 res.set("Content-Type", "text/csv");
                 res.set("Content-Length", stat.size);
 
-                // Read and process the CSV file
                 const results = [];
                 const unchangedResults = [];
                 let columnExists = false;
                 fileSystem.createReadStream(filePath)
                     .pipe(csv())
                     .on('headers', (headers) => {
-                        // Check if the specified column exists in the CSV file
                         if (headers.includes(`ENTRY_TIME`)) {
                             columnExists = true;
                         }
                     })
                     .on('data', (data) => {
-                        // Remove the specified column from each row
                         unchangedResults.push(data);
                         delete data[`ENTRY_TIME`];
                         results.push(data);
@@ -72,18 +68,16 @@ route.get("/", async (req, res, next) => {
     }
 })
 
-// Define a route to generate and send CSV data
+
+
 route.get('/export-csv', async (req, res) => {
     try {
         const client = await pool.connect()
 
-        // Query your PostgreSQL table
         const queryResult = await client.query('SELECT * FROM residential_sites WHERE company = $1', ['Fenice'])
 
-        // Create a writable stream for CSV data
         const csvStream = fastcsv.format({ headers: true });
 
-        // Write the headers to the CSV stream
         const headers = [
             'sitename', 'company', 'lat', 'lon', 'ele',
             'capacity', 'country', 'timezone', 'mount_config',
@@ -91,18 +85,14 @@ route.get('/export-csv', async (req, res) => {
         ];
         csvStream.write(headers);
 
-        // Write the query result (rows) to the CSV stream
         queryResult.rows.forEach(row => csvStream.write(row));
         csvStream.end();
 
-        // Close the database connection
         client.release();
 
-        // Set the response headers for CSV download
         res.setHeader('Content-Disposition', 'attachment; filename="residential_sites.csv"');
         res.setHeader('Content-Type', 'text/csv');
 
-        // Pipe the CSV stream to the response
         csvStream.pipe(res);
     } catch (error) {
         console.error('Error:', error);
@@ -135,7 +125,6 @@ route.post('/add-site', async (req, res, next) => {
 
 
                 if (latLonrows.rows.length > 0) {
-                    //update the site with these details
                     await pool.query(`UPDATE residential_sites SET sitename = $1, company = $2, lat = $3, lon = $4, ele = $5, capacity = $6, country = $7, timezone = $8, mount_config = $9, tilt_angle = $10, ground_data_available = $11 WHERE lat = $3 AND lon = $4`,
                         [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available]);
 
@@ -158,7 +147,6 @@ route.post('/add-site', async (req, res, next) => {
       `, [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available]);
 
                     if (rows.length > 0) {
-                        // Site with these details already exists
                         res.status(400).send('Site with these details already exists');
                         return;
                     }
@@ -206,7 +194,6 @@ route.post('/add-site', async (req, res, next) => {
 
 
 
-// Helper function to convert data to CSV format
 function convertToCsv(data) {
     if (!data || data.length === 0) {
         return '';

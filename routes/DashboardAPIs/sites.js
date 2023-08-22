@@ -15,7 +15,6 @@ const pool = require('../../config/db');
 
 route.get("/config", async (req, res, next) => {
     try {
-        //if email is equal to bhramar@solarad.ai, then put the sites and client name together
         const email = req.query.email;
         const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
         let company = await resJson.rows[0].company;
@@ -59,22 +58,19 @@ route.get('/data', async (req, res, next) => {
         var timeframe = req.query.timeframe;
         let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
 
-        //set the headers for the response as the original filename
         res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
         res.setHeader('Content-type', 'text/csv');
 
 
-        // Check if the file exists
         if (!fileSystem.existsSync(filepath)) {
             res.send("File not found");
-            return; // Exit the function early
+            return;
         }
 
         const results = [];
         fileSystem.createReadStream(filepath)
             .pipe(csv())
             .on('headers', (headers) => {
-                // Check if the specified column exists in the CSV file
                 if (headers.includes(`Time`)) {
                     if (timeframe === "Daily") headers[headers.indexOf('Time')] = `Date`;
                     else if (timeframe === "Monthly") headers[headers.indexOf('Time')] = `Month`;
@@ -85,9 +81,7 @@ route.get('/data', async (req, res, next) => {
             })
             .on('end', () => {
                 const modifiedCsv = convertToCsv(results);
-                // Create a new CSV file with modified data
 
-                // Send back the modified CSV file
                 res.send(modifiedCsv);
             });
     } catch (err) {
@@ -121,7 +115,7 @@ route.get('/getforecast', async (req, res, next) => {
                     fileSystem.createReadStream(filepath)
                         .pipe(csv())
                         .on('data', (row) => {
-                            // Only include the specified columns
+
                             const filteredRow = {};
                             headersToConcat.forEach(header => {
                                 filteredRow[header] = row[header];
@@ -144,9 +138,9 @@ route.get('/getforecast', async (req, res, next) => {
         res.setHeader('Content-disposition', `attachment; filename=Solarad_${site}_${client}_Forecast_Merged.csv`);
         res.setHeader('Content-type', 'text/csv');
 
-        res.write(headersToConcat.join(',') + '\n'); // Write the specified headers
+        res.write(headersToConcat.join(',') + '\n');
         mergedData.forEach(row => {
-            res.write(headersToConcat.map(header => row[header]).join(',') + '\n'); // Write the specified columns
+            res.write(headersToConcat.map(header => row[header]).join(',') + '\n');
         });
         res.end();
 
@@ -157,7 +151,6 @@ route.get('/getforecast', async (req, res, next) => {
 });
 
 
-//get utility data api
 route.get('/get-utility-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT * FROM utility_sites')
@@ -185,7 +178,6 @@ route.get('/get-utility-sites', async (req, res) => {
     }
 })
 
-//get utility data api
 route.get('/get-residential-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT * FROM residential_sites')
@@ -213,7 +205,6 @@ route.get('/get-residential-sites', async (req, res) => {
 })
 
 
-//create a route to get all the emails and their companies, then find the sites of each company and send the email and sites to the frontend
 route.get('/get-all-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT DISTINCT user_email FROM user_details');
@@ -226,7 +217,6 @@ route.get('/get-all-sites', async (req, res) => {
             let companySites = await pool.query('SELECT sitename FROM utility_sites WHERE company = $1', [company.rows[0].company]);
             if (company.rows[0].company === process.env.ADMIN_COMPANY) companySites = await pool.query('SELECT sitename FROM utility_sites');
 
-            //if companySites is empty, then push the demo site
             if (companySites.rows.length === 0) {
                 companySites.rows.push({
                     sitename: 'Demo-Site'
@@ -248,7 +238,6 @@ route.get('/get-all-sites', async (req, res) => {
 })
 
 
-// Helper function to convert data to CSV format
 function convertToCsv(data) {
     const header = Object.keys(data[0]).join(',') + '\n';
     const rows = data.map((row) => Object.values(row).join(',') + '\n');
