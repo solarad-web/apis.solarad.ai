@@ -157,19 +157,19 @@ route.get('/getforecast', async (req, res, next) => {
                             .on('data', (row) => {
                                 const filteredRow = {};
                                 headersToConcat.forEach(header => {
-                                    if (date.isSameOrAfter(currentDate)) {
-                                        if (header === 'Ground GHI') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Ground POA') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'AC_POWER_SUM') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else filteredRow[header] = row[header];
-                                    }
-                                    else {
+                                    // if (date.isSameOrAfter(currentDate)) {
+                                    //     if (header === 'Ground GHI') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Ground POA') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'AC_POWER_SUM') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else filteredRow[header] = row[header];
+                                    // }
+                                    // else {
                                         if (header === 'Ground GHI') {
                                             filteredRow[header] = (row['GHI_ID(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
                                         }
@@ -180,7 +180,7 @@ route.get('/getforecast', async (req, res, next) => {
                                             filteredRow[header] = (row['Gen_ID(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
                                         }
                                         else filteredRow[header] = row[header];
-                                    }
+                                    // }
                                 });
                                 rows.push(filteredRow);
                             })
