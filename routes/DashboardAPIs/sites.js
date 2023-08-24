@@ -157,7 +157,6 @@ route.get('/getforecast', async (req, res, next) => {
                                 const filteredRow = {};
                                 headersToConcat.forEach(header => {
                                     if (date.isSameOrBefore(currentDate)) {
-                                        console.log(date, currentDate)
                                         if (header === 'Ground GHI') {
                                             filteredRow[header] = (row['GHI_ID(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
                                         }
