@@ -130,6 +130,7 @@ route.get('/getforecast', async (req, res, next) => {
         const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const outputFormat = 'YYYY-MM-DD';
+        const currentDate = moment().format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
 
         if (client === 'Demo') {
             client = process.env.DEMO_COMPANY;
@@ -154,10 +155,21 @@ route.get('/getforecast', async (req, res, next) => {
                         fileSystem.createReadStream(filepath)
                             .pipe(csv())
                             .on('data', (row) => {
-
                                 const filteredRow = {};
                                 headersToConcat.forEach(header => {
-                                    if (!date.add(2, 'days').isSameOrBefore(endDate)) {
+                                    if (date.isSameOrAfter(currentDate)) {
+                                        if (header === 'Ground GHI') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Ground POA') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'AC_POWER_SUM') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else filteredRow[header] = row[header];
+                                    }
+                                    else {
                                         if (header === 'Ground GHI') {
                                             filteredRow[header] = (row['GHI_ID(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
                                         }
@@ -169,25 +181,12 @@ route.get('/getforecast', async (req, res, next) => {
                                         }
                                         else filteredRow[header] = row[header];
                                     }
-                                    else {
-                                        if (header === 'Ground GHI') {
-                                            filteredRow[header] = 0;
-                                        }
-                                        else if (header === 'Ground POA') {
-                                            filteredRow[header] = 0;
-                                        }
-                                        else if (header === 'AC_POWER_SUM') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else filteredRow[header] = row[header];
-                                    }
                                 });
                                 rows.push(filteredRow);
                             })
                             .on('end', () => resolve(rows))
                             .on('error', reject);
                     });
-
                     mergedData = mergedData.concat(fileData);
                 }
                 else {
