@@ -1,6 +1,5 @@
 const Router = require('express');
 const route = Router();
-const axios = require('axios');
 const dotenv = require("dotenv");
 const moment = require('moment-timezone');
 dotenv.config();
@@ -131,6 +130,7 @@ route.get('/getforecast', async (req, res, next) => {
         const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const outputFormat = 'YYYY-MM-DD';
         const currentDate = moment().format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
         if (client === 'Demo') {
             client = process.env.DEMO_COMPANY;
             isDemoClient = true;
@@ -156,7 +156,9 @@ route.get('/getforecast', async (req, res, next) => {
                             .on('data', (row) => {
                                 const filteredRow = {};
                                 headersToConcat.forEach(header => {
-                                    if (date.isSameOrBefore(currentDate)) {
+                                    const rowTime = moment(filteredRow['Time'], 'YYYY-MM-DD HH:mm:ssZ');
+
+                                    if (moment(currentTime).isAfter(rowTime)) {
                                         if (header === 'Ground GHI') {
                                             filteredRow[header] = (row['GHI_ID(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
                                         }
