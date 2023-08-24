@@ -158,7 +158,7 @@ route.get('/getforecast', async (req, res, next) => {
                                 headersToConcat.forEach(header => {
                                     const rowTime = moment(filteredRow['Time'], 'YYYY-MM-DD HH:mm:ssZ');
 
-                                    if (moment(currentTime).isAfter(rowTime)) {
+                                    if (moment(rowTime).isSameOrBefore(currentTime)) {
                                         if (header === 'Ground GHI') {
                                             filteredRow[header] = (row['GHI_ID(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
                                         }
