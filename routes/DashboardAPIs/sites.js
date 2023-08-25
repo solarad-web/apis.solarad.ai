@@ -5,7 +5,8 @@ const moment = require('moment-timezone');
 dotenv.config();
 const fastcsv = require('fast-csv');
 
-
+const csvParser = require('csv-parser');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const fileSystem = require("fs");
 const csv = require('csv-parser');
 const pool = require('../../config/db');
@@ -317,6 +318,59 @@ route.get('/get-all-sites', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 })
+
+
+
+app.get('/convertHourlyToDailyOpenMeteo', async (req, res) => {
+    const lat = req.query.lat;
+    const lon = req.query.lon;
+    const year = req.query.year;
+    const apiUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${year}-01-01&end_date=${year}-12-31&hourly=temperature_2m,relativehumidity_2m,precipitation,surface_pressure,cloudcover,shortwave_radiation,diffuse_radiation,direct_normal_irradiance&timezone=GMT&format=csv`;
+    const response = await axios.get(apiUrl);
+    const csvData = response.data;
+  
+    const dailyData = {};
+    let dataStarted = false;
+  
+    csvParser()
+      .on('data', (row) => {
+        // Skip the header rows
+        if (row.latitude === 'time') {
+          dataStarted = true;
+          return;
+        }
+        if (!dataStarted) return;
+  
+        const date = row.latitude.split('T')[0];
+        if (!dailyData[date]) {
+          dailyData[date] = { count: 1, ...row };
+        } else {
+          dailyData[date].count++;
+          dailyData[date].longitude = ((parseFloat(dailyData[date].longitude) * (dailyData[date].count - 1) + parseFloat(row.longitude)) / dailyData[date].count).toFixed(2);
+          dailyData[date].elevation = ((parseFloat(dailyData[date].elevation) * (dailyData[date].count - 1) + parseFloat(row.elevation)) / dailyData[date].count).toFixed(2);
+          dailyData[date].timezone = ((parseFloat(dailyData[date].timezone) * (dailyData[date].count - 1) + parseFloat(row.timezone)) / dailyData[date].count).toFixed(2);
+          dailyData[date]._6 = ((parseFloat(dailyData[date]._6) * (dailyData[date].count - 1) + parseFloat(row._6)) / dailyData[date].count).toFixed(2);
+          dailyData[date]._7 = ((parseFloat(dailyData[date]._7) * (dailyData[date].count - 1) + parseFloat(row._7)) / dailyData[date].count).toFixed(2);
+          dailyData[date]._8 = ((parseFloat(dailyData[date]._8) * (dailyData[date].count - 1) + parseFloat(row._8)) / dailyData[date].count).toFixed(2);
+        }
+      })
+      .on('end', () => {
+       
+      })
+      .write(csvData)
+    //   .end();
+    const dailyArray = Object.values(dailyData).map(row => {
+        delete row.count;
+        return row;
+      });
+      const csvWriter = createCsvWriter({
+        path: 'output.csv',
+        header: Object.keys(dailyArray[0]).map((key) => ({ id: key, title: key })),
+      });
+      csvWriter.writeRecords(dailyArray).then(() => {
+        res.download('output.csv');
+      });
+  });
 
 
 function convertToCsv(data) {
