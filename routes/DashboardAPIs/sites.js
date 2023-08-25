@@ -347,16 +347,16 @@ route.get('/convertHourlyToDailyOpenMeteo', async (req, res) => {
           dailyData[date] = { count: 1, ...row };
         } else {
           dailyData[date].count++;
-          dailyData[date].longitude += parseFloat(row.longitude);
-          dailyData[date].elevation += parseFloat(row.elevation);
-          dailyData[date].timezone += parseFloat(row.timezone);
-          dailyData[date]._6 += parseFloat(row._6);
-          dailyData[date]._7 += parseFloat(row._7);
-          dailyData[date]._8 += parseFloat(row._8);
+          dailyData[date].longitude = parseFloat(dailyData[date].longitude) + parseFloat(row.longitude);
+          dailyData[date].elevation = parseFloat(dailyData[date].elevation) + parseFloat(row.elevation);
+          dailyData[date].utc_offset_seconds = parseFloat(dailyData[date].utc_offset_seconds) + parseFloat(row.utc_offset_seconds);
+          dailyData[date].timezone = parseFloat(dailyData[date].timezone) + parseFloat(row.timezone);
+          dailyData[date]._6 = parseFloat(dailyData[date]._6) + parseFloat(row._6);
+          dailyData[date]._7 = parseFloat(dailyData[date]._7) + parseFloat(row._7);
+          dailyData[date]._8 = parseFloat(dailyData[date]._8) + parseFloat(row._8);
         }
       })
       .on('end', () => {
-        
       })
       .write(csvData)
     //   .end();
@@ -381,7 +381,6 @@ route.get('/convertHourlyToDailyOpenMeteo', async (req, res) => {
         res.download('output.csv');
       });
   });
-
 
 function convertToCsv(data) {
     const header = Object.keys(data[0]).join(',') + '\n';
