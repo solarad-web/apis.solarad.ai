@@ -385,9 +385,9 @@ route.get('/convertHourlyToDailyOpenMeteo', async (req, res, next) => {
                 'precipitation (mm)': (row.utc_offset_seconds / row.count).toFixed(2),
                 'surface_pressure (hPa)': (row.timezone / row.count).toFixed(2),
                 'cloudcover (%)': (row.timezone_abbreviation / row.count).toFixed(2), // Fixed cloud cover calculation
-                'shortwave_radiation (W/m²)': row._6.toFixed(2),
-                'diffuse_radiation (W/m²)': row._7.toFixed(2),
-                'direct_normal_irradiance (W/m²)': row._8.toFixed(2)
+                'shortwave_radiation (kWh/m²)': row._6.toFixed(2),
+                'diffuse_radiation (kWh/m²)': row._7.toFixed(2),
+                'direct_normal_irradiance (kWh/m²)': row._8.toFixed(2)
             };
         });
         const csvWriter = createCsvWriter({
