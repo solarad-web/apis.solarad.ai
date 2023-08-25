@@ -320,7 +320,7 @@ route.get('/get-all-sites', async (req, res) => {
     }
 })
 
-
+// /convertHourlyToDailyOpenMeteo
 
 route.get('/convertHourlyToDailyOpenMeteo', async (req, res) => {
     const lat = req.query.lat;
@@ -347,40 +347,38 @@ route.get('/convertHourlyToDailyOpenMeteo', async (req, res) => {
           dailyData[date] = { count: 1, ...row };
         } else {
           dailyData[date].count++;
-          dailyData[date].longitude = ((parseFloat(dailyData[date].longitude) * (dailyData[date].count - 1) + parseFloat(row.longitude)) / dailyData[date].count).toFixed(2);
-          dailyData[date].elevation = ((parseFloat(dailyData[date].elevation) * (dailyData[date].count - 1) + parseFloat(row.elevation)) / dailyData[date].count).toFixed(2);
-          dailyData[date].timezone = ((parseFloat(dailyData[date].timezone) * (dailyData[date].count - 1) + parseFloat(row.timezone)) / dailyData[date].count).toFixed(2);
-          dailyData[date]._6 = ((parseFloat(dailyData[date]._6) * (dailyData[date].count - 1) + parseFloat(row._6)) / dailyData[date].count).toFixed(2);
-          dailyData[date]._7 = ((parseFloat(dailyData[date]._7) * (dailyData[date].count - 1) + parseFloat(row._7)) / dailyData[date].count).toFixed(2);
-          dailyData[date]._8 = ((parseFloat(dailyData[date]._8) * (dailyData[date].count - 1) + parseFloat(row._8)) / dailyData[date].count).toFixed(2);
+          dailyData[date].longitude += parseFloat(row.longitude);
+          dailyData[date].elevation += parseFloat(row.elevation);
+          dailyData[date].timezone += parseFloat(row.timezone);
+          dailyData[date]._6 += parseFloat(row._6);
+          dailyData[date]._7 += parseFloat(row._7);
+          dailyData[date]._8 += parseFloat(row._8);
         }
       })
       .on('end', () => {
-       
+        const dailyArray = Object.values(dailyData).map(row => {
+          return {
+            'time': row.latitude.split('T')[0],
+            'temperature_2m (°C)': (row.longitude / row.count).toFixed(2),
+            'relativehumidity_2m (%)': (row.elevation / row.count).toFixed(2),
+            'precipitation (mm)': (row.utc_offset_seconds / row.count).toFixed(2),
+            'surface_pressure (hPa)': (row.timezone / row.count).toFixed(2),
+            'cloudcover (%)': (row.timezone_abbreviation / row.count).toFixed(2),
+            'shortwave_radiation (W/m²)': (row._6 / row.count).toFixed(2),
+            'diffuse_radiation (W/m²)': (row._7 / row.count).toFixed(2),
+            'direct_normal_irradiance (W/m²)': (row._8 / row.count).toFixed(2)
+          };
+        });
+        const csvWriter = createCsvWriter({
+          path: 'output.csv',
+          header: Object.keys(dailyArray[0]).map((key) => ({ id: key, title: key })),
+        });
+        csvWriter.writeRecords(dailyArray).then(() => {
+          res.download('output.csv');
+        });
       })
       .write(csvData)
-    //   .end();
-    const dailyArray = Object.values(dailyData).map(row => {
-        delete row.count;
-        return {
-          'time': row.latitude,
-          'temperature_2m (°C)': row.longitude,
-          'relativehumidity_2m (%)': row.elevation,
-          'precipitation (mm)': row.utc_offset_seconds,
-          'surface_pressure (hPa)': row.timezone,
-          'cloudcover (%)': row.timezone_abbreviation,
-          'shortwave_radiation (W/m²)': row._6,
-          'diffuse_radiation (W/m²)': row._7,
-          'direct_normal_irradiance (W/m²)': row._8
-        };
-      });
-      const csvWriter = createCsvWriter({
-        path: 'output.csv',
-        header: Object.keys(dailyArray[0]).map((key) => ({ id: key, title: key })),
-      });
-      csvWriter.writeRecords(dailyArray).then(() => {
-        res.download('output.csv');
-      });
+      .end();
   });
 
 
