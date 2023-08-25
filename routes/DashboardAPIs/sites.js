@@ -345,7 +345,7 @@ route.get('/convertHourlyToDailyOpenMeteo', async (req, res, next) => {
                 if (!dataStarted) return;
 
                 const dateUTC = row.latitude;
-                const dateTimezone = moment.tz(dateUTC, "Asia/Kolkata");
+                const dateTimezone = moment.tz(dateUTC, timezone);
                 const dateKey = dateTimezone.format('YYYY-MM-DD');
 
                 if (!dailyData[dateKey]) {
