@@ -321,7 +321,7 @@ route.get('/get-all-sites', async (req, res) => {
 
 
 
-app.get('/convertHourlyToDailyOpenMeteo', async (req, res) => {
+route.get('/convertHourlyToDailyOpenMeteo', async (req, res) => {
     const lat = req.query.lat;
     const lon = req.query.lon;
     const year = req.query.year;
