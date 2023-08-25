@@ -362,7 +362,17 @@ route.get('/convertHourlyToDailyOpenMeteo', async (req, res) => {
     //   .end();
     const dailyArray = Object.values(dailyData).map(row => {
         delete row.count;
-        return row;
+        return {
+          'time': row.latitude,
+          'temperature_2m (°C)': row.longitude,
+          'relativehumidity_2m (%)': row.elevation,
+          'precipitation (mm)': row.utc_offset_seconds,
+          'surface_pressure (hPa)': row.timezone,
+          'cloudcover (%)': row.timezone_abbreviation,
+          'shortwave_radiation (W/m²)': row._6,
+          'diffuse_radiation (W/m²)': row._7,
+          'direct_normal_irradiance (W/m²)': row._8
+        };
       });
       const csvWriter = createCsvWriter({
         path: 'output.csv',
