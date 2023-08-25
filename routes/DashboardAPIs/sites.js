@@ -356,29 +356,30 @@ route.get('/convertHourlyToDailyOpenMeteo', async (req, res) => {
         }
       })
       .on('end', () => {
-        const dailyArray = Object.values(dailyData).map(row => {
-          return {
-            'time': row.latitude.split('T')[0],
-            'temperature_2m (°C)': (row.longitude / row.count).toFixed(2),
-            'relativehumidity_2m (%)': (row.elevation / row.count).toFixed(2),
-            'precipitation (mm)': (row.utc_offset_seconds / row.count).toFixed(2),
-            'surface_pressure (hPa)': (row.timezone / row.count).toFixed(2),
-            'cloudcover (%)': (row.timezone_abbreviation / row.count).toFixed(2),
-            'shortwave_radiation (W/m²)': (row._6 / row.count).toFixed(2),
-            'diffuse_radiation (W/m²)': (row._7 / row.count).toFixed(2),
-            'direct_normal_irradiance (W/m²)': (row._8 / row.count).toFixed(2)
-          };
-        });
-        const csvWriter = createCsvWriter({
-          path: 'output.csv',
-          header: Object.keys(dailyArray[0]).map((key) => ({ id: key, title: key })),
-        });
-        csvWriter.writeRecords(dailyArray).then(() => {
-          res.download('output.csv');
-        });
+        
       })
       .write(csvData)
-      .end();
+    //   .end();
+    const dailyArray = Object.values(dailyData).map(row => {
+        return {
+          'time': row.latitude.split('T')[0],
+          'temperature_2m (°C)': (row.longitude / row.count).toFixed(2),
+          'relativehumidity_2m (%)': (row.elevation / row.count).toFixed(2),
+          'precipitation (mm)': (row.utc_offset_seconds / row.count).toFixed(2),
+          'surface_pressure (hPa)': (row.timezone / row.count).toFixed(2),
+          'cloudcover (%)': (row.timezone_abbreviation / row.count).toFixed(2),
+          'shortwave_radiation (W/m²)': (row._6 / row.count).toFixed(2),
+          'diffuse_radiation (W/m²)': (row._7 / row.count).toFixed(2),
+          'direct_normal_irradiance (W/m²)': (row._8 / row.count).toFixed(2)
+        };
+      });
+      const csvWriter = createCsvWriter({
+        path: 'output.csv',
+        header: Object.keys(dailyArray[0]).map((key) => ({ id: key, title: key })),
+      });
+      csvWriter.writeRecords(dailyArray).then(() => {
+        res.download('output.csv');
+      });
   });
 
 
