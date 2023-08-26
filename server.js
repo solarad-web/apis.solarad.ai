@@ -123,11 +123,11 @@ async function checkForecastAvailability(allSites) {
 }
 
 
-// // Call the function immediately when the program starts
-// checkLiveAndForecastAvailability();
+// Call the function immediately when the program starts
+checkLiveAndForecastAvailability();
 
-// // Set an interval to run the function every hour
-// setInterval(checkLiveAndForecastAvailability, 3600000);
+// Set an interval to run the function every hour
+setInterval(checkLiveAndForecastAvailability, 3600000);
 
 
 
