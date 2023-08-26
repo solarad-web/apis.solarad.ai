@@ -40,5 +40,5 @@ services:
       POSTGRES_DB: db
 
 
-volumes:
-  pgdata:
+# volumes:
+#   pgdata:
