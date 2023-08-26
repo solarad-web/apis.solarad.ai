@@ -30,7 +30,7 @@ services:
       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
       # copy the sql script to fill tables
       - ./sql/fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
-      - ./tmp/db:/var/lib/postgresql@15/data:rw
+      - ./tmp/db:/var/lib/postgresql/data:rw
       - pgdata:/var/lib/postgresql/data
     ports:
       - "35432:5432"
