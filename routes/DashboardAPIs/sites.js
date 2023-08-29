@@ -261,6 +261,7 @@ route.get('/get-utility-sites', async (req, res) => {
     }
 })
 
+
 route.get('/get-residential-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT * FROM residential_sites')
@@ -277,7 +278,7 @@ route.get('/get-residential-sites', async (req, res) => {
         queryResult.rows.forEach(row => csvStream.write(row));
         csvStream.end();
 
-        res.setHeader('Content-Disposition', 'attachment; filename="utility_sites.csv"');
+        res.setHeader('Content-Disposition', 'attachment; filename="residential_sites.csv"');
         res.setHeader('Content-Type', 'text/csv');
 
         csvStream.pipe(res);
