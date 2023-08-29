@@ -23,6 +23,17 @@ app.get("/health", (req, res) => {
   res.sendStatus(200);
 })
 
+app.get('/dbtest', (req, res) => {
+  pool.query('SELECT NOW()', (err, result) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send('Something went wrong');
+    }
+    else {
+      res.send(result.rows);
+    }
+  })
+})
 
 //use api routes
 app.use("/fenice", fenice);
