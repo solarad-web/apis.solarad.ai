@@ -134,6 +134,46 @@ async function checkForecastAvailability(allSites) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Call the function immediately when the program starts
 checkLiveAndForecastAvailability();
 
