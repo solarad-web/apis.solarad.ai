@@ -4,8 +4,8 @@ services:
   app:
     restart: on-failure
     build: .
-    depends_on:
-      - postgres
+    # depends_on:
+    #   - postgres
     environment:
       DATABASE_URL: postgres://user:pass@postgres:5432/db
       NODE_ENV: development
@@ -23,22 +23,22 @@ services:
       - /home/ec2-user/s3-truth/residential-sites.csv:/home/residential-sites
 
 
-  postgres:
-    image: postgres:15
-    volumes:
-      # copy the sql script to create tables
-      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
-      # copy the sql script to fill tables
-      - ./sql/fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
-      - ./tmp/db:/var/lib/postgresql@15/data:rw
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "35432:5432"
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: db
+#   postgres:
+#     image: postgres:15
+#     volumes:
+#       # copy the sql script to create tables
+#       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+#       # copy the sql script to fill tables
+#       - ./sql/fill_tables.sql:/docker-entrypoint-initdb.d/fill_tables.sql
+#       - ./tmp/db:/var/lib/postgresql@15/data:rw
+#       - pgdata:/var/lib/postgresql/data
+#     ports:
+#       - "35432:5432"
+#     environment:
+#       POSTGRES_USER: user
+#       POSTGRES_PASSWORD: pass
+#       POSTGRES_DB: db
 
 
-volumes:
-  pgdata:
+# volumes:
+#   pgdata:
