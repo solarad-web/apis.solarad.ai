@@ -87,7 +87,7 @@ route.post("/updateSite", async (req, res, next) => {
     try {
         const data = req.body;
 
-        let site_id = data.site_id;
+        let site_id = data.id;
         let company = data.company;
         let sitename = data.sitename;
         let ground_data_available = data.ground_data_available;
