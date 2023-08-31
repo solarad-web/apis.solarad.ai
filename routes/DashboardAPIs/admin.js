@@ -104,7 +104,7 @@ route.post("/updateSite", async (req, res, next) => {
         let tilt_angle = data.tilt_angle;
         tilt_angle = tilt_angle.split(',').map(angle => parseFloat(angle))
 
-        await pool.query(`UPDATE utility_sites SET ground_data_available=$1, show_ghi=$2, ele=$3, show_poa=$4, show_forecast=$5, lat=$6, lon=$7, timezone=$8, capacity=$9, country=$10, mount_config=$11, tilt_angle=$12, company=$13, sitename=$14 WHERE site_id=$15 `,
+        await pool.query(`UPDATE utility_sites SET ground_data_available=$1, show_ghi=$2, ele=$3, show_poa=$4, show_forecast=$5, lat=$6, lon=$7, timezone=$8, capacity=$9, country=$10, mount_config=$11, tilt_angle=$12, company=$13, sitename=$14 WHERE id=$15 `,
             [ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, company, sitename, site_id]);
 
         res.send('Site updated successfully');
