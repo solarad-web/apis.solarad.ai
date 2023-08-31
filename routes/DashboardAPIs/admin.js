@@ -43,6 +43,7 @@ route.post("/add-site", async (req, res, next) => {
         let capacity = data.capacity;
         let mount_config = data.mount_config;
         let tilt_angle = data.tilt_angle;
+        tilt_angle = tilt_angle.split(',').map(angle => parseFloat(angle));
 
         const { rows } = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename]);
 
