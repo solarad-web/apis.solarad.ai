@@ -44,7 +44,8 @@ route.get("/signIn", async (req, res, next) => {
 
     //get passhash from postgres
     const data = await pool.query(`SELECT * FROM user_details WHERE user_email = $1`, [email]);
-    const company = data.rows[0].company;
+    console.log(data);
+    const company = 'data.rows[0].company';
     if (data.rowCount === 0) {
         res.send("Email Not Present");
         return;
