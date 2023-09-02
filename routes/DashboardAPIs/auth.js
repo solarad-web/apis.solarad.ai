@@ -59,7 +59,7 @@ route.get("/signIn", async (req, res, next) => {
                     res.status(200).send('Admin');
                     return;
                 }
-                res.status(200).send('Valid');
+                else res.status(200).send('Valid');
             }
             else res.status(401).send('Invalid');
         });
