@@ -9,6 +9,21 @@ route.use(express.json());
 const { sendMagicLinkEmailByAdmin } = require("../../services/mailer");
 
 
+route.get('/getCompanies', async (req, res, next) => {
+    try {
+        const row = await pool.query(`SELECT company FROM companies`);
+
+        const companies = row.rows.map(company => company.company);
+
+        res.send(companies);
+    }
+    catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
+
+
 route.get("/getConfig", async (req, res, next) => {
     try {
         let company = req.query.company;

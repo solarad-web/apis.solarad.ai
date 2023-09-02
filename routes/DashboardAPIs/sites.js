@@ -21,9 +21,9 @@ route.get("/config", async (req, res, next) => {
         let company = await resJson.rows[0].company;
 
         let sitesQuery = await pool.query('SELECT * FROM utility_sites WHERE company = $1', [company])
-        if (company === process.env.ADMIN_COMPANY) {
-            sitesQuery = await pool.query('SELECT * FROM utility_sites');
-        }
+        // if (company === process.env.ADMIN_COMPANY) {
+        //     sitesQuery = await pool.query('SELECT * FROM utility_sites');
+        // }
 
         const sitesArr = sitesQuery.rows;
 
