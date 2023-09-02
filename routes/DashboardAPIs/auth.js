@@ -42,10 +42,9 @@ route.get("/signIn", async (req, res, next) => {
     const email = req.query.email;
     const providedPwd = req.query.pwd;
 
-
     //get passhash from postgres
     const data = await pool.query(`SELECT * FROM user_details WHERE user_email = $1`, [email]);
-
+    const company = data.rows[0].company;
     if (data.rowCount === 0) {
         res.send("Email Not Present");
         return;
@@ -56,6 +55,10 @@ route.get("/signIn", async (req, res, next) => {
     try {
         bcrypt.compare(providedPwd, storedPassHash, (err, result) => {
             if (result) {
+                if(company === process.env.ADMIN_COMPANY){
+                    res.status(200).send('Admin');
+                    return;
+                }
                 res.status(200).send('Valid');
             }
             else res.status(401).send('Invalid');
