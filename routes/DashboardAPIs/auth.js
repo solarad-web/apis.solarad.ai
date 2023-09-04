@@ -38,13 +38,14 @@ route.get("/signUp", async (req, res, next) => {
     }
 });
 
+
 route.get("/signIn", async (req, res, next) => {
     const email = req.query.email;
     const providedPwd = req.query.pwd;
 
     //get passhash from postgres
     const data = await pool.query(`SELECT * FROM user_details WHERE user_email = $1`, [email]);
-    
+
     if (data.rowCount === 0) {
         res.send("Email Not Present");
         return;

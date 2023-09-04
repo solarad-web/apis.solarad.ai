@@ -118,7 +118,8 @@ route.post('/add-site', async (req, res, next) => {
                 const country = req.body.country || "India";
                 const timezone = req.body.timezone || "Asia/Kolkata";
                 const mount_config = req.body.mount_config || "None";
-                const tilt_angle = req.body.tilt_angle || 0;
+                let tilt_angle = req.body.tilt_angle || 0;
+                tilt_angle = tilt_angle.split(',').map(angle => parseFloat(angle))
                 const ground_data_available = req.body.ground_data_available || "False";
 
                 const latLonrows = await pool.query(`SELECT * FROM residential_sites WHERE lat = $1 AND lon = $2`, [lat, lon]);
