@@ -106,9 +106,10 @@ route.post('/add-site', async (req, res, next) => {
     const storedApiKey = process.env.API_KEY;
 
 
-    try {
-        bcrypt.compare(providedApiKey, storedApiKey, async (err, result) => {
-            if (result) {
+
+    bcrypt.compare(providedApiKey, storedApiKey, async (err, result) => {
+        if (result) {
+            try {
                 const sitename = req.body.sitename;
                 const company = req.body.company || "Fenice";
                 const lat = req.body.lat || 27;
@@ -158,16 +159,18 @@ route.post('/add-site', async (req, res, next) => {
 
                     res.send("Sites added successfully");
                 }
-
-            } else {
-                res.status(401).send("Unauthorized");
             }
-        });
-    }
-    catch (err) {
-        console.log(err.message);
-        next(err);
-    }
+            catch (err) {
+                console.log(err.message);
+                next(err);
+            }
+
+        } else {
+            res.status(401).send("Unauthorized");
+        }
+
+    });
+
 })
 
 
