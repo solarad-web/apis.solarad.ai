@@ -143,7 +143,9 @@ route.get('/getforecast', async (req, res, next) => {
         }
 
         let mergedData = [];
-        let headersToConcat = ['Time', 'GHI_ID(W/m2)', 'Ground GHI', 'Gen_ID(W/m2)', 'AC_POWER_SUM', 'POA(W/m2)', 'Ground POA'];
+        let headersToConcat = ['Time', 'GHI_ID(W/m2)', 'Ground GHI', 'Gen_ID(W/m2)', 'AC_POWER_SUM', 'POA(W/m2)', 'Ground POA',
+         'GHI_ID_Rev0(W/m2)', 'GHI_ID_Rev1(W/m2)', 'GHI_ID_Rev2(W/m2)', 'GHI_ID_Rev3(W/m2)', 'GHI_ID_Rev4(W/m2)', 'GHI_ID_Rev5(W/m2)', 'GHI_ID_Rev6(W/m2)', 'GHI_ID_Rev7(W/m2)', 'GHI_ID_Rev8(W/m2)', 'GHI_ID_Rev9(W/m2)',
+        'Gen_Rev0(MW)', 'Gen_Rev1(MW)', 'Gen_Rev2(MW)', 'Gen_Rev3(MW)', 'Gen_Rev4(MW)', 'Gen_Rev5(MW)', 'Gen_Rev6(MW)', 'Gen_Rev7(MW)', 'Gen_Rev8(MW)', 'Gen_Rev9(MW)'];
 
         for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, 'days')) {
             let formattedDate = date.format(outputFormat);
