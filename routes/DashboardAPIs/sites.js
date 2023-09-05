@@ -157,7 +157,7 @@ route.get('/getforecast', async (req, res, next) => {
             let formattedDate = date.format(outputFormat);
             let filepath = `/home/Forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
             let headersToConcat = [];
-            if (fileSystem.existsSync(sampleFilePath)) {
+            if (fileSystem.existsSync(filepath)) {
                 const fileReadStream = fileSystem.createReadStream(filepath);
                 fileReadStream
                     .pipe(csv())
