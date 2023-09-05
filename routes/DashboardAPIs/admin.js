@@ -117,6 +117,8 @@ route.post("/updateSite", async (req, res, next) => {
         let mount_config = data.mount_config;
         let tilt_angle = String(data.tilt_angle);
         tilt_angle = tilt_angle.split(',').map(angle => parseFloat(angle))
+        console.log(company)
+        console.log(sitename)
 
         const getSiteId = await pool.query(`SELECT id FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename]);
 
