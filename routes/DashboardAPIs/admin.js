@@ -102,6 +102,7 @@ route.post("/updateSite", async (req, res, next) => {
     try {
         const data = req.body;
 
+        let site_id = data.id;
         let company = data.company;
         let sitename = data.sitename;
         let ground_data_available = data.ground_data_available;
@@ -117,17 +118,7 @@ route.post("/updateSite", async (req, res, next) => {
         let mount_config = data.mount_config;
         let tilt_angle = String(data.tilt_angle);
         tilt_angle = tilt_angle.split(',').map(angle => parseFloat(angle))
-        console.log(company)
-        console.log(sitename)
 
-        const getSiteId = await pool.query(`SELECT id FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename]);
-
-        //check if site exists
-        if (getSiteId.rows.length === 0) {
-            res.send("Site not found");
-            return;
-        }
-        const site_id = getSiteId.rows[0].id;
 
         await pool.query(`UPDATE utility_sites SET ground_data_available=$1, show_ghi=$2, ele=$3, show_poa=$4, show_forecast=$5, lat=$6, lon=$7, timezone=$8, capacity=$9, country=$10, mount_config=$11, tilt_angle=$12, company=$13, sitename=$14 WHERE id=$15 `,
             [ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, company, sitename, site_id]);
