@@ -106,7 +106,7 @@ async function checkForecastAvailability(allSites) {
       let day = date.getDate();
       if (day < 10) day = `0${day}`;
       // Check if the allSites[i] has the company name
-      let filepath = `/home/Forecast/${allSites[i].company}/forecasts/Solarad_${allSites[i].sitename}_${allSites[i].company}_Forecast_${year}-${month}-${day}_ID.csv`;
+      let filepath = `/home/Forecast/${allSites[i].company}/non_ml_forecasts/Solarad_${allSites[i].sitename}_${allSites[i].company}_Forecast_${year}-${month}-${day}_ID.csv`;
       if (!fileSystem.existsSync(filepath)) {
         missingSites.push({
           'company': allSites[i].company,
