@@ -251,12 +251,12 @@ route.get('/getforecast', async (req, res, next) => {
 
 route.get('/get-utility-sites', async (req, res) => {
     try {
-        const queryResult = await pool.query('SELECT * FROM utility_sites')
+        const queryResult = await pool.query('SELECT id, * FROM utility_sites')
 
         const csvStream = fastcsv.format({ headers: true })
 
         const headers = [
-            'sitename', 'company', 'lat', 'lon', 'ele',
+            'id', 'sitename', 'company', 'lat', 'lon', 'ele',
             'capacity', 'country', 'timezone', 'mount_config',
             'tilt_angle', 'ground_data_available',
             'show_ghi', 'show_poa', 'show_forecast'
