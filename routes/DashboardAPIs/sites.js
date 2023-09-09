@@ -148,7 +148,7 @@ route.get('/getforecast', async (req, res, next) => {
 
         for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, 'days')) {
             let formattedDate = date.format(outputFormat);
-            let filepath = `/home/Forecast/${client}/non_ml_forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
+            let filepath = `/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
 
             let fileHeaders = [];
             if (fileSystem.existsSync(filepath)) {
