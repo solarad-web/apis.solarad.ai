@@ -21,9 +21,6 @@ route.get("/config", async (req, res, next) => {
         let company = await resJson.rows[0].company;
 
         let sitesQuery = await pool.query('SELECT * FROM utility_sites WHERE company = $1', [company])
-        // if (company === process.env.ADMIN_COMPANY) {
-        //     sitesQuery = await pool.query('SELECT * FROM utility_sites');
-        // }
 
         const sitesArr = sitesQuery.rows;
 
@@ -36,7 +33,50 @@ route.get("/config", async (req, res, next) => {
                 'show_poa': 'True',
                 'show_forecast': 'True',
                 'lat': '28.7041',
-                'lon': '77.1025'
+                'lon': '77.1025',
+                'forecast_graphs': [
+                    {
+                      "graphName": "Generation Forecast",
+                      "setPastDays": 0,
+                      "setFutureDays": 0,
+                      "dropdown": true,
+                      "chartParameters": ["Solarad", "Ground"],
+                      "errors": ["MAPE"]
+                    },
+                    {
+                      "graphName": "Forecast GHI",
+                      "setPastDays": 0,
+                      "setFutureDays": 0,
+                      "dropdown": true,
+                      "chartParameters": ["Solarad", "Ground"],
+                      "errors": ["MAE"]
+                    },
+                    {
+                      "graphName": "Forecast POA",
+                      "setPastDays": 0,
+                      "setFutureDays": 0,
+                      "dropdown": true,
+                      "chartParameters": ["Solarad", "Ground"],
+                      "errors": ["MAE"]
+                    }
+                  ],
+                  'historical_graphs': [
+                    {
+                      "graphName": "Global Horizontal Irradiance",
+                      "setPastDays": 0,
+                      "setFutureDays": 0,
+                      "dropdown": true,
+                      "chartParameters": ["Solarad", "Ground"]
+                    },
+                    {
+                      "graphName": "Plane Of Array Irradiance",
+                      "setPastDays": 0,
+                      "setFutureDays": 0,
+                      "dropdown": true,
+                      "chartParameters": ["Solarad", "Ground"]
+                    }
+                  ]
+
             })
         }
 
@@ -47,7 +87,6 @@ route.get("/config", async (req, res, next) => {
         next(error);
     }
 })
-
 
 
 route.get('/data', async (req, res, next) => {
@@ -176,13 +215,82 @@ route.get('/getforecast', async (req, res, next) => {
                                     const rowTime = moment(filteredRow['Time'], 'YYYY-MM-DD HH:mm:ssZ');
                                     if (date.isSameOrBefore(currentTime)) {
                                         if (header === 'Ground GHI') {
-                                            filteredRow[header] = (row['GHI_ID(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Final'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
                                         }
                                         else if (header === 'Ground POA') {
-                                            filteredRow[header] = (row['POA(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
+                                            filteredRow[header] = (row['POA Final'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
                                         }
                                         else if (header === 'AC_POWER_SUM') {
-                                            filteredRow[header] = (row['Gen_ID(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Final'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Rev0'){
+                                            filteredRow[header] = (row['Gen Rev0'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Rev1'){
+                                            filteredRow[header] = (row['Gen Rev1'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Rev2'){
+                                            filteredRow[header] = (row['Gen Rev2'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Rev3'){
+                                            filteredRow[header] = (row['Gen Rev3'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Rev4'){
+                                            filteredRow[header] = (row['Gen Rev4'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Rev5'){
+                                            filteredRow[header] = (row['Gen Rev5'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Rev6'){
+                                            filteredRow[header] = (row['Gen Rev6'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Rev7'){
+                                            filteredRow[header] = (row['Gen Rev7'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Rev8'){
+                                            filteredRow[header] = (row['Gen Rev8'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Rev9'){
+                                            filteredRow[header] = (row['Gen Rev9'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Final'){
+                                            filteredRow[header] = (row['GHI Final'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'POA Final'){
+                                            filteredRow[header] = (row['POA Final'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'Gen Final'){
+                                            filteredRow[header] = (row['Gen Final'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Rev0'){
+                                            filteredRow[header] = (row['GHI Rev0'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Rev1'){
+                                            filteredRow[header] = (row['GHI Rev1'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Rev2'){
+                                            filteredRow[header] = (row['GHI Rev2'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Rev3'){
+                                            filteredRow[header] = (row['GHI Rev3'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Rev4'){
+                                            filteredRow[header] = (row['GHI Rev4'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Rev5'){
+                                            filteredRow[header] = (row['GHI Rev5'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Rev6'){
+                                            filteredRow[header] = (row['GHI Rev6'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Rev7'){
+                                            filteredRow[header] = (row['GHI Rev7'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Rev8'){
+                                            filteredRow[header] = (row['GHI Rev8'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
+                                        }
+                                        else if(header === 'GHI Rev9'){
+                                            filteredRow[header] = (row['GHI Rev9'] * (Math.random() * (1.2 - 0.8) + 0.8)).toFixed(2);
                                         }
                                         else filteredRow[header] = row[header];
                                     }
@@ -194,6 +302,75 @@ route.get('/getforecast', async (req, res, next) => {
                                             filteredRow[header] = 0
                                         }
                                         else if (header === 'AC_POWER_SUM') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Rev0'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Rev1'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Rev2'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Rev3'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Rev4'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Rev5'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Rev6'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Rev7'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Rev8'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Rev9'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Final'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'POA Final'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'Gen Final'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Rev0'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Rev1'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Rev2'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Rev3'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Rev4'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Rev5'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Rev6'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Rev7'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Rev8'){
+                                            filteredRow[header] = 0
+                                        }
+                                        else if(header === 'GHI Rev9'){
                                             filteredRow[header] = 0
                                         }
                                         else filteredRow[header] = row[header];
