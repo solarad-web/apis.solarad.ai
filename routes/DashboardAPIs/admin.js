@@ -121,9 +121,11 @@ route.post("/updateSite", async (req, res, next) => {
         let forecast_graphs = data.forecast_graphs;
         //convert forecast_graphs array to json format
          forecast_graphs = JSON.stringify(forecast_graphs);
+         console.log(forecast_graphs)
         let historical_graphs = data.historical_graphs;
         //convert historical_graphs array to json format
         historical_graphs = JSON.stringify(historical_graphs);
+        console.log(historical_graphs)
 
         tilt_angle = tilt_angle.split(',').map(angle => parseFloat(angle))
 
