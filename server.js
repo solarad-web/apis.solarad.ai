@@ -197,7 +197,7 @@ async function sendRevMailFunc(revNo, revTime) {
     })
     .on('end', async () => {
     });
-
+    console.log(rows)
     const transformedData = rows.map((row, index) => {
       console.log(row)
       totalDayAhead += parseFloat(row['Gen Rev0']);
