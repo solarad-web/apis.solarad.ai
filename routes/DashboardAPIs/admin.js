@@ -70,6 +70,9 @@ route.post("/add-site", async (req, res, next) => {
         await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14)`,
             [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle]);
 
+        const siteId = await pool.query(`SELECT id FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename]);
+
+        await pool.query(`INSERT INTO rev_mailer_configs(site_id) VALUES($1)`, [siteId])
         res.send('Site added successfully');
     }
     catch (err) {
