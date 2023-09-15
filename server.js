@@ -194,7 +194,7 @@ async function sendRevMailFunc(revNo, revTime) {
     .pipe(csvParser())
     .on('data', (row, index) => {
       rows.push(row);
-      console.log(rows[index])
+      console.log(rows)
     })
     .on('end', async () => {
     });
