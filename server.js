@@ -155,8 +155,10 @@ async function sendRevMailFunc(revNo, revTime) {
     //get current date in YYYY-MM-DD format
     const date = new Date()
     const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
+    let month = date.getMonth() + 1
+    if (month < 10) month = `0${month}`
+    let day = date.getDate()
+    if (day < 10) day = `0${day}`
     const today = `${year}-${month}-${day}`
 
   const metadata = [
@@ -168,7 +170,7 @@ async function sendRevMailFunc(revNo, revTime) {
     { 'Block': 'Block', 'Time': 'Time', 'Day Ahead Schedule (MW)': 'Day Ahead Schedule (MW)', 'Current Available Capacity (MW)': 'Current Available Capacity (MW)', 'Revised Schedule (MW)': 'Revised Schedule (MW)' },
   ];
 
-  const revCsvFilePath = `/home/ec2-user/efs-solarad-output/csv/clients/${company}/ml_forecasts/Solarad_${sitename}_${company}_Forecast_${today}_ID.csv`
+  const revCsvFilePath = `/home/Forecast/${company}/ml_forecasts/Solarad_${sitename}_${company}_Forecast_${today}_ID.csv`
   if (!fileSystem.existsSync(revCsvFilePath)) {
     console.log(revCsvFilePath + " not found")
     return
