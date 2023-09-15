@@ -194,12 +194,12 @@ async function sendRevMailFunc(revNo, revTime) {
     .pipe(csvParser())
     .on('data', (row, index) => {
       rows.push(row);
-      console.log(index, row)
     })
     .on('end', async () => {
     });
 
     const transformedData = rows.map((row, index) => {
+      console.log(row)
       totalDayAhead += parseFloat(row['Gen Rev0']);
       totalRevised += parseFloat(row['Gen Final']);
       totalCurrent += parseFloat(capacity);
