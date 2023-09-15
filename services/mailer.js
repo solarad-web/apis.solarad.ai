@@ -616,10 +616,10 @@ Reset Password
 }
 
 
-function sendRevMail({ email, csv, sitename, company, revNo, revTime }) {
+function sendRevMail({ email, csv, sitename, company, revNo, revTime, today }) {
     const attachment = {
         content: Buffer.from(csv).toString('base64'),
-        filename: 'attachment.csv', 
+        filename: `${sitename}_revision-${revNo}_${today}_${revTime}.csv`, 
         type: 'text/csv',
         disposition: 'attachment',
     }
