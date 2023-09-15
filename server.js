@@ -3,7 +3,7 @@ const app = express()
 const dotenv = require("dotenv")
 dotenv.config();
 const axios = require('axios')
-const csv = require('csv-parser')
+const csvParser = require('csv-parser')
 const fileSystem = require("fs")
 const pool = require("./config/db")
 const cron = require('node-cron')
@@ -191,7 +191,7 @@ async function sendRevMailFunc(revNo, revTime) {
   let avgCurrent = 0;
   let count = 0;
   fileSystem.createReadStream(revCsvFilePath)
-    .pipe(csv())
+    .pipe(csvParser())
     .on('data', (row) => {
       rows.push(row);
     })
