@@ -193,12 +193,12 @@ async function sendRevMailFunc(revNo, revTime) {
   fileSystem.createReadStream(revCsvFilePath)
     .pipe(csvParser())
     .on('data', (row) => {
+      console.log(row)
       rows.push(row);
     })
     .on('end', async () => {
     });
 
-    console.log(rows)
 
     const transformedData = rows.map((row, index) => {
       totalDayAhead += parseFloat(row['Gen Rev0']);
@@ -251,11 +251,6 @@ async function sendRevMailFunc(revNo, revTime) {
     const csv = await parseAsync(finalData2, { fields, header: false });
 
      mailer_emails.forEach(async (email) => {
-      console.log(email)
-      console.log(sitename)
-      console.log(company)
-      console.log(revNo)
-      console.log(revTime)
        await sendRevMail({ email: email, csv: csv, sitename: sitename, company: company, revNo: revNo, revTime: revTime });
       console.log("mailSent")
     });
