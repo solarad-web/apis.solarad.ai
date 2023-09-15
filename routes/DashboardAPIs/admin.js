@@ -218,6 +218,18 @@ route.get('/updateUser', async (req, res, next) => {
     }
 })
 
+route.get('/updateFolderCurrDate', async (req, res, next) => {
+    try{
+        const folder = req.query.folder;
+
+        await pool.query(`UPDATE prod_foldername_current_date SET folder=$1 WHERE id=1`, [folder]);
+        console.log('Foldername updated successfully');
+    }
+    catch(err){
+        console.log(err);
+        next(err);
+    }
+})
 
 async function generateHash(password) {
     try {
