@@ -218,6 +218,18 @@ route.get('/updateUser', async (req, res, next) => {
     }
 })
 
+//get foldername for curr date
+route.get('/getFolderCurrDate', async (req, res, next) => {
+    try{
+        const { rows } = await pool.query(`SELECT folder FROM prod_foldername_current_date WHERE id=1`);
+        res.send(rows[0].folder);
+    }
+    catch(err){
+        console.log(err);
+        next(err);
+    }
+})
+
 route.get('/updateFolderCurrDate', async (req, res, next) => {
     try{
         const folder = req.query.folder;
