@@ -196,9 +196,7 @@ async function sendRevMailFunc(revNo, revTime) {
       rows.push(row);
     })
     .on('end', async () => {
-      console.log(rows.length)
       const transformedData = rows.map((row, index) => {
-        console.log(row)
         totalDayAhead += parseFloat(row['Gen Rev0']);
         totalRevised += parseFloat(row['Gen Final']);
         totalCurrent += parseFloat(capacity);
@@ -212,7 +210,7 @@ async function sendRevMailFunc(revNo, revTime) {
   
         const dayAhead = parseFloat(row['Gen Rev0']);
         const currRev = parseFloat(row['Gen Final']);
-        const time = new Date(row['Time']);
+        const time = new Date(row['Time'].split('+')[0]);
         const sunIsOut = time.getHours() >= 5 && (time.getHours() < 19 || (time.getHours() === 19 && time.getMinutes() <= 15));
         return {
           'Block': row['Block'],
@@ -250,7 +248,7 @@ async function sendRevMailFunc(revNo, revTime) {
   
        mailer_emails.forEach(async (email) => {
          await sendRevMail({ email: email, csv: csv, sitename: sitename, company: company, revNo: revNo, revTime: revTime, today: today });
-        console.log("mailSent")
+        console.log("RevmailSent")
       });
     });
     
