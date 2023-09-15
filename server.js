@@ -45,6 +45,21 @@ app.use("/dashboard/auth", dashboardLogin)
 app.use("/dashboard/admin", dashboardAdmin)
 
 
+app.get("/addDataToRevMailerTable", async (req, res) => {
+  try{
+    const query = await pool.query(`SELECT site_id FROM utility_sites`)
+    const sites = query.rows
+
+    sites.forEach(async (row) => {
+      const siteId = row.site_id
+      await pool.query(`INSERT INTO rev_mailer_configs(site_id) VALUES($1)`, [siteId])
+    })
+  }
+  catch(err){
+    console.log(err)
+  }
+})
+
 //Check if Live Data and Forecast are available
 
 async function checkLiveAndForecastAvailability() {
