@@ -47,11 +47,11 @@ app.use("/dashboard/admin", dashboardAdmin)
 
 app.get("/addDataToRevMailerTable", async (req, res) => {
   try{
-    const query = await pool.query(`SELECT site_id FROM utility_sites`)
+    const query = await pool.query(`SELECT id FROM utility_sites`)
     const sites = query.rows
 
     sites.forEach(async (row) => {
-      const siteId = row.site_id
+      const siteId = row.id
       await pool.query(`INSERT INTO rev_mailer_configs(site_id) VALUES($1)`, [siteId])
     })
   }
