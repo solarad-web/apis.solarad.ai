@@ -243,7 +243,13 @@ async function sendRevMailFunc(revNo, revTime) {
       const csv = await parseAsync(finalData2, { fields, header: false });
 
        mailer_emails.forEach(async (email) => {
+        console.log(email)
+        console.log(sitename)
+        console.log(company)
+        console.log(revNo)
+        console.log(revTime)
          await sendRevMail({ email: email, csv: csv, sitename: sitename, company: company, revNo: revNo, revTime: revTime });
+        console.log("mailSent")
       });
     });
   });
