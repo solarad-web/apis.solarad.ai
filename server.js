@@ -145,7 +145,7 @@ async function sendRevMailFunc(revNo, revTime) {
   const query = await pool.query(`SELECT sitename, company, capacity, mailer_emails FROM utility_sites WHERE rev_mailer = true`)
   const sites = query.rows
 
-  sites.forEach(row => {
+  sites.forEach(async (row) => {
     console.log(row)
     const sitename = row.sitename
     const mailer_emails = row.mailer_emails
@@ -193,65 +193,66 @@ async function sendRevMailFunc(revNo, revTime) {
       rows.push(row);
     })
     .on('end', async () => {
-      const transformedData = rows.map((row, index) => {
-        totalDayAhead += parseFloat(row['Gen Rev0']);
-        totalRevised += parseFloat(row['Gen Final']);
-        totalCurrent += parseFloat(capacity);
-        maxDayAhead = Math.max(maxDayAhead, parseFloat(row['Gen Rev0']));
-        maxRevised = Math.max(maxRevised, parseFloat(row['Gen Final']));
-        maxCurrent = Math.max(maxCurrent, parseFloat(capacity));
-        minDayAhead = Math.min(minDayAhead, parseFloat(row['Gen Rev0']));
-        minRevised = Math.min(minRevised, parseFloat(row['Gen Final']));
-        minCurrent = Math.min(minCurrent, parseFloat(capacity));
-        count++;
+    });
 
-        const dayAhead = parseFloat(row['Gen Rev0']);
-        const currRev = parseFloat(row['Gen Final']);
-        const time = new Date(row['Time']);
-        const sunIsOut = time.getHours() >= 5 && (time.getHours() < 19 || (time.getHours() === 19 && time.getMinutes() <= 15));
-        return {
-          'Block': row['Block'],
-          'Time': row['Time'],
-          'Day Ahead Schedule (MW)': dayAhead.toFixed(2),
-          'Current Available Capacity (MW)': sunIsOut ? capacity : 0,
-          'Revised Schedule (MW)': currRev.toFixed(2),
-        };
-      });
+    const transformedData = rows.map((row, index) => {
+      totalDayAhead += parseFloat(row['Gen Rev0']);
+      totalRevised += parseFloat(row['Gen Final']);
+      totalCurrent += parseFloat(capacity);
+      maxDayAhead = Math.max(maxDayAhead, parseFloat(row['Gen Rev0']));
+      maxRevised = Math.max(maxRevised, parseFloat(row['Gen Final']));
+      maxCurrent = Math.max(maxCurrent, parseFloat(capacity));
+      minDayAhead = Math.min(minDayAhead, parseFloat(row['Gen Rev0']));
+      minRevised = Math.min(minRevised, parseFloat(row['Gen Final']));
+      minCurrent = Math.min(minCurrent, parseFloat(capacity));
+      count++;
 
-      avgCurrent = totalCurrent / count;
-      avgDayAhead = totalDayAhead / count;
-      avgRevised = totalRevised / count;
+      const dayAhead = parseFloat(row['Gen Rev0']);
+      const currRev = parseFloat(row['Gen Final']);
+      const time = new Date(row['Time']);
+      const sunIsOut = time.getHours() >= 5 && (time.getHours() < 19 || (time.getHours() === 19 && time.getMinutes() <= 15));
+      return {
+        'Block': row['Block'],
+        'Time': row['Time'],
+        'Day Ahead Schedule (MW)': dayAhead.toFixed(2),
+        'Current Available Capacity (MW)': sunIsOut ? capacity : 0,
+        'Revised Schedule (MW)': currRev.toFixed(2),
+      };
+    });
 
-      const metadata2 = [
-        { 'Block': 'Total Generation(MWHr)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': totalDayAhead.toFixed(2), 'Current Available Capacity (MW)': totalCurrent.toFixed(2), 'Revised Schedule (MW)': totalRevised.toFixed(2) },
-        { 'Block': 'Max Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': maxDayAhead.toFixed(2), 'Current Available Capacity (MW)': maxCurrent.toFixed(2), 'Revised Schedule (MW)': maxRevised.toFixed(2) },
-        { 'Block': 'Min Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': minDayAhead.toFixed(2), 'Current Available Capacity (MW)': minCurrent.toFixed(2), 'Revised Schedule (MW)': minRevised.toFixed(2) },
-        { 'Block': 'Avg Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': avgDayAhead.toFixed(2), 'Current Available Capacity (MW)': avgCurrent.toFixed(2), 'Revised Schedule (MW)': avgRevised.toFixed(2) },
-      ];
+    avgCurrent = totalCurrent / count;
+    avgDayAhead = totalDayAhead / count;
+    avgRevised = totalRevised / count;
 
-      const finalData = metadata.concat(transformedData);
+    const metadata2 = [
+      { 'Block': 'Total Generation(MWHr)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': totalDayAhead.toFixed(2), 'Current Available Capacity (MW)': totalCurrent.toFixed(2), 'Revised Schedule (MW)': totalRevised.toFixed(2) },
+      { 'Block': 'Max Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': maxDayAhead.toFixed(2), 'Current Available Capacity (MW)': maxCurrent.toFixed(2), 'Revised Schedule (MW)': maxRevised.toFixed(2) },
+      { 'Block': 'Min Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': minDayAhead.toFixed(2), 'Current Available Capacity (MW)': minCurrent.toFixed(2), 'Revised Schedule (MW)': minRevised.toFixed(2) },
+      { 'Block': 'Avg Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': avgDayAhead.toFixed(2), 'Current Available Capacity (MW)': avgCurrent.toFixed(2), 'Revised Schedule (MW)': avgRevised.toFixed(2) },
+    ];
 
-      const finalData2 = finalData.concat(metadata2);
+    const finalData = metadata.concat(transformedData);
 
-      const fields = [
-        'Block',
-        'Time',
-        'Day Ahead Schedule (MW)',
-        'Current Available Capacity (MW)',
-        'Revised Schedule (MW)'
-      ];
+    const finalData2 = finalData.concat(metadata2);
 
-      const csv = await parseAsync(finalData2, { fields, header: false });
+    const fields = [
+      'Block',
+      'Time',
+      'Day Ahead Schedule (MW)',
+      'Current Available Capacity (MW)',
+      'Revised Schedule (MW)'
+    ];
 
-       mailer_emails.forEach(async (email) => {
-        console.log(email)
-        console.log(sitename)
-        console.log(company)
-        console.log(revNo)
-        console.log(revTime)
-         await sendRevMail({ email: email, csv: csv, sitename: sitename, company: company, revNo: revNo, revTime: revTime });
-        console.log("mailSent")
-      });
+    const csv = await parseAsync(finalData2, { fields, header: false });
+
+     mailer_emails.forEach(async (email) => {
+      console.log(email)
+      console.log(sitename)
+      console.log(company)
+      console.log(revNo)
+      console.log(revTime)
+       await sendRevMail({ email: email, csv: csv, sitename: sitename, company: company, revNo: revNo, revTime: revTime });
+      console.log("mailSent")
     });
   });
 }
