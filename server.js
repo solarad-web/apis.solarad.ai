@@ -144,7 +144,7 @@ async function checkForecastAvailability(allSites) {
 async function sendRevMailFunc(revNo, revTime) {
   console.log("sendRevMailFunc")
   const query = await pool.query(`SELECT us.sitename, us.company, us.capacity, us.mailer_emails FROM utility_sites AS us JOIN
-  rev_maile_configs AS rmc ON us.id = rmc.site_id WHERE rmc.rev_mailer = true`)
+  rev_mailer_configs AS rmc ON us.id = rmc.site_id WHERE rmc.rev_mailer = true`)
   const sites = query.rows
 
   sites.forEach(async (row) => {
