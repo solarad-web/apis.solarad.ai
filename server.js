@@ -168,7 +168,7 @@ async function sendRevMailFunc(revNo, revTime) {
     { 'Block': 'Block', 'Time': 'Time', 'Day Ahead Schedule (MW)': 'Day Ahead Schedule (MW)', 'Current Available Capacity (MW)': 'Current Available Capacity (MW)', 'Revised Schedule (MW)': 'Revised Schedule (MW)' },
   ];
 
-  const revCsvFilePath = `/home/csv/${company}/ml_forecasts/Solarad_${sitename}_${company}_Forecast_${today}_ID.csv`
+  const revCsvFilePath = `/home/Forecast/${company}/ml_forecasts/Solarad_${sitename}_${company}_Forecast_${today}_ID.csv`
   if (!fileSystem.existsSync(revCsvFilePath)) {
     console.log(revCsvFilePath + " not found")
     return
