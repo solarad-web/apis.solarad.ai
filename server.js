@@ -248,55 +248,53 @@ async function sendRevMailFunc(revNo, revTime) {
   
        mailer_emails.forEach(async (email) => {
          await sendRevMail({ email: email, csv: csv, sitename: sitename, company: company, revNo: revNo, revTime: revTime, today: today });
-        console.log("RevmailSent")
+        console.log(`rev mail sent to ${email} for ${sitename} at ${revTime} of revNo ${revNo}`)
       });
     });
     
   });
 }
 
-sendRevMailFunc(1, '04:00')
 
+cron.schedule('0 9 * * *', () => {
+  sendRevMailFunc(0, '09:00');
+});
 
-// cron.schedule('0 9 * * *', () => {
-//   sendRevMailFunc(0, '09:00');
-// });
+cron.schedule('0 4 * * *', () => {
+  sendRevMailFunc(1, '04:00');
+});
 
-// cron.schedule('0 4 * * *', () => {
-//   sendRevMailFunc(1, '04:00');
-// });
+cron.schedule('0 5 * * *', () => {
+  sendRevMailFunc(2, '05:00');
+});
 
-// cron.schedule('0 5 * * *', () => {
-//   sendRevMailFunc(2, '05:00');
-// });
+cron.schedule('30 6 * * *', () => {
+  sendRevMailFunc(3, '06:30');
+});
 
-// cron.schedule('30 6 * * *', () => {
-//   sendRevMailFunc(3, '06:30');
-// });
+cron.schedule('0 8 * * *', () => {
+  sendRevMailFunc(4, '08:00');
+});
 
-// cron.schedule('0 8 * * *', () => {
-//   sendRevMailFunc(4, '08:00');
-// });
+cron.schedule('30 9 * * *', () => {
+  sendRevMailFunc(5, '09:30');
+});
 
-// cron.schedule('30 9 * * *', () => {
-//   sendRevMailFunc(5, '09:30');
-// });
+cron.schedule('0 11 * * *', () => {
+  sendRevMailFunc(6, '11:00');
+});
 
-// cron.schedule('0 11 * * *', () => {
-//   sendRevMailFunc(6, '11:00');
-// });
+cron.schedule('30 12 * * *', () => {
+  sendRevMailFunc(7, '12:30');
+});
 
-// cron.schedule('30 12 * * *', () => {
-//   sendRevMailFunc(7, '12:30');
-// });
+cron.schedule('0 14 * * *', () => {
+  sendRevMailFunc(8, '14:00');
+});
 
-// cron.schedule('0 14 * * *', () => {
-//   sendRevMailFunc(8, '14:00');
-// });
-
-// cron.schedule('30 15 * * *', () => {
-//   sendRevMailFunc(9, '15:30');
-// });
+cron.schedule('30 15 * * *', () => {
+  sendRevMailFunc(9, '15:30');
+});
 
 
 
