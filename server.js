@@ -170,6 +170,7 @@ async function sendRevMailFunc(revNo, revTime) {
 
   const revCsvFilePath = `/home/csv/${company}/ml_forecasts/Solarad_${sitename}_${company}_Forecast_${today}_ID.csv`
   if (!fileSystem.existsSync(revCsvFilePath)) {
+    console.log(revCsvFilePath + " not found")
     return
   }
 
@@ -245,6 +246,7 @@ async function sendRevMailFunc(revNo, revTime) {
 
     const csv = await parseAsync(finalData2, { fields, header: false });
 
+    console.log(csv)
      mailer_emails.forEach(async (email) => {
       console.log(email)
       console.log(sitename)
