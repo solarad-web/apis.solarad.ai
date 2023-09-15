@@ -198,6 +198,8 @@ async function sendRevMailFunc(revNo, revTime) {
     .on('end', async () => {
     });
 
+    console.log(rows)
+
     const transformedData = rows.map((row, index) => {
       totalDayAhead += parseFloat(row['Gen Rev0']);
       totalRevised += parseFloat(row['Gen Final']);
@@ -248,7 +250,6 @@ async function sendRevMailFunc(revNo, revTime) {
 
     const csv = await parseAsync(finalData2, { fields, header: false });
 
-    console.log(csv)
      mailer_emails.forEach(async (email) => {
       console.log(email)
       console.log(sitename)
