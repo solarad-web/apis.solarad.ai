@@ -170,7 +170,8 @@ route.get('/getforecast', async (req, res, next) => {
         const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const outputFormat = 'YYYY-MM-DD';
-        const currentDate = moment().format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        // const currentDate = moment().format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        const today = moment();
         const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
 
         //get folder from id 1 of prod_foldername_current_date
@@ -195,7 +196,7 @@ route.get('/getforecast', async (req, res, next) => {
             //check if date is equal to current date
             let filepath = `/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
 
-            if (!isDemoClient && date.isSame(currentDate, 'day')) {
+            if (!isDemoClient && date.isSame(today, 'day')) {
                 filepath = `/home/Forecast/${client}/${folder}/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
             }
             let fileHeaders = [];

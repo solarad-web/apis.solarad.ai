@@ -223,8 +223,9 @@ route.get('/getFolderCurrDate', async (req, res, next) => {
     try{
         const company = req.query.company;
         const sitename = req.query.sitename;
-        const { rows } = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [sitename, company]);
-        res.send(rows[0].forecast_type);
+        const rows = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [sitename, company]);
+        console.log(rows)
+        res.send(rows.rows[0].forecast_type);
     }
     catch(err){
         console.log(err);
