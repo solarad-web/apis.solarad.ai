@@ -174,9 +174,8 @@ route.get('/getforecast', async (req, res, next) => {
         const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
 
         //get folder from id 1 of prod_foldername_current_date
-        const query = await pool.query(`SELECT folder FROM prod_foldername_current_date WHERE id=1`);
-        const folder = query.rows[0].folder;
-        console.log(folder)
+        const query = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client]);
+        const folder = query.rows[0].forecast_type;
 
         if (client === 'Demo') {
             client = process.env.DEMO_COMPANY;
@@ -196,7 +195,7 @@ route.get('/getforecast', async (req, res, next) => {
             //check if date is equal to current date
             let filepath = `/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
 
-            if (date.isSame(currentDate, 'day')) {
+            if (!isDemoClient && date.isSame(currentDate, 'day')) {
                 filepath = `/home/Forecast/${client}/${folder}/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
             }
             let fileHeaders = [];

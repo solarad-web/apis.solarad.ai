@@ -221,8 +221,10 @@ route.get('/updateUser', async (req, res, next) => {
 //get foldername for curr date
 route.get('/getFolderCurrDate', async (req, res, next) => {
     try{
-        const { rows } = await pool.query(`SELECT folder FROM prod_foldername_current_date WHERE id=1`);
-        res.send(rows[0].folder);
+        const company = req.query.company;
+        const sitename = req.query.sitename;
+        const { rows } = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [sitename, company]);
+        res.send(rows[0].forecast_type);
     }
     catch(err){
         console.log(err);
@@ -233,8 +235,10 @@ route.get('/getFolderCurrDate', async (req, res, next) => {
 route.get('/updateFolderCurrDate', async (req, res, next) => {
     try{
         const folder = req.query.folder;
+        const sitename = req.query.sitename;
+        const company = req.query.company;
 
-        await pool.query(`UPDATE prod_foldername_current_date SET folder=$1 WHERE id=1`, [folder]);
+        await pool.query(`UPDATE utility_sites SET forecast_type=$1 WHERE sitename=$2 AND company=$3`, [folder, sitename, company]);
         console.log('Foldername updated successfully');
     }
     catch(err){
