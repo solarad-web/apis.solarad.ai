@@ -1,28 +1,28 @@
-const Router = require('express');
-const route = Router();
-const dotenv = require("dotenv");
-const moment = require('moment-timezone');
-dotenv.config();
-const fastcsv = require('fast-csv');
+const Router = require('express')
+const route = Router()
+const dotenv = require("dotenv")
+const moment = require('moment-timezone')
+dotenv.config()
+const fastcsv = require('fast-csv')
 
-const axios = require('axios');
-const csvParser = require('csv-parser');
-const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-const fileSystem = require("fs");
-const csv = require('csv-parser');
-const pool = require('../../config/db');
+const axios = require('axios')
+const csvParser = require('csv-parser')
+const createCsvWriter = require('csv-writer').createObjectCsvWriter
+const fileSystem = require("fs")
+const csv = require('csv-parser')
+const pool = require('../../config/db')
 
 
 
 route.get("/config", async (req, res, next) => {
     try {
         const email = req.query.email;
-        const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
-        let company = await resJson.rows[0].company;
+        const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email])
+        let company = await resJson.rows[0].company
 
         let sitesQuery = await pool.query('SELECT * FROM utility_sites WHERE company = $1', [company])
 
-        const sitesArr = sitesQuery.rows;
+        const sitesArr = sitesQuery.rows
 
         if (sitesArr.length === 0) {
             sitesArr.push({
@@ -80,11 +80,11 @@ route.get("/config", async (req, res, next) => {
             })
         }
 
-        res.send(sitesArr);
+        res.send(sitesArr)
 
     } catch (error) {
-        console.error('Error fetching data from the API:', error);
-        next(error);
+        console.error('Error fetching data from the API:', error)
+        next(error)
     }
 })
 
