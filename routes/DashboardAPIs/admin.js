@@ -68,16 +68,16 @@ route.post("/add-site", async (req, res, next) => {
         }
 
         await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14)`,
-            [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle]);
+            [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle])
 
-        const siteId = await pool.query(`SELECT id FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename]);
+        const siteId = await pool.query(`SELECT id FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename])
 
         await pool.query(`INSERT INTO rev_mailer_configs(site_id) VALUES($1)`, [siteId])
-        res.send('Site added successfully');
+        res.send('Site added successfully')
     }
     catch (err) {
-        console.log(err);
-        next(err);
+        console.log(err)
+        next(err)
     }
 })
 
@@ -104,7 +104,6 @@ route.get("/findSite", async (req, res, next) => {
 route.post("/updateSite", async (req, res, next) => {
     try {
         const data = req.body;
-
         let site_id = data.id;
         let company = data.company;
         let sitename = data.sitename;
@@ -224,7 +223,6 @@ route.get('/getFolderCurrDate', async (req, res, next) => {
         const company = req.query.company;
         const sitename = req.query.sitename;
         const rows = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [sitename, company]);
-        console.log(rows)
         res.send(rows.rows[0].forecast_type);
     }
     catch(err){
