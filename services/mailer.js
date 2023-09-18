@@ -626,7 +626,7 @@ function sendRevMail({ email, csv, sitename, company, revNo, revTime, today }) {
     return sendGridMailer.send({
         to: email,
         from: process.env.FROM_EMAIL,
-        subject: `${sitename} Forecast Generation Revision ${revNo} - ${today} ${revTime}`,
+        subject: `${sitename} Forecast Generation Revision ${revNo}`,
         attachments: [attachment],
         html: (`
         <head>
@@ -750,7 +750,7 @@ body {font-family: 'Muli', sans-serif;}
                                         <td role="modules-container" style="padding:0px 0px 0px 0px; color:#000000; text-align:left;" bgcolor="#FFFFFF" width="100%" align="left"><table class="module preheader preheader-hide" role="module" data-type="preheader" border="0" cellpadding="0" cellspacing="0" width="100%" style="display: none !important; mso-hide: all; visibility: hidden; opacity: 0; color: transparent; height: 0; width: 0;">
     <tr>
     <td role="module-content">
-        <p>${today} Revision ${revNo} Details</p>
+        <p>${today} Revision at ${revTime}</p>
     </td>
     </tr>
 </table><table border="0" cellpadding="0" cellspacing="0" align="center" width="100%" role="module" data-type="columns" style="padding:30px 20px 30px 20px;" bgcolor="#f6f6f6" data-distribution="1">
