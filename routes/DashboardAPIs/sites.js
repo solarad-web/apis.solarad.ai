@@ -178,11 +178,8 @@ route.get('/getforecast', async (req, res, next) => {
         const query = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client]);
         const folder = query.rows[0].forecast_type;
 
-        if (client === 'Demo') {
+        if (client === 'Demo' && site === 'Demo-Site') {
             client = process.env.DEMO_COMPANY;
-            isDemoClient = true;
-        }
-        if (site === 'Demo-Site') {
             site = process.env.DEMO_SITE;
             isDemoClient = true;
         }
@@ -215,6 +212,7 @@ route.get('/getforecast', async (req, res, next) => {
 
             if (fileSystem.existsSync(filepath)) {
                 if (isDemoClient) {
+                    console.log('here')
                     const fileData = await new Promise((resolve, reject) => {
                         const rows = [];
                         fileSystem.createReadStream(filepath)
