@@ -212,7 +212,6 @@ route.get('/getforecast', async (req, res, next) => {
 
             if (fileSystem.existsSync(filepath)) {
                 if (isDemoClient) {
-                    console.log('here')
                     const fileData = await new Promise((resolve, reject) => {
                         const rows = [];
                         fileSystem.createReadStream(filepath)
