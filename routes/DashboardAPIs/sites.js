@@ -174,15 +174,15 @@ route.get('/getforecast', async (req, res, next) => {
         const today = moment();
         const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
 
-        //get folder from id 1 of prod_foldername_current_date
-        const query = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client]);
-        const folder = query.rows[0].forecast_type;
-
         if (client === 'Demo' && site === 'Demo-Site') {
             client = process.env.DEMO_COMPANY;
             site = process.env.DEMO_SITE;
             isDemoClient = true;
         }
+
+        //get folder from id 1 of prod_foldername_current_date
+        const query = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client]);
+        let folder = isDemoClient ? 'ml_forecasts' : query.rows[0].forecast_type;
 
         let mergedData = [];
         let headersToConcat = [];
