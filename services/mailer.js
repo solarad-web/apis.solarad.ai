@@ -626,7 +626,7 @@ function sendRevMail({ email, csv, sitename, company, revNo, revTime, today }) {
     return sendGridMailer.send({
         to: email,
         from: process.env.FROM_EMAIL,
-        subject: `${company} Forecast Generation Latest Revision`,
+        subject: `${sitename} Forecast Generation Revision ${revNo} - ${today} ${revTime}`,
         attachments: [attachment],
         html: (`
         <head>
