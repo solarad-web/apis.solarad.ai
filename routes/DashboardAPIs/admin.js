@@ -46,6 +46,7 @@ route.post("/add-site", async (req, res, next) => {
 
         let company = data.company;
         let sitename = data.sitename;
+        let state = data.state;
         let ground_data_available = data.ground_data_available;
         let show_ghi = data.show_ghi;
         let ele = data.ele;
@@ -67,8 +68,8 @@ route.post("/add-site", async (req, res, next) => {
             return;
         }
 
-        await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14)`,
-            [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle])
+        await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, state) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14, $15)`,
+            [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, state])
 
         const siteId = await pool.query(`SELECT id FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename])
 
@@ -119,6 +120,8 @@ route.post("/updateSite", async (req, res, next) => {
         let capacity = data.capacity;
         let mount_config = data.mount_config;
         let tilt_angle = String(data.tilt_angle);
+        let state = data.state;
+
 
         let forecast_graphs = data.forecast_graphs;
         let historical_graphs = data.historical_graphs;
@@ -130,8 +133,8 @@ route.post("/updateSite", async (req, res, next) => {
         tilt_angle = tilt_angle.split(',').map(angle => parseFloat(angle))
 
 
-        await pool.query(`UPDATE utility_sites SET ground_data_available=$1, show_ghi=$2, ele=$3, show_poa=$4, show_forecast=$5, lat=$6, lon=$7, timezone=$8, capacity=$9, country=$10, mount_config=$11, tilt_angle=$12, company=$13, sitename=$14, forecast_graphs=$15, historical_graphs=$16 WHERE id=$17 `,
-            [ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, company, sitename, forecastGraphs, historicalGraphs, site_id]);
+        await pool.query(`UPDATE utility_sites SET ground_data_available=$1, show_ghi=$2, ele=$3, show_poa=$4, show_forecast=$5, lat=$6, lon=$7, timezone=$8, capacity=$9, country=$10, mount_config=$11, tilt_angle=$12, company=$13, sitename=$14, forecast_graphs=$15, historical_graphs=$16, state=$17 WHERE id=$18 `,
+            [ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, company, sitename, forecastGraphs, historicalGraphs, state, site_id]);
 
         res.send('Site updated successfully');
 
