@@ -10,6 +10,7 @@ const jwt = require('jsonwebtoken');
 const { sendMagicLinkEmail, sendResetPasswordLink } = require("../../services/mailer");
 
 
+//done
 route.get("/signUp", async (req, res, next) => {
     const email = req.query.email;
     const fname = req.query.fname;
@@ -39,6 +40,7 @@ route.get("/signUp", async (req, res, next) => {
 });
 
 
+//done
 route.get("/signIn", async (req, res, next) => {
     const email = req.query.email;
     const providedPwd = req.query.pwd;
@@ -72,6 +74,7 @@ route.get("/signIn", async (req, res, next) => {
 })
 
 
+//done
 route.get("/verifyEmail", async (req, res, next) => {
     const token = req.query.token;
     if (token == null) return res.sendStatus(401);
@@ -96,7 +99,7 @@ route.get("/verifyEmail", async (req, res, next) => {
     }
 });
 
-
+//done
 route.get('/forgotPassword', async (req, res, next) => {
     try {
         const email = req.query.email;
@@ -121,6 +124,7 @@ route.get('/forgotPassword', async (req, res, next) => {
 })
 
 
+//done
 route.get('/resetPassword', async (req, res, next) => {
     try {
         const token = req.query.token;

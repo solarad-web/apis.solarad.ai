@@ -13,7 +13,7 @@ const csv = require('csv-parser')
 const pool = require('../../config/db')
 
 
-
+//done
 route.get("/config", async (req, res, next) => {
     try {
         const email = req.query.email;
@@ -433,14 +433,15 @@ route.get('/getforecast', async (req, res, next) => {
 })
 
 
+//done
 route.get('/get-utility-sites', async (req, res) => {
     try {
-        const queryResult = await pool.query('SELECT id, created_at, * FROM utility_sites')
+        const queryResult = await pool.query('SELECT id, created_at, * FROM utility_sites order by id asc')
 
         const csvStream = fastcsv.format({ headers: true })
 
         const headers = [
-            'id', 'created_at', 'sitename', 'company', 'lat', 'lon', 'ele',
+            'id', 'created_at', 'sitename', 'state', 'company', 'lat', 'lon', 'ele',
             'capacity', 'country', 'timezone', 'mount_config',
             'tilt_angle', 'ground_data_available',
             'show_ghi', 'show_poa', 'show_forecast'
@@ -461,6 +462,7 @@ route.get('/get-utility-sites', async (req, res) => {
 })
 
 
+//done
 route.get('/get-residential-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT * FROM residential_sites')
@@ -488,6 +490,7 @@ route.get('/get-residential-sites', async (req, res) => {
 })
 
 
+//done
 route.get('/get-all-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT DISTINCT user_email FROM user_details');
@@ -520,8 +523,8 @@ route.get('/get-all-sites', async (req, res) => {
     }
 })
 
-// /convertHourlyToDailyOpenMeteo
 
+//done
 route.get('/convertHourlyToDailyOpenMeteo', async (req, res, next) => {
     try {
         const lat = req.query.lat;
