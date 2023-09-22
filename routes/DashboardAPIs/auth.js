@@ -10,6 +10,8 @@ const jwt = require('jsonwebtoken');
 const { sendMagicLinkEmail, sendResetPasswordLink } = require("../../services/mailer");
 
 
+//done
+//done
 route.get("/signUp", async (req, res, next) => {
     const email = req.query.email;
     const fname = req.query.fname;
@@ -38,10 +40,12 @@ route.get("/signUp", async (req, res, next) => {
     }
 });
 
+
+//done
+//done
 route.get("/signIn", async (req, res, next) => {
     const email = req.query.email;
     const providedPwd = req.query.pwd;
-
 
     //get passhash from postgres
     const data = await pool.query(`SELECT * FROM user_details WHERE user_email = $1`, [email]);
@@ -50,13 +54,17 @@ route.get("/signIn", async (req, res, next) => {
         res.send("Email Not Present");
         return;
     }
-
+    const company = data.rows[0].company;
     const storedPassHash = data.rows[0].passhash;
 
     try {
         bcrypt.compare(providedPwd, storedPassHash, (err, result) => {
             if (result) {
-                res.status(200).send('Valid');
+                if(company === process.env.ADMIN_COMPANY){
+                    res.status(200).send('Admin');
+                    return;
+                }
+                else res.status(200).send('Valid');
             }
             else res.status(401).send('Invalid');
         });
@@ -68,6 +76,8 @@ route.get("/signIn", async (req, res, next) => {
 })
 
 
+//done
+//done
 route.get("/verifyEmail", async (req, res, next) => {
     const token = req.query.token;
     if (token == null) return res.sendStatus(401);
@@ -92,7 +102,8 @@ route.get("/verifyEmail", async (req, res, next) => {
     }
 });
 
-
+//done
+//done
 route.get('/forgotPassword', async (req, res, next) => {
     try {
         const email = req.query.email;
@@ -117,6 +128,8 @@ route.get('/forgotPassword', async (req, res, next) => {
 })
 
 
+//done
+//done
 route.get('/resetPassword', async (req, res, next) => {
     try {
         const token = req.query.token;
@@ -154,3 +167,4 @@ async function generateHash(password) {
 
 
 module.exports = route;
+

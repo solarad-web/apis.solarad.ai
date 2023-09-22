@@ -13,6 +13,8 @@ const fastcsv = require('fast-csv');
 
 route.use(express.json())
 
+//done
+//done
 route.get("/", async (req, res, next) => {
     let providedApiKey = req.header("api_key");
     const storedApiKey = process.env.API_KEY;
@@ -69,7 +71,8 @@ route.get("/", async (req, res, next) => {
 })
 
 
-
+//done
+//done
 route.get('/export-csv', async (req, res) => {
     try {
         const client = await pool.connect()
@@ -100,15 +103,15 @@ route.get('/export-csv', async (req, res) => {
     }
 })
 
-
+//done
+//done
 route.post('/add-site', async (req, res, next) => {
     let providedApiKey = req.header("api_key");
     const storedApiKey = process.env.API_KEY;
 
-
-    try {
-        bcrypt.compare(providedApiKey, storedApiKey, async (err, result) => {
-            if (result) {
+    bcrypt.compare(providedApiKey, storedApiKey, async (err, result) => {
+        if (result) {
+            try {
                 const sitename = req.body.sitename;
                 const company = req.body.company || "Fenice";
                 const lat = req.body.lat || 27;
@@ -118,7 +121,8 @@ route.post('/add-site', async (req, res, next) => {
                 const country = req.body.country || "India";
                 const timezone = req.body.timezone || "Asia/Kolkata";
                 const mount_config = req.body.mount_config || "None";
-                const tilt_angle = req.body.tilt_angle || 0;
+                let tilt_angle = req.body.tilt_angle || 0;
+                tilt_angle = tilt_angle.split(',').map(angle => parseFloat(angle))
                 const ground_data_available = req.body.ground_data_available || "False";
 
                 const latLonrows = await pool.query(`SELECT * FROM residential_sites WHERE lat = $1 AND lon = $2`, [lat, lon]);
@@ -157,40 +161,19 @@ route.post('/add-site', async (req, res, next) => {
 
                     res.send("Sites added successfully");
                 }
-
-            } else {
-                res.status(401).send("Unauthorized");
             }
-        });
-    }
-    catch (err) {
-        console.log(err.message);
-        next(err);
-    }
+            catch (err) {
+                console.log(err.message);
+                next(err);
+            }
+
+        } else {
+            res.status(401).send("Unauthorized");
+        }
+
+    });
+
 })
-
-// route.get('/addSiteToDb', async (req, res, next) => {
-
-//     // Make an HTTP request to the external API
-//     try {
-//         let filepath = `/home/residential-sites`;
-
-//         // Convert the API response data into a readable stream
-//         const readableStream = fileSystem.createReadStream(filepath);
-//         readableStream
-//             .pipe(csv())
-//             .on('data', async (row) => {
-//                 await pool.query(`INSERT INTO residential_sites (sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available)
-//             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`, [row.sitename, row.company, row.lat, row.lon, row.ele, row.capacity, row.country, row.timezone, row.mount_config, row.tilt_angle, row.ground_data_available]);
-//             })
-
-//         res.send("sites added successfully to db")
-//     }
-//     catch (err) {
-//         console.log(err.message)
-//         next(err)
-//     }
-// });
 
 
 

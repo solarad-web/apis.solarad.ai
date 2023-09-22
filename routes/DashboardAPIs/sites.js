@@ -1,31 +1,28 @@
-const Router = require('express');
-const route = Router();
-const dotenv = require("dotenv");
-const moment = require('moment-timezone');
-dotenv.config();
-const fastcsv = require('fast-csv');
+const Router = require('express')
+const route = Router()
+const dotenv = require("dotenv")
+const moment = require('moment-timezone')
+dotenv.config()
+const fastcsv = require('fast-csv')
 
-const axios = require('axios');
-const csvParser = require('csv-parser');
-const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-const fileSystem = require("fs");
-const csv = require('csv-parser');
-const pool = require('../../config/db');
+const axios = require('axios')
+const csvParser = require('csv-parser')
+const createCsvWriter = require('csv-writer').createObjectCsvWriter
+const fileSystem = require("fs")
+const csv = require('csv-parser')
+const pool = require('../../config/db')
 
-
-
+//done
+//done
 route.get("/config", async (req, res, next) => {
     try {
         const email = req.query.email;
-        const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email]);
-        let company = await resJson.rows[0].company;
+        const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email])
+        let company = await resJson.rows[0].company
 
         let sitesQuery = await pool.query('SELECT * FROM utility_sites WHERE company = $1', [company])
-        if (company === process.env.ADMIN_COMPANY) {
-            sitesQuery = await pool.query('SELECT * FROM utility_sites');
-        }
 
-        const sitesArr = sitesQuery.rows;
+        const sitesArr = sitesQuery.rows
 
         if (sitesArr.length === 0) {
             sitesArr.push({
@@ -36,20 +33,63 @@ route.get("/config", async (req, res, next) => {
                 'show_poa': 'True',
                 'show_forecast': 'True',
                 'lat': '28.7041',
-                'lon': '77.1025'
+                'lon': '77.1025',
+                'forecast_graphs': [
+                    {
+                        "graphName": "Generation Forecast",
+                        "setPastDays": 0,
+                        "setFutureDays": 0,
+                        "dropdown": true,
+                        "chartParameters": ["Solarad", "Ground"],
+                        "errors": ["MAPE"]
+                    },
+                    {
+                        "graphName": "Forecast GHI",
+                        "setPastDays": 0,
+                        "setFutureDays": 0,
+                        "dropdown": true,
+                        "chartParameters": ["Solarad", "Ground"],
+                        "errors": ["MAE"]
+                    },
+                    {
+                        "graphName": "Forecast POA",
+                        "setPastDays": 0,
+                        "setFutureDays": 0,
+                        "dropdown": true,
+                        "chartParameters": ["Solarad", "Ground"],
+                        "errors": ["MAE"]
+                    }
+                ],
+                'historical_graphs': [
+                    {
+                        "graphName": "Global Horizontal Irradiance",
+                        "setPastDays": 0,
+                        "setFutureDays": 0,
+                        "dropdown": true,
+                        "chartParameters": ["Solarad", "Ground"]
+                    },
+                    {
+                        "graphName": "Plane Of Array Irradiance",
+                        "setPastDays": 0,
+                        "setFutureDays": 0,
+                        "dropdown": true,
+                        "chartParameters": ["Solarad", "Ground"]
+                    }
+                ]
+
             })
         }
 
-        res.send(sitesArr);
+        res.send(sitesArr)
 
     } catch (error) {
-        console.error('Error fetching data from the API:', error);
-        next(error);
+        console.error('Error fetching data from the API:', error)
+        next(error)
     }
 })
 
-
-
+//done
+//done
 route.get('/data', async (req, res, next) => {
     try {
         var client = req.query.client;
@@ -122,7 +162,8 @@ route.get('/data', async (req, res, next) => {
     }
 })
 
-
+//done
+//done
 route.get('/getforecast', async (req, res, next) => {
     try {
         var client = req.query.client;
@@ -131,23 +172,45 @@ route.get('/getforecast', async (req, res, next) => {
         const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const outputFormat = 'YYYY-MM-DD';
-        const currentDate = moment().format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        // const currentDate = moment().format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        const today = moment();
         const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
-        if (client === 'Demo') {
+
+        if (client === 'Demo' && site === 'Demo-Site') {
             client = process.env.DEMO_COMPANY;
-            isDemoClient = true;
-        }
-        if (site === 'Demo-Site') {
             site = process.env.DEMO_SITE;
             isDemoClient = true;
         }
 
+        //get folder from id 1 of prod_foldername_current_date
+        const query = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client]);
+        let folder = isDemoClient ? 'ml_forecasts' : query.rows[0].forecast_type;
+
         let mergedData = [];
-        let headersToConcat = ['Time', 'GHI_ID(W/m2)', 'Ground GHI', 'Gen_ID(W/m2)', 'AC_POWER_SUM', 'POA(W/m2)', 'Ground POA'];
+        let headersToConcat = [];
+        let maxHeaders = 0;
 
         for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, 'days')) {
             let formattedDate = date.format(outputFormat);
-            let filepath = `/home/Forecast/${client}/forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
+            //check if date is equal to current date
+            let filepath = `/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
+
+            if (!isDemoClient && date.isSame(today, 'day')) {
+                filepath = `/home/Forecast/${client}/${folder}/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
+            }
+            let fileHeaders = [];
+            if (fileSystem.existsSync(filepath)) {
+                const sampleReadStream = fileSystem.createReadStream(filepath);
+                sampleReadStream
+                    .pipe(csv())
+                    .on('headers', (headers) => {
+                        fileHeaders = headers;
+                        if (maxHeaders < fileHeaders.length) {
+                            headersToConcat = headers;
+                            maxHeaders = fileHeaders.length;
+                        }
+                    });
+            }
 
             if (fileSystem.existsSync(filepath)) {
                 if (isDemoClient) {
@@ -157,17 +220,86 @@ route.get('/getforecast', async (req, res, next) => {
                             .pipe(csv())
                             .on('data', (row) => {
                                 const filteredRow = {};
-                                headersToConcat.forEach(header => {
+                                fileHeaders.forEach(header => {
                                     const rowTime = moment(filteredRow['Time'], 'YYYY-MM-DD HH:mm:ssZ');
                                     if (date.isSameOrBefore(currentTime)) {
                                         if (header === 'Ground GHI') {
-                                            filteredRow[header] = (row['GHI_ID(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Final'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
                                         }
                                         else if (header === 'Ground POA') {
-                                            filteredRow[header] = (row['POA(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
+                                            filteredRow[header] = (row['POA Final'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
                                         }
                                         else if (header === 'AC_POWER_SUM') {
-                                            filteredRow[header] = (row['Gen_ID(W/m2)'] * (Math.random() * (1.05 - 0.95) + 0.95)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Final'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Rev0') {
+                                            filteredRow[header] = (row['Gen Rev0'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Rev1') {
+                                            filteredRow[header] = (row['Gen Rev1'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Rev2') {
+                                            filteredRow[header] = (row['Gen Rev2'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Rev3') {
+                                            filteredRow[header] = (row['Gen Rev3'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Rev4') {
+                                            filteredRow[header] = (row['Gen Rev4'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Rev5') {
+                                            filteredRow[header] = (row['Gen Rev5'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Rev6') {
+                                            filteredRow[header] = (row['Gen Rev6'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Rev7') {
+                                            filteredRow[header] = (row['Gen Rev7'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Rev8') {
+                                            filteredRow[header] = (row['Gen Rev8'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Rev9') {
+                                            filteredRow[header] = (row['Gen Rev9'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Final') {
+                                            filteredRow[header] = (row['GHI Final'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'POA Final') {
+                                            filteredRow[header] = (row['POA Final'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'Gen Final') {
+                                            filteredRow[header] = (row['Gen Final'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Rev0') {
+                                            filteredRow[header] = (row['GHI Rev0'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Rev1') {
+                                            filteredRow[header] = (row['GHI Rev1'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Rev2') {
+                                            filteredRow[header] = (row['GHI Rev2'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Rev3') {
+                                            filteredRow[header] = (row['GHI Rev3'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Rev4') {
+                                            filteredRow[header] = (row['GHI Rev4'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Rev5') {
+                                            filteredRow[header] = (row['GHI Rev5'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Rev6') {
+                                            filteredRow[header] = (row['GHI Rev6'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Rev7') {
+                                            filteredRow[header] = (row['GHI Rev7'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Rev8') {
+                                            filteredRow[header] = (row['GHI Rev8'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                        }
+                                        else if (header === 'GHI Rev9') {
+                                            filteredRow[header] = (row['GHI Rev9'] * (Math.random() * (1.1 - 0.9) + 0.9)).toFixed(2);
                                         }
                                         else filteredRow[header] = row[header];
                                     }
@@ -179,6 +311,75 @@ route.get('/getforecast', async (req, res, next) => {
                                             filteredRow[header] = 0
                                         }
                                         else if (header === 'AC_POWER_SUM') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Rev0') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Rev1') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Rev2') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Rev3') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Rev4') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Rev5') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Rev6') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Rev7') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Rev8') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Rev9') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Final') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'POA Final') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'Gen Final') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Rev0') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Rev1') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Rev2') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Rev3') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Rev4') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Rev5') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Rev6') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Rev7') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Rev8') {
+                                            filteredRow[header] = 0
+                                        }
+                                        else if (header === 'GHI Rev9') {
                                             filteredRow[header] = 0
                                         }
                                         else filteredRow[header] = row[header];
@@ -231,17 +432,19 @@ route.get('/getforecast', async (req, res, next) => {
         console.log(err);
         next(err);
     }
-});
+})
 
 
+//done
+//done
 route.get('/get-utility-sites', async (req, res) => {
     try {
-        const queryResult = await pool.query('SELECT * FROM utility_sites')
+        const queryResult = await pool.query('SELECT id, created_at, * FROM utility_sites order by id asc')
 
         const csvStream = fastcsv.format({ headers: true })
 
         const headers = [
-            'sitename', 'company', 'lat', 'lon', 'ele',
+            'id', 'created_at', 'sitename', 'state', 'company', 'lat', 'lon', 'ele',
             'capacity', 'country', 'timezone', 'mount_config',
             'tilt_angle', 'ground_data_available',
             'show_ghi', 'show_poa', 'show_forecast'
@@ -261,6 +464,8 @@ route.get('/get-utility-sites', async (req, res) => {
     }
 })
 
+//done
+//done
 route.get('/get-residential-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT * FROM residential_sites')
@@ -277,7 +482,7 @@ route.get('/get-residential-sites', async (req, res) => {
         queryResult.rows.forEach(row => csvStream.write(row));
         csvStream.end();
 
-        res.setHeader('Content-Disposition', 'attachment; filename="utility_sites.csv"');
+        res.setHeader('Content-Disposition', 'attachment; filename="residential_sites.csv"');
         res.setHeader('Content-Type', 'text/csv');
 
         csvStream.pipe(res);
@@ -288,6 +493,9 @@ route.get('/get-residential-sites', async (req, res) => {
 })
 
 
+
+//done
+//done
 route.get('/get-all-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT DISTINCT user_email FROM user_details');
@@ -320,8 +528,8 @@ route.get('/get-all-sites', async (req, res) => {
     }
 })
 
-// /convertHourlyToDailyOpenMeteo
-
+//done
+//done
 route.get('/convertHourlyToDailyOpenMeteo', async (req, res, next) => {
     try {
         const lat = req.query.lat;

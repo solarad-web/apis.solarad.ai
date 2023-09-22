@@ -8,7 +8,24 @@ const pool = require("../../config/db");
 route.use(express.json());
 const { sendMagicLinkEmailByAdmin } = require("../../services/mailer");
 
+//done
+//done
+route.get('/getCompanies', async (req, res, next) => {
+    try {
+        const row = await pool.query(`SELECT company FROM companies`);
 
+        const companies = row.rows.map(company => company.company);
+
+        res.send(companies);
+    }
+    catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
+
+//done
+//done
 route.get("/getConfig", async (req, res, next) => {
     try {
         let company = req.query.company;
@@ -25,12 +42,15 @@ route.get("/getConfig", async (req, res, next) => {
     }
 })
 
+//done
+//done
 route.post("/add-site", async (req, res, next) => {
     try {
         const data = req.body;
 
         let company = data.company;
         let sitename = data.sitename;
+        let state = data.state;
         let ground_data_available = data.ground_data_available;
         let show_ghi = data.show_ghi;
         let ele = data.ele;
@@ -42,7 +62,8 @@ route.post("/add-site", async (req, res, next) => {
         let timezone = data.timezone;
         let capacity = data.capacity;
         let mount_config = data.mount_config;
-        let tilt_angle = data.tilt_angle;
+        let tilt_angle = String(data.tilt_angle);
+        tilt_angle = tilt_angle.split(',').map(angle => parseFloat(angle))
 
         const { rows } = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename]);
 
@@ -51,17 +72,22 @@ route.post("/add-site", async (req, res, next) => {
             return;
         }
 
-        await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14)`,
-            [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle]);
+        await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, state) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14, $15)`,
+            [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, state])
 
-        res.send('Site added successfully');
+        const siteId = await pool.query(`SELECT id FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename])
+
+        await pool.query(`INSERT INTO rev_mailer_configs(site_id) VALUES($1)`, [siteId])
+        res.send('Site added successfully')
     }
     catch (err) {
-        console.log(err);
-        next(err);
+        console.log(err)
+        next(err)
     }
 })
 
+//done
+//done
 route.get("/findSite", async (req, res, next) => {
     try {
         const site = req.query.site;
@@ -82,11 +108,12 @@ route.get("/findSite", async (req, res, next) => {
     }
 })
 
+//done
+//done
 route.post("/updateSite", async (req, res, next) => {
     try {
         const data = req.body;
-
-        let site_id = data.site_id;
+        let site_id = data.id;
         let company = data.company;
         let sitename = data.sitename;
         let ground_data_available = data.ground_data_available;
@@ -100,10 +127,22 @@ route.post("/updateSite", async (req, res, next) => {
         let timezone = data.timezone;
         let capacity = data.capacity;
         let mount_config = data.mount_config;
-        let tilt_angle = data.tilt_angle;
+        let tilt_angle = String(data.tilt_angle);
+        let state = data.state;
 
-        await pool.query(`UPDATE utility_sites SET ground_data_available=$1, show_ghi=$2, ele=$3, show_poa=$4, show_forecast=$5, lat=$6, lon=$7, timezone=$8, capacity=$9, country=$10, mount_config=$11, tilt_angle=$12, company=$13, sitename=$14 WHERE site_id=$15 `,
-            [ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, company, sitename, site_id]);
+
+        let forecast_graphs = data.forecast_graphs;
+        let historical_graphs = data.historical_graphs;
+
+         const forecastGraphs = JSON.stringify(forecast_graphs);
+
+        const historicalGraphs = JSON.stringify(historical_graphs);
+        console.log(historicalGraphs)
+        tilt_angle = tilt_angle.split(',').map(angle => parseFloat(angle))
+
+
+        await pool.query(`UPDATE utility_sites SET ground_data_available=$1, show_ghi=$2, ele=$3, show_poa=$4, show_forecast=$5, lat=$6, lon=$7, timezone=$8, capacity=$9, country=$10, mount_config=$11, tilt_angle=$12, company=$13, sitename=$14, forecast_graphs=$15, historical_graphs=$16, state=$17 WHERE id=$18 `,
+            [ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, company, sitename, forecastGraphs, historicalGraphs, state, site_id]);
 
         res.send('Site updated successfully');
 
@@ -114,6 +153,9 @@ route.post("/updateSite", async (req, res, next) => {
     }
 })
 
+
+//done
+//done
 route.get("/deleteSite", async (req, res, next) => {
     try {
         const site = req.query.site;
@@ -136,7 +178,8 @@ route.get("/deleteSite", async (req, res, next) => {
     }
 })
 
-
+//done
+//done
 route.get("/addUser", async (req, res, next) => {
     try {
         const email = req.query.email;
@@ -165,7 +208,8 @@ route.get("/addUser", async (req, res, next) => {
     }
 })
 
-
+//done
+//done
 route.get('/updateUser', async (req, res, next) => {
     try {
         const email = req.query.email;
@@ -189,6 +233,43 @@ route.get('/updateUser', async (req, res, next) => {
     }
 })
 
+
+//done
+//done
+//get foldername for curr date
+route.get('/getFolderCurrDate', async (req, res, next) => {
+    try{
+        const company = req.query.company;
+        const sitename = req.query.sitename;
+        if(company === 'Demo' && sitename === 'Demo-Site'){
+            res.send('ml_forecasts');
+            return;
+        }
+        const rows = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [sitename, company]);
+        res.send(rows.rows[0].forecast_type);
+    }
+    catch(err){
+        console.log(err);
+        next(err);
+    }
+})
+
+//done
+//done
+route.get('/updateFolderCurrDate', async (req, res, next) => {
+    try{
+        const folder = req.query.folder;
+        const sitename = req.query.sitename;
+        const company = req.query.company;
+
+        await pool.query(`UPDATE utility_sites SET forecast_type=$1 WHERE sitename=$2 AND company=$3`, [folder, sitename, company]);
+        console.log('Foldername updated successfully');
+    }
+    catch(err){
+        console.log(err);
+        next(err);
+    }
+})
 
 async function generateHash(password) {
     try {
