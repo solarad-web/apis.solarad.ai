@@ -8,7 +8,8 @@ const pool = require("../../config/db");
 route.use(express.json());
 const { sendMagicLinkEmailByAdmin } = require("../../services/mailer");
 
-
+//done
+//done
 route.get('/getCompanies', async (req, res, next) => {
     try {
         const row = await pool.query(`SELECT company FROM companies`);
@@ -23,7 +24,8 @@ route.get('/getCompanies', async (req, res, next) => {
     }
 })
 
-
+//done
+//done
 route.get("/getConfig", async (req, res, next) => {
     try {
         let company = req.query.company;
@@ -40,6 +42,8 @@ route.get("/getConfig", async (req, res, next) => {
     }
 })
 
+//done
+//done
 route.post("/add-site", async (req, res, next) => {
     try {
         const data = req.body;
@@ -82,6 +86,8 @@ route.post("/add-site", async (req, res, next) => {
     }
 })
 
+//done
+//done
 route.get("/findSite", async (req, res, next) => {
     try {
         const site = req.query.site;
@@ -102,6 +108,8 @@ route.get("/findSite", async (req, res, next) => {
     }
 })
 
+//done
+//done
 route.post("/updateSite", async (req, res, next) => {
     try {
         const data = req.body;
@@ -145,6 +153,9 @@ route.post("/updateSite", async (req, res, next) => {
     }
 })
 
+
+//done
+//done
 route.get("/deleteSite", async (req, res, next) => {
     try {
         const site = req.query.site;
@@ -167,7 +178,8 @@ route.get("/deleteSite", async (req, res, next) => {
     }
 })
 
-
+//done
+//done
 route.get("/addUser", async (req, res, next) => {
     try {
         const email = req.query.email;
@@ -196,7 +208,8 @@ route.get("/addUser", async (req, res, next) => {
     }
 })
 
-
+//done
+//done
 route.get('/updateUser', async (req, res, next) => {
     try {
         const email = req.query.email;
@@ -220,6 +233,9 @@ route.get('/updateUser', async (req, res, next) => {
     }
 })
 
+
+//done
+//done
 //get foldername for curr date
 route.get('/getFolderCurrDate', async (req, res, next) => {
     try{
@@ -238,6 +254,8 @@ route.get('/getFolderCurrDate', async (req, res, next) => {
     }
 })
 
+//done
+//done
 route.get('/updateFolderCurrDate', async (req, res, next) => {
     try{
         const folder = req.query.folder;

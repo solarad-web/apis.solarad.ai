@@ -13,6 +13,8 @@ const fastcsv = require('fast-csv');
 
 route.use(express.json())
 
+//done
+//done
 route.get("/", async (req, res, next) => {
     let providedApiKey = req.header("api_key");
     const storedApiKey = process.env.API_KEY;
@@ -69,7 +71,8 @@ route.get("/", async (req, res, next) => {
 })
 
 
-
+//done
+//done
 route.get('/export-csv', async (req, res) => {
     try {
         const client = await pool.connect()
@@ -100,12 +103,11 @@ route.get('/export-csv', async (req, res) => {
     }
 })
 
-
+//done
+//done
 route.post('/add-site', async (req, res, next) => {
     let providedApiKey = req.header("api_key");
     const storedApiKey = process.env.API_KEY;
-
-
 
     bcrypt.compare(providedApiKey, storedApiKey, async (err, result) => {
         if (result) {

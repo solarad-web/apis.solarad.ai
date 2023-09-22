@@ -273,8 +273,15 @@ async function sendRevMailFunc(revNo, revTime) {
             const csv = await parseAsync(finalData2, { fields, header: false });
 
             mailer_emails.forEach(async (email) => {
-              await sendRevMail({ email: email, csv: csv, sitename: sitename, company: company, revNo: revNo, revTime: revTime, today: today });
-              console.log(`rev mail sent to ${email} for ${sitename} at ${revTime} of revNo ${revNo}`)
+              try {
+                await sendRevMail({ email: email, csv: csv, sitename: sitename, company: company, revNo: revNo, revTime: revTime, today: today });
+                console.log(`rev mail sent to ${email} for ${sitename} at ${revTime} of revNo ${revNo}`)
+              }
+              catch (error) {
+                console.log(error)
+                return;
+              }
+
             });
           });
       })

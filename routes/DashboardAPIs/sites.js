@@ -12,7 +12,7 @@ const fileSystem = require("fs")
 const csv = require('csv-parser')
 const pool = require('../../config/db')
 
-
+//done
 //done
 route.get("/config", async (req, res, next) => {
     try {
@@ -88,7 +88,8 @@ route.get("/config", async (req, res, next) => {
     }
 })
 
-
+//done
+//done
 route.get('/data', async (req, res, next) => {
     try {
         var client = req.query.client;
@@ -161,7 +162,8 @@ route.get('/data', async (req, res, next) => {
     }
 })
 
-
+//done
+//done
 route.get('/getforecast', async (req, res, next) => {
     try {
         var client = req.query.client;
@@ -434,6 +436,7 @@ route.get('/getforecast', async (req, res, next) => {
 
 
 //done
+//done
 route.get('/get-utility-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT id, created_at, * FROM utility_sites order by id asc')
@@ -461,7 +464,7 @@ route.get('/get-utility-sites', async (req, res) => {
     }
 })
 
-
+//done
 //done
 route.get('/get-residential-sites', async (req, res) => {
     try {
@@ -490,6 +493,8 @@ route.get('/get-residential-sites', async (req, res) => {
 })
 
 
+
+//done
 //done
 route.get('/get-all-sites', async (req, res) => {
     try {
@@ -523,7 +528,7 @@ route.get('/get-all-sites', async (req, res) => {
     }
 })
 
-
+//done
 //done
 route.get('/convertHourlyToDailyOpenMeteo', async (req, res, next) => {
     try {
