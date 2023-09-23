@@ -64,6 +64,10 @@ route.get("/signIn", async (req, res, next) => {
                     res.status(200).send('Admin');
                     return;
                 }
+                else if(company === process.env.SUPERADMIN_COMPANY){
+                    res.status(200).send('Super_Admin');
+                    return;
+                }
                 else res.status(200).send('Valid');
             }
             else res.status(401).send('Invalid');
