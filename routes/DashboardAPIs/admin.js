@@ -75,9 +75,10 @@ route.post("/add-site", async (req, res, next) => {
         await pool.query(`INSERT INTO utility_sites (company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, state) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10 , $11, $12, $13, $14, $15)`,
             [company, sitename, ground_data_available, show_ghi, ele, show_poa, show_forecast, lat, lon, timezone, capacity, country, mount_config, tilt_angle, state])
 
-        const siteId = await pool.query(`SELECT id FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename])
+        const siteIdResult = await pool.query(`SELECT id FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, sitename]);
+        const siteId = siteIdResult.rows[0].id;
 
-        await pool.query(`INSERT INTO rev_mailer_configs(site_id) VALUES($1)`, [siteId])
+        await pool.query(`INSERT INTO rev_mailer_configs(site_id) VALUES($1)`, [siteId]);
         res.send('Site added successfully')
     }
     catch (err) {
@@ -134,7 +135,7 @@ route.post("/updateSite", async (req, res, next) => {
         let forecast_graphs = data.forecast_graphs;
         let historical_graphs = data.historical_graphs;
 
-         const forecastGraphs = JSON.stringify(forecast_graphs);
+        const forecastGraphs = JSON.stringify(forecast_graphs);
 
         const historicalGraphs = JSON.stringify(historical_graphs);
         console.log(historicalGraphs)
@@ -168,6 +169,10 @@ route.get("/deleteSite", async (req, res, next) => {
             return;
         }
 
+        const query = await pool.query("SELECT id from utility_sites where company=$1 AND sitename=$2", [company, site]);
+
+        const siteID = query.rows[0].id;
+        await pool.query(`DELETE FROM rev_mailer_configs WHERE site_id=$1`, [siteID]);
         await pool.query(`DELETE FROM utility_sites WHERE company=$1 AND sitename=$2`, [company, site]);
 
         res.send('Site deleted successfully');
@@ -238,17 +243,17 @@ route.get('/updateUser', async (req, res, next) => {
 //done
 //get foldername for curr date
 route.get('/getFolderCurrDate', async (req, res, next) => {
-    try{
+    try {
         const company = req.query.company;
         const sitename = req.query.sitename;
-        if(company === 'Demo' && sitename === 'Demo-Site'){
+        if (company === 'Demo' && sitename === 'Demo-Site') {
             res.send('ml_forecasts');
             return;
         }
         const rows = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [sitename, company]);
         res.send(rows.rows[0].forecast_type);
     }
-    catch(err){
+    catch (err) {
         console.log(err);
         next(err);
     }
@@ -257,7 +262,7 @@ route.get('/getFolderCurrDate', async (req, res, next) => {
 //done
 //done
 route.get('/updateFolderCurrDate', async (req, res, next) => {
-    try{
+    try {
         const folder = req.query.folder;
         const sitename = req.query.sitename;
         const company = req.query.company;
@@ -265,7 +270,7 @@ route.get('/updateFolderCurrDate', async (req, res, next) => {
         await pool.query(`UPDATE utility_sites SET forecast_type=$1 WHERE sitename=$2 AND company=$3`, [folder, sitename, company]);
         console.log('Foldername updated successfully');
     }
-    catch(err){
+    catch (err) {
         console.log(err);
         next(err);
     }
