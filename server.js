@@ -19,7 +19,7 @@ app.use(cors())
 const fenice = require('./routes/fenice')
 const dashboardData = require('./routes/DashboardAPIs/sites')
 const dashboardLogin = require('./routes/DashboardAPIs/auth')
-const dashboardAdmin = require('./routes/DashboardAPIs/admin');
+const dashboardAdmin = require('./routes/DashboardAPIs/admin')
 
 //health API
 app.get("/health", (req, res) => {

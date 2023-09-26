@@ -20,7 +20,7 @@ route.get("/config", async (req, res, next) => {
         const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email])
         let company = await resJson.rows[0].company
 
-        let sitesQuery = await pool.query('SELECT * FROM utility_sites WHERE company = $1', [company])
+        let sitesQuery = await pool.query('SELECT * FROM utility_sites WHERE company = $1 AND is_visible = $2', [company, true])
 
         const sitesArr = sitesQuery.rows
 

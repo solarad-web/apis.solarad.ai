@@ -29,8 +29,7 @@ route.get('/getCompanies', async (req, res, next) => {
 route.get("/getConfig", async (req, res, next) => {
     try {
         let company = req.query.company;
-
-        const query = await pool.query(`SELECT * FROM utility_sites WHERE company=$1`, [company])
+        const query = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND is_visible=$2`, [company, true])
         const companySites = query.rows
 
         res.send(companySites);
