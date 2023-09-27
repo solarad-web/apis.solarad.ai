@@ -225,13 +225,13 @@ route.get('/getforecast', async (req, res, next) => {
                                     const rowTime = moment(filteredRow['Time'], 'YYYY-MM-DD HH:mm:ssZ');
                                     if (date.isSameOrBefore(currentTime)) {
                                         if (header === 'Ground GHI') {
-                                            filteredRow[header] = (row['GHI Final'] * random).toFixed(2);
+                                            filteredRow[header] = (row['Ground GHI'] * random).toFixed(2);
                                         }
                                         else if (header === 'Ground POA') {
-                                            filteredRow[header] = (row['POA Final'] * random).toFixed(2);
+                                            filteredRow[header] = (row['Ground POA'] * random).toFixed(2);
                                         }
                                         else if (header === 'AC_POWER_SUM') {
-                                            filteredRow[header] = (row['Gen Final'] * random).toFixed(2);
+                                            filteredRow[header] = (row['AC_POWER_SUM'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev0') {
                                             filteredRow[header] = (row['Gen Rev0'] * random).toFixed(2);
