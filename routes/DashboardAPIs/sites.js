@@ -214,6 +214,7 @@ route.get('/getforecast', async (req, res, next) => {
 
             if (fileSystem.existsSync(filepath)) {
                 if (isDemoClient) {
+                    const random = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(2);
                     const fileData = await new Promise((resolve, reject) => {
                         const rows = [];
                         fileSystem.createReadStream(filepath)
@@ -223,7 +224,6 @@ route.get('/getforecast', async (req, res, next) => {
                                 fileHeaders.forEach(header => {
                                     const rowTime = moment(filteredRow['Time'], 'YYYY-MM-DD HH:mm:ssZ');
                                     if (date.isSameOrBefore(currentTime)) {
-                                        const random = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(2);
                                         if (header === 'Ground GHI') {
                                             filteredRow[header] = (row['GHI Final'] * random).toFixed(2);
                                         }
