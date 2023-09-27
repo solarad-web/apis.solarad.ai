@@ -223,84 +223,84 @@ route.get('/getforecast', async (req, res, next) => {
                                 fileHeaders.forEach(header => {
                                     const rowTime = moment(filteredRow['Time'], 'YYYY-MM-DD HH:mm:ssZ');
                                     if (date.isSameOrBefore(currentTime)) {
-                                        const random = Math.random();
+                                        const random = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(2);
                                         if (header === 'Ground GHI') {
-                                            filteredRow[header] = (row['GHI Final'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Final'] * random).toFixed(2);
                                         }
                                         else if (header === 'Ground POA') {
-                                            filteredRow[header] = (row['POA Final'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['POA Final'] * random).toFixed(2);
                                         }
                                         else if (header === 'AC_POWER_SUM') {
-                                            filteredRow[header] = (row['Gen Final'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Final'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev0') {
-                                            filteredRow[header] = (row['Gen Rev0'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Rev0'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev1') {
-                                            filteredRow[header] = (row['Gen Rev1'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Rev1'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev2') {
-                                            filteredRow[header] = (row['Gen Rev2'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Rev2'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev3') {
-                                            filteredRow[header] = (row['Gen Rev3'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Rev3'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev4') {
-                                            filteredRow[header] = (row['Gen Rev4'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Rev4'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev5') {
-                                            filteredRow[header] = (row['Gen Rev5'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Rev5'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev6') {
-                                            filteredRow[header] = (row['Gen Rev6'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Rev6'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev7') {
-                                            filteredRow[header] = (row['Gen Rev7'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Rev7'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev8') {
-                                            filteredRow[header] = (row['Gen Rev8'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Rev8'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Rev9') {
-                                            filteredRow[header] = (row['Gen Rev9'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Rev9'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Final') {
-                                            filteredRow[header] = (row['GHI Final'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Final'] * random).toFixed(2);
                                         }
                                         else if (header === 'POA Final') {
-                                            filteredRow[header] = (row['POA Final'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['POA Final'] * random).toFixed(2);
                                         }
                                         else if (header === 'Gen Final') {
-                                            filteredRow[header] = (row['Gen Final'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['Gen Final'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Rev0') {
-                                            filteredRow[header] = (row['GHI Rev0'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Rev0'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Rev1') {
-                                            filteredRow[header] = (row['GHI Rev1'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Rev1'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Rev2') {
-                                            filteredRow[header] = (row['GHI Rev2'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Rev2'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Rev3') {
-                                            filteredRow[header] = (row['GHI Rev3'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Rev3'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Rev4') {
-                                            filteredRow[header] = (row['GHI Rev4'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Rev4'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Rev5') {
-                                            filteredRow[header] = (row['GHI Rev5'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Rev5'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Rev6') {
-                                            filteredRow[header] = (row['GHI Rev6'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Rev6'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Rev7') {
-                                            filteredRow[header] = (row['GHI Rev7'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Rev7'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Rev8') {
-                                            filteredRow[header] = (row['GHI Rev8'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Rev8'] * random).toFixed(2);
                                         }
                                         else if (header === 'GHI Rev9') {
-                                            filteredRow[header] = (row['GHI Rev9'] * (random * (1.1 - 0.9) + 0.9)).toFixed(2);
+                                            filteredRow[header] = (row['GHI Rev9'] * random).toFixed(2);
                                         }
                                         else filteredRow[header] = row[header];
                                     }
