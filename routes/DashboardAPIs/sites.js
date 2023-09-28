@@ -172,7 +172,6 @@ route.get('/getforecast', async (req, res, next) => {
         const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const outputFormat = 'YYYY-MM-DD';
-        // const currentDate = moment().format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
         const today = moment();
         const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
 

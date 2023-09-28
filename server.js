@@ -140,217 +140,217 @@ async function checkForecastAvailability(allSites) {
 
 
 
-//Rev Mailer Service
-async function sendRevMailFunc(revNo, revTime) {
-  const query = await pool.query(`SELECT us.sitename, us.company, us.capacity, rmc.mailer_emails FROM utility_sites AS us JOIN
-  rev_mailer_configs AS rmc ON us.id = rmc.site_id WHERE rmc.send_mail = true`)
-  const sites = query.rows
+// //Rev Mailer Service
+// async function sendRevMailFunc(revNo, revTime) {
+//   const query = await pool.query(`SELECT us.sitename, us.company, us.capacity, rmc.mailer_emails FROM utility_sites AS us JOIN
+//   rev_mailer_configs AS rmc ON us.id = rmc.site_id WHERE rmc.send_mail = true`)
+//   const sites = query.rows
 
-  sites.forEach(async (row) => {
-    console.log(row)
-    const sitename = row.sitename
-    const mailer_emails = row.mailer_emails
-    const company = row.company
-    const capacity = row.capacity
+//   sites.forEach(async (row) => {
+//     console.log(row)
+//     const sitename = row.sitename
+//     const mailer_emails = row.mailer_emails
+//     const company = row.company
+//     const capacity = row.capacity
 
-    //get current date in YYYY-MM-DD format
-    const date = new Date()
-    const year = date.getFullYear()
-    let month = date.getMonth() + 1
-    if (month < 10) month = `0${month}`
-    let day = date.getDate()
-    if (day < 10) day = `0${day}`
-    const today = `${year}-${month}-${day}`
+//     //get current date in YYYY-MM-DD format
+//     const date = new Date()
+//     const year = date.getFullYear()
+//     let month = date.getMonth() + 1
+//     if (month < 10) month = `0${month}`
+//     let day = date.getDate()
+//     if (day < 10) day = `0${day}`
+//     const today = `${year}-${month}-${day}`
 
-    //get tomorrow's date in YYYY-MM-DD format
-    const tomorrow = new Date(date)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const tomorrowYear = tomorrow.getFullYear()
-    let tomorrowMonth = tomorrow.getMonth() + 1
-    if (tomorrowMonth < 10) tomorrowMonth = `0${tomorrowMonth}`
-    let tomorrowDay = tomorrow.getDate()
-    if (tomorrowDay < 10) tomorrowDay = `0${tomorrowDay}`
-    const tomorrowDate = `${tomorrowYear}-${tomorrowMonth}-${tomorrowDay}`
+//     //get tomorrow's date in YYYY-MM-DD format
+//     const tomorrow = new Date(date)
+//     tomorrow.setDate(tomorrow.getDate() + 1)
+//     const tomorrowYear = tomorrow.getFullYear()
+//     let tomorrowMonth = tomorrow.getMonth() + 1
+//     if (tomorrowMonth < 10) tomorrowMonth = `0${tomorrowMonth}`
+//     let tomorrowDay = tomorrow.getDate()
+//     if (tomorrowDay < 10) tomorrowDay = `0${tomorrowDay}`
+//     const tomorrowDate = `${tomorrowYear}-${tomorrowMonth}-${tomorrowDay}`
 
-    console.log(tomorrowDate)
+//     console.log(tomorrowDate)
 
-    const metadata = [
-      { 'Block': 'Name of Forecaster', 'Time': 'Solarad.ai' },
-      { 'Block': 'Schedule for dated', 'Time': today },
-      { 'Block': 'Revision No.', 'Time': revNo },
-      { 'Block': 'Time of Revision Hrs', 'Time': revTime },
-      { 'Block': '', 'Time': '', 'Day Ahead Schedule (MW)': '', 'Current Available Capacity (MW)': '', 'Revised Schedule (MW)': '' },
-      { 'Block': 'Block', 'Time': 'Time', 'Day Ahead Schedule (MW)': 'Day Ahead Schedule (MW)', 'Current Available Capacity (MW)': 'Current Available Capacity (MW)', 'Revised Schedule (MW)': 'Revised Schedule (MW)' },
-    ];
+//     const metadata = [
+//       { 'Block': 'Name of Forecaster', 'Time': 'Solarad.ai' },
+//       { 'Block': 'Schedule for dated', 'Time': today },
+//       { 'Block': 'Revision No.', 'Time': revNo },
+//       { 'Block': 'Time of Revision Hrs', 'Time': revTime },
+//       { 'Block': '', 'Time': '', 'Day Ahead Schedule (MW)': '', 'Current Available Capacity (MW)': '', 'Revised Schedule (MW)': '' },
+//       { 'Block': 'Block', 'Time': 'Time', 'Day Ahead Schedule (MW)': 'Day Ahead Schedule (MW)', 'Current Available Capacity (MW)': 'Current Available Capacity (MW)', 'Revised Schedule (MW)': 'Revised Schedule (MW)' },
+//     ];
 
-    const revCsvFilePathToday = `/home/Forecast/${company}/ml_forecasts/Solarad_${sitename}_${company}_Forecast_${today}_ID.csv`
-    const revCsvFilePathTomorrow = `/home/Forecast/${company}/ml_forecasts/Solarad_${sitename}_${company}_Forecast_${tomorrowDate}_ID.csv`
-    if (!fileSystem.existsSync(revCsvFilePathToday)) {
-      console.log(revCsvFilePathToday + " not found")
-      return
-    }
-    if (!fileSystem.existsSync(revCsvFilePathTomorrow)) {
-      console.log(revCsvFilePathTomorrow + " not found")
-      return
-    }
+//     const revCsvFilePathToday = `/home/Forecast/${company}/ml_forecasts/Solarad_${sitename}_${company}_Forecast_${today}_ID.csv`
+//     const revCsvFilePathTomorrow = `/home/Forecast/${company}/ml_forecasts/Solarad_${sitename}_${company}_Forecast_${tomorrowDate}_ID.csv`
+//     if (!fileSystem.existsSync(revCsvFilePathToday)) {
+//       console.log(revCsvFilePathToday + " not found")
+//       return
+//     }
+//     if (!fileSystem.existsSync(revCsvFilePathTomorrow)) {
+//       console.log(revCsvFilePathTomorrow + " not found")
+//       return
+//     }
 
-    const rows = [];
-    const tomorrowRows = [];
-    let totalDayAhead = 0;
-    let totalRevised = 0;
-    let totalCurrent = 0;
-    let maxDayAhead = 0;
-    let maxRevised = 0;
-    let maxCurrent = 0;
-    let minDayAhead = 100000000000;
-    let minRevised = 100000000000;
-    let minCurrent = 100000000000;
-    let avgDayAhead = 0;
-    let avgRevised = 0;
-    let avgCurrent = 0;
-    let count = 0;
+//     const rows = [];
+//     const tomorrowRows = [];
+//     let totalDayAhead = 0;
+//     let totalRevised = 0;
+//     let totalCurrent = 0;
+//     let maxDayAhead = 0;
+//     let maxRevised = 0;
+//     let maxCurrent = 0;
+//     let minDayAhead = 100000000000;
+//     let minRevised = 100000000000;
+//     let minCurrent = 100000000000;
+//     let avgDayAhead = 0;
+//     let avgRevised = 0;
+//     let avgCurrent = 0;
+//     let count = 0;
 
-    fileSystem.createReadStream(revCsvFilePathTomorrow)
-      .pipe(csvParser())
-      .on('data', async (row) => {
-        tomorrowRows.push(row);
-      })
-      .on('end', async () => {
-        fileSystem.createReadStream(revCsvFilePathToday)
-          .pipe(csvParser())
-          .on('data', async (row, index) => {
-            rows.push(row);
-          })
-          .on('end', async () => {
-            const transformedData = rows.map((row, index) => {
-              totalDayAhead += parseFloat(tomorrowRows[index]['Gen Rev0']);
-              totalRevised += parseFloat(row[`Gen Rev${revNo}`]);
-              totalCurrent += parseFloat(capacity);
-              maxDayAhead = Math.max(maxDayAhead, parseFloat(tomorrowRows[index]['Gen Rev0']));
-              maxRevised = Math.max(maxRevised, parseFloat(row[`Gen Rev${revNo}`]));
-              maxCurrent = Math.max(maxCurrent, parseFloat(capacity));
-              minDayAhead = Math.min(minDayAhead, parseFloat(tomorrowRows[index]['Gen Rev0']));
-              minRevised = Math.min(minRevised, parseFloat(row[`Gen Rev${revNo}`]));
-              minCurrent = Math.min(minCurrent, parseFloat(capacity));
-              count++;
+//     fileSystem.createReadStream(revCsvFilePathTomorrow)
+//       .pipe(csvParser())
+//       .on('data', async (row) => {
+//         tomorrowRows.push(row);
+//       })
+//       .on('end', async () => {
+//         fileSystem.createReadStream(revCsvFilePathToday)
+//           .pipe(csvParser())
+//           .on('data', async (row, index) => {
+//             rows.push(row);
+//           })
+//           .on('end', async () => {
+//             const transformedData = rows.map((row, index) => {
+//               totalDayAhead += parseFloat(tomorrowRows[index]['Gen Rev0']);
+//               totalRevised += parseFloat(row[`Gen Rev${revNo}`]);
+//               totalCurrent += parseFloat(capacity);
+//               maxDayAhead = Math.max(maxDayAhead, parseFloat(tomorrowRows[index]['Gen Rev0']));
+//               maxRevised = Math.max(maxRevised, parseFloat(row[`Gen Rev${revNo}`]));
+//               maxCurrent = Math.max(maxCurrent, parseFloat(capacity));
+//               minDayAhead = Math.min(minDayAhead, parseFloat(tomorrowRows[index]['Gen Rev0']));
+//               minRevised = Math.min(minRevised, parseFloat(row[`Gen Rev${revNo}`]));
+//               minCurrent = Math.min(minCurrent, parseFloat(capacity));
+//               count++;
 
-              const dayAhead = parseFloat(tomorrowRows[index]['Gen Rev0']);
-              const currRev = parseFloat(row[`Gen Rev${revNo}`]);
-              const time = new Date(row['Time'].split('+')[0]);
-              const sunIsOut = time.getHours() >= 5 && (time.getHours() < 19 || (time.getHours() === 19 && time.getMinutes() <= 15));
-              return {
-                'Block': row['Block'],
-                'Time': row['Time'],
-                'Day Ahead Schedule (MW)': dayAhead.toFixed(2),
-                'Current Available Capacity (MW)': sunIsOut ? capacity : 0,
-                'Revised Schedule (MW)': currRev.toFixed(2),
-              };
-            });
+//               const dayAhead = parseFloat(tomorrowRows[index]['Gen Rev0']);
+//               const currRev = parseFloat(row[`Gen Rev${revNo}`]);
+//               const time = new Date(row['Time'].split('+')[0]);
+//               const sunIsOut = time.getHours() >= 5 && (time.getHours() < 19 || (time.getHours() === 19 && time.getMinutes() <= 15));
+//               return {
+//                 'Block': row['Block'],
+//                 'Time': row['Time'],
+//                 'Day Ahead Schedule (MW)': dayAhead.toFixed(2),
+//                 'Current Available Capacity (MW)': sunIsOut ? capacity : 0,
+//                 'Revised Schedule (MW)': currRev.toFixed(2),
+//               };
+//             });
 
-            avgCurrent = totalCurrent / count;
-            avgDayAhead = totalDayAhead / count;
-            avgRevised = totalRevised / count;
+//             avgCurrent = totalCurrent / count;
+//             avgDayAhead = totalDayAhead / count;
+//             avgRevised = totalRevised / count;
 
-            const metadata2 = [
-              { 'Block': 'Total Generation(MWHr)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': totalDayAhead.toFixed(2), 'Current Available Capacity (MW)': totalCurrent.toFixed(2), 'Revised Schedule (MW)': totalRevised.toFixed(2) },
-              { 'Block': 'Max Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': maxDayAhead.toFixed(2), 'Current Available Capacity (MW)': maxCurrent.toFixed(2), 'Revised Schedule (MW)': maxRevised.toFixed(2) },
-              { 'Block': 'Min Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': minDayAhead.toFixed(2), 'Current Available Capacity (MW)': minCurrent.toFixed(2), 'Revised Schedule (MW)': minRevised.toFixed(2) },
-              { 'Block': 'Avg Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': avgDayAhead.toFixed(2), 'Current Available Capacity (MW)': avgCurrent.toFixed(2), 'Revised Schedule (MW)': avgRevised.toFixed(2) },
-            ];
+//             const metadata2 = [
+//               { 'Block': 'Total Generation(MWHr)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': totalDayAhead.toFixed(2), 'Current Available Capacity (MW)': totalCurrent.toFixed(2), 'Revised Schedule (MW)': totalRevised.toFixed(2) },
+//               { 'Block': 'Max Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': maxDayAhead.toFixed(2), 'Current Available Capacity (MW)': maxCurrent.toFixed(2), 'Revised Schedule (MW)': maxRevised.toFixed(2) },
+//               { 'Block': 'Min Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': minDayAhead.toFixed(2), 'Current Available Capacity (MW)': minCurrent.toFixed(2), 'Revised Schedule (MW)': minRevised.toFixed(2) },
+//               { 'Block': 'Avg Generation(MW)', 'Time': '(24 Hrs)', 'Day Ahead Schedule (MW)': avgDayAhead.toFixed(2), 'Current Available Capacity (MW)': avgCurrent.toFixed(2), 'Revised Schedule (MW)': avgRevised.toFixed(2) },
+//             ];
 
-            const finalData = metadata.concat(transformedData);
+//             const finalData = metadata.concat(transformedData);
 
-            const finalData2 = finalData.concat(metadata2);
+//             const finalData2 = finalData.concat(metadata2);
 
-            const fields = [
-              'Block',
-              'Time',
-              'Day Ahead Schedule (MW)',
-              'Current Available Capacity (MW)',
-              'Revised Schedule (MW)'
-            ];
+//             const fields = [
+//               'Block',
+//               'Time',
+//               'Day Ahead Schedule (MW)',
+//               'Current Available Capacity (MW)',
+//               'Revised Schedule (MW)'
+//             ];
 
-            const csv = await parseAsync(finalData2, { fields, header: false });
+//             const csv = await parseAsync(finalData2, { fields, header: false });
 
-            mailer_emails.forEach(async (email) => {
-              try {
-                await sendRevMail({ email: email, csv: csv, sitename: sitename, company: company, revNo: revNo, revTime: revTime, today: today });
-                console.log(`rev mail sent to ${email} for ${sitename} at ${revTime} of revNo ${revNo}`)
-              }
-              catch (error) {
-                console.log(error)
-                return;
-              }
+//             mailer_emails.forEach(async (email) => {
+//               try {
+//                 await sendRevMail({ email: email, csv: csv, sitename: sitename, company: company, revNo: revNo, revTime: revTime, today: today });
+//                 console.log(`rev mail sent to ${email} for ${sitename} at ${revTime} of revNo ${revNo}`)
+//               }
+//               catch (error) {
+//                 console.log(error)
+//                 return;
+//               }
 
-            });
-          });
-      })
-
-
-
-  });
-}
+//             });
+//           });
+//       })
 
 
-cron.schedule('0 9 * * *', () => {
-  sendRevMailFunc(0, '09:00');
-}, {
-  timezone: "Asia/Kolkata"
-});
 
-cron.schedule('0 4 * * *', () => {
-  sendRevMailFunc(1, '04:00');
-}, {
-  timezone: "Asia/Kolkata"
-});
+//   });
+// }
 
-cron.schedule('0 5 * * *', () => {
-  sendRevMailFunc(2, '05:00');
-}, {
-  timezone: "Asia/Kolkata"
-});
 
-cron.schedule('30 6 * * *', () => {
-  sendRevMailFunc(3, '06:30');
-}, {
-  timezone: "Asia/Kolkata"
-});
+// cron.schedule('0 9 * * *', () => {
+//   sendRevMailFunc(0, '09:00');
+// }, {
+//   timezone: "Asia/Kolkata"
+// });
 
-cron.schedule('0 8 * * *', () => {
-  sendRevMailFunc(4, '08:00');
-}, {
-  timezone: "Asia/Kolkata"
-});
+// cron.schedule('0 4 * * *', () => {
+//   sendRevMailFunc(1, '04:00');
+// }, {
+//   timezone: "Asia/Kolkata"
+// });
 
-cron.schedule('30 9 * * *', () => {
-  sendRevMailFunc(5, '09:30');
-}, {
-  timezone: "Asia/Kolkata"
-});
+// cron.schedule('0 5 * * *', () => {
+//   sendRevMailFunc(2, '05:00');
+// }, {
+//   timezone: "Asia/Kolkata"
+// });
 
-cron.schedule('0 11 * * *', () => {
-  sendRevMailFunc(6, '11:00');
-}, {
-  timezone: "Asia/Kolkata"
-});
+// cron.schedule('30 6 * * *', () => {
+//   sendRevMailFunc(3, '06:30');
+// }, {
+//   timezone: "Asia/Kolkata"
+// });
 
-cron.schedule('30 12 * * *', () => {
-  sendRevMailFunc(7, '12:30');
-}, {
-  timezone: "Asia/Kolkata"
-});
+// cron.schedule('0 8 * * *', () => {
+//   sendRevMailFunc(4, '08:00');
+// }, {
+//   timezone: "Asia/Kolkata"
+// });
 
-cron.schedule('0 14 * * *', () => {
-  sendRevMailFunc(8, '14:00');
-}, {
-  timezone: "Asia/Kolkata"
-});
+// cron.schedule('30 9 * * *', () => {
+//   sendRevMailFunc(5, '09:30');
+// }, {
+//   timezone: "Asia/Kolkata"
+// });
 
-cron.schedule('30 15 * * *', () => {
-  sendRevMailFunc(9, '15:30');
-}, {
-  timezone: "Asia/Kolkata"
-});
+// cron.schedule('0 11 * * *', () => {
+//   sendRevMailFunc(6, '11:00');
+// }, {
+//   timezone: "Asia/Kolkata"
+// });
+
+// cron.schedule('30 12 * * *', () => {
+//   sendRevMailFunc(7, '12:30');
+// }, {
+//   timezone: "Asia/Kolkata"
+// });
+
+// cron.schedule('0 14 * * *', () => {
+//   sendRevMailFunc(8, '14:00');
+// }, {
+//   timezone: "Asia/Kolkata"
+// });
+
+// cron.schedule('30 15 * * *', () => {
+//   sendRevMailFunc(9, '15:30');
+// }, {
+//   timezone: "Asia/Kolkata"
+// });
 
 
 
