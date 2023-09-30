@@ -154,7 +154,7 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
           //loop through all the csv files in the ml_forecasts folder
 
           for (const site of value) {
-              let dates = fileSystem.readdir(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}`);
+              let dates = fileSystem.readdirSync(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}`);
               for (const date of dates) {
               let filepath = `/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${date}_ID.csv`;
 
@@ -188,7 +188,7 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
               }
 
 
-              const readableStream = fileSystem.createReadStream(filepath);
+              const readableStream = fileSystem.createReadStream(filepath)
 
               //if filepath does not exist then skip
               if (!fileSystem.existsSync(filepath)) {
@@ -240,7 +240,7 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
       res.send("Done");
 
   } catch (err) {
-      console.log(err.message);
+      console.log(err);
       return;
   }
 }
