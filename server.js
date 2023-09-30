@@ -155,6 +155,8 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
 
           for (const site of value) {
               let dates = fileSystem.readdirSync(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}`);
+
+              if (fs.existsSync(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}`)) {
               for (const date of dates) {
               let filepath = `/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${date}_ID.csv`;
 
@@ -233,6 +235,7 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
                   .on('end', () => {
                       console.log(`CSV file successfully processed for ${site} and ${client}`);
                   });
+                }
               }
           }
       }
