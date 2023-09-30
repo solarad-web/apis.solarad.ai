@@ -154,7 +154,7 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
           //loop through all the csv files in the ml_forecasts folder
 
           for (const site of value) {
-              let dates = fs.readdir(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}`);
+              let dates = fileSystem.readdir(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}`);
               for (const date of dates) {
               let filepath = `/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${date}_ID.csv`;
 
@@ -172,9 +172,9 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
               const day = dateParts[2];
               const prevDate = moment(`${year}-${month}-${day}`).subtract(1, 'days').format('YYYY-MM-DD');
 
-              const readableStreamForModel = fs.createReadStream(modelFile)
+              const readableStreamForModel = fileSystem.createReadStream(modelFile)
 
-              if(fs.existsSync(modelFile)) {
+              if(fileSystem.existsSync(modelFile)) {
                   readableStreamForModel
                   .pipe(csv())
                   .on('data', async (row) => {
@@ -188,10 +188,10 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
               }
 
 
-              const readableStream = fs.createReadStream(filepath);
+              const readableStream = fileSystem.createReadStream(filepath);
 
               //if filepath does not exist then skip
-              if (!fs.existsSync(filepath)) {
+              if (!fileSystem.existsSync(filepath)) {
                   console.log("File does not exist");
                   res.send("File does not exist");
                   return;
