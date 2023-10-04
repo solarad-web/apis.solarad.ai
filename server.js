@@ -155,7 +155,7 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
           for (const site of value) {
               let dates = fileSystem.readdirSync(`/home/Forecast/${client}/ml_forecasts/`)
               res.send(dates)
-              if (fs.existsSync(`/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}`)) {
+              if (fileSystem.existsSync(`/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}`)) {
               for (const date of dates) {
               let filepath = `/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${date}_ID.csv`
 
