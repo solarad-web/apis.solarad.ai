@@ -151,14 +151,13 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
       }
 
       for (const [client, value] of Object.entries(clients)) {
-          //loop through all the csv files in the ml_forecasts folder
 
           for (const site of value) {
-              let dates = fileSystem.readdirSync(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}`);
+              let dates = fileSystem.readdirSync(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts`)
               res.send(dates)
               if (fs.existsSync(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}`)) {
               for (const date of dates) {
-              let filepath = `/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${date}_ID.csv`;
+              let filepath = `/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${date}_ID.csv`
 
               //get modelname from /home/ec2-user/efs_solaradoutput/records_ml/clients/${client}/${site}/${site}_best_model_runs.csv
               const siteIdQuery = await pool.query("SELECT id FROM utility_sites WHERE sitename = $1 AND company = $2", [site, client]);
@@ -229,7 +228,7 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
                       const gen_rev9 = parseFloat(row['GHI Rev9']);
                       
                       //
-                      await pool.query("INSERT INTO forecast_temp (site_id, block, time, gen_final, ghi_final, poa_final, ghi_rev1, ghi_rev0, gen_rev0, gen_rev1, ghi_rev2, gen_rev2, ghi_rev3, gen_rev3, ghi_rev4, gen_rev4, ghi_rev5, gen_rev5, ghi_rev6, gen_rev6, ghi_rev7, gen_rev7, ghi_rev8, gen_rev8, ghi_rev9, gen_rev9, model_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 , $10, $11, $12, $13, $14, $15, $16, $17 , $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)", [siteId, block, time, gen_final, ghi_final, poa_final, ghi_rev1, ghi_rev0, gen_rev0, gen_rev1, ghi_rev2, gen_rev2, ghi_rev3, gen_rev3, ghi_rev4, gen_rev4, ghi_rev5, gen_rev5, ghi_rev6, gen_rev6, ghi_rev7, gen_rev7, ghi_rev8, gen_rev8, ghi_rev9, gen_rev9, modelname]);
+                      await pool.query("INSERT INTO forecast_temp (site_id, block, time, gen_final, ghi_final, poa_final, ghi_rev1, ghi_rev0, gen_rev0, gen_rev1, ghi_rev2, gen_rev2, ghi_rev3, gen_rev3, ghi_rev4, gen_rev4, ghi_rev5, gen_rev5, ghi_rev6, gen_rev6, ghi_rev7, gen_rev7, ghi_rev8, gen_rev8, ghi_rev9, gen_rev9, model_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 , $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)", [siteId, block, time, gen_final, ghi_final, poa_final, ghi_rev1, ghi_rev0, gen_rev0, gen_rev1, ghi_rev2, gen_rev2, ghi_rev3, gen_rev3, ghi_rev4, gen_rev4, ghi_rev5, gen_rev5, ghi_rev6, gen_rev6, ghi_rev7, gen_rev7, ghi_rev8, gen_rev8, ghi_rev9, gen_rev9, modelname]);
                   }
                   )
                   .on('end', () => {
