@@ -153,11 +153,11 @@ app.get('/addForecastDataToDB', async (req, res, next) => {
       for (const [client, value] of Object.entries(clients)) {
 
           for (const site of value) {
-              let dates = fileSystem.readdirSync(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts`)
+              let dates = fileSystem.readdirSync(`/home/Forecast/${client}/ml_forecasts/`)
               res.send(dates)
-              if (fs.existsSync(`/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}`)) {
+              if (fs.existsSync(`/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}`)) {
               for (const date of dates) {
-              let filepath = `/home/ec2-user/efs-solarad-output/csv/clients/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${date}_ID.csv`
+              let filepath = `/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${date}_ID.csv`
 
               //get modelname from /home/ec2-user/efs_solaradoutput/records_ml/clients/${client}/${site}/${site}_best_model_runs.csv
               const siteIdQuery = await pool.query("SELECT id FROM utility_sites WHERE sitename = $1 AND company = $2", [site, client]);
