@@ -444,8 +444,8 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         const outputFormat = 'YYYY-MM-DD';
         const today = moment();
         const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
-        const startMoment = moment(startDate).utcOffset('+0530');
-        const endMoment = moment(endDate).utcOffset('+0530');
+        const startMoment = moment(startDate);
+        const endMoment = moment(endDate);
 
         if (client === 'Demo' && site === 'Demo-Site') {
             client = process.env.DEMO_COMPANY;
