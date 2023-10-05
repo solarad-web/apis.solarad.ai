@@ -211,8 +211,6 @@ route.get('/getforecast', async (req, res, next) => {
                     });
             }
 
-            console.log("headers to concat ", headersToConcat)
-
             if (fileSystem.existsSync(filepath)) {
                 if (isDemoClient) {
                     const random = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(2);
