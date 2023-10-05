@@ -7,6 +7,7 @@ const fastcsv = require('fast-csv')
 
 const axios = require('axios')
 const csvParser = require('csv-parser')
+const { Parser } = require('json2csv');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter
 const fileSystem = require("fs")
 const csv = require('csv-parser')
@@ -546,12 +547,12 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             for (let j = 0; j <= 9; j++) {
                 if (ghiDataQuery.rows[((i * 10) + j)] && ghiDataQuery.rows[((i * 10) + j)]['revision_number'] === `Rev${j}`) {
                     rowToMerge[`GHI Rev${j}`] = ghiDataQuery.rows[((i * 10) + j)].value;
-                    if(ghiDataQuery.rows[((i * 10) + j)].value != null)rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value;
+                    if (ghiDataQuery.rows[((i * 10) + j)].value != null) rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value;
                 }
                 else rowToMerge[`GHI Rev${j}`] = null;
                 if (genDataQuery.rows[((i * 10) + j)] && genDataQuery.rows[((i * 10) + j)]['revision_number'] === `Rev${j}`) {
                     rowToMerge[`Gen Rev${j}`] = genDataQuery.rows[((i * 10) + j)].value;
-                    if(genDataQuery.rows[((i * 10) + j)]['value'] != null)rowToMerge['Gen Final'] = genDataQuery.rows[((i * 10) + j)]['value'];
+                    if (genDataQuery.rows[((i * 10) + j)]['value'] != null) rowToMerge['Gen Final'] = genDataQuery.rows[((i * 10) + j)]['value'];
                 }
                 else rowToMerge[`Gen Rev${j}`] = null;
 
@@ -566,7 +567,13 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             mergedData.push(rowToMerge);
         }
 
-        res.send(mergedData)
+        const json2csvParser = new Parser();
+        const csvData = json2csvParser.parse(mergedData);
+
+        // Set response headers for CSV and send the data
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
+        res.send(csvData);
 
     } catch (err) {
         console.log(err);
