@@ -546,8 +546,8 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
             for (let j = 0; j <= 9; j++) {
                 if (ghiDataQuery.rows[((i * 10) + j)]) {
-                    rowToMerge[`GHI Rev${j}`] = ghiDataQuery.rows[((i * 10) + j)].value;
-                    if (ghiDataQuery.rows[((i * 10) + j)].value != null) rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value;
+                    rowToMerge[`GHI Rev${j}`] = ghiDataQuery.rows[((i * 10) + j)].value
+                    if (ghiDataQuery.rows[((i * 10) + j)].value != null) rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value
                 }
                 else rowToMerge[`GHI Rev${j}`] = null;
                 if (genDataQuery.rows[((i * 10) + j)]) {
@@ -564,13 +564,13 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             mergedData.push(rowToMerge);
         }
 
-        // const json2csvParser = new Parser();
-        // const csvData = json2csvParser.parse(mergedData);
+        const json2csvParser = new Parser();
+        const csvData = json2csvParser.parse(mergedData);
 
-        // // Set response headers for CSV and send the data
-        // res.setHeader('Content-Type', 'text/csv');
-        // res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
-        // res.send(csvData);
+        // Set response headers for CSV and send the data
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
+        res.send(csvData);
 
         res.send(mergedData)
 
