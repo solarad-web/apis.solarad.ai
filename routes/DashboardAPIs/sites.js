@@ -457,7 +457,6 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
         const siteId = siteIdQuery.rows[0].id;
 
-        await pool.query(`SET TIME ZONE 'Asia/Kolkata'`)
 
         const dataQuery = await pool.query(`
             SELECT block,
@@ -466,7 +465,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             FROM forecast_prod 
             WHERE site_id=$1 AND time >= $2 AND time <= $3
             order by time asc
-        `, [siteId, startMoment, endMoment]);
+        `, [siteId, '2023-08-01 00:00:00+00:00', '2023-09-23 10:48:58+00:00']);
 
 
 
