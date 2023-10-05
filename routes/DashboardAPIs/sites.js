@@ -541,7 +541,6 @@ route.get('/getforecastFromDb', async (req, res, next) => {
                 'Ground GHI': groundRow.ground_ghi,
                 'Ground POA': groundRow.ground_poa,
                 'AC_POWER_SUM': groundRow.ground_generation,
-                'Block': genDataQuery.rows[(i * 10)].block
                 // 'POA Final': poaRow.value,
             }
 
@@ -558,9 +557,8 @@ route.get('/getforecastFromDb', async (req, res, next) => {
                 else rowToMerge[`Gen Rev${j}`] = null;
 
                 // if (ghiDataQuery.rows[((i * 10) + j)]) {
-                //     rowToMerge[`Block`] = ghiDataQuery.rows[((i * 10) + j)]['block'];
+                    rowToMerge[`Block`] = ghiDataQuery.rows[((i * 10) + j)]['block'];
                 // }
-                // else rowToMerge[`Gen Rev${j}`] = null;
             }
 
             mergedData.push(rowToMerge);
