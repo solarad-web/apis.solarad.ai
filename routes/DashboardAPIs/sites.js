@@ -457,10 +457,9 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
         const siteId = siteIdQuery.rows[0].id;
 
-
         const dataQuery = await pool.query(`
             SELECT block,
-            time, 
+            time AT TIME ZONE 'Asia/Kolkata', 
             revision_number, forecast_variable, value
             FROM forecast_prod 
             WHERE site_id=$1 AND time >= $2 AND time <= $3 AND revision_number = 'Rev0' AND forecast_variable = 'Gen'
