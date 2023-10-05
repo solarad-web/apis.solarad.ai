@@ -457,6 +457,8 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
         const siteId = siteIdQuery.rows[0].id;
 
+        await pool.query(`SET TIME ZONE 'Asia/Kolkata'`)
+
         const dataQuery = await pool.query(`
             SELECT block,
             time AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata' as time, 
