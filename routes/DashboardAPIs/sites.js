@@ -497,7 +497,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             order by time asc
         `, [siteId, formattedStartDate, formattedEndDate])
 
-        res.send(groundDataQuery.rows)
+        res.send(groundDataQuery.rows.length.toString() + ' ' + genDataQuery.rows.length.toString() + ' ' + ghiDataQuery.rows.length.toString() + ' ' + poaDataQuery.rows.length.toString())
         
     } catch (err) {
         console.log(err);
