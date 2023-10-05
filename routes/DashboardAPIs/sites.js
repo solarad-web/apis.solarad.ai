@@ -465,7 +465,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             FROM forecast_prod 
             WHERE site_id=$1 AND time >= $2 AND time <= $3
             order by time asc
-        `, [siteId, '2023-08-01 00:00:00+00:00', '2023-09-23 10:48:58+00:00']);
+        `, [siteId, startDate, endDate])
 
 
 
