@@ -444,8 +444,8 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         const outputFormat = 'YYYY-MM-DD';
         const today = moment();
         const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
-        const startMoment = moment(startDate).subtract(5, 'hours').subtract(30, 'minutes');
-        const endMoment = moment(endDate).subtract(5, 'hours').subtract(30, 'minutes');
+        // const startMoment = moment(startDate).subtract(5, 'hours').subtract(30, 'minutes');
+        // const endMoment = moment(endDate).subtract(5, 'hours').subtract(30, 'minutes');
 
         const formattedStartDate = startMoment.format('YYYY-MM-DD HH:mm:ssZ');
         const formattedEndDate = endMoment.format('YYYY-MM-DD HH:mm:ssZ');
@@ -458,7 +458,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
         const siteIdQuery = await pool.query(`SELECT id FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client])
 
-        const siteId = siteIdQuery.rows[0].id;
+        const siteId = siteIdQuery.rows[0].id
 
         const dataQuery = await pool.query(`
             SELECT block,
@@ -468,6 +468,10 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             WHERE site_id=$1 AND time >= $2 AND time <= $3
             order by time asc
         `, [siteId, formattedStartDate, formattedEndDate])
+
+        dataQuery.rows.forEach((row, index) => {
+
+        })
 
 
 
