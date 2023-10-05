@@ -567,13 +567,15 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             mergedData.push(rowToMerge);
         }
 
-        const json2csvParser = new Parser();
-        const csvData = json2csvParser.parse(mergedData);
+        // const json2csvParser = new Parser();
+        // const csvData = json2csvParser.parse(mergedData);
 
-        // Set response headers for CSV and send the data
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
-        res.send(csvData);
+        // // Set response headers for CSV and send the data
+        // res.setHeader('Content-Type', 'text/csv');
+        // res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
+        // res.send(csvData);
+
+        res.send(mergedData);
 
     } catch (err) {
         console.log(err);
