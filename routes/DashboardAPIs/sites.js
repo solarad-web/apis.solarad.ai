@@ -405,7 +405,6 @@ route.get('/getforecast', async (req, res, next) => {
                                     filteredRow[header] = row[header];
                                 });
                                 rows.push(filteredRow);
-                                console.log("row ", row)
                             })
                             .on('end', () => resolve(rows))
                             .on('error', reject);
