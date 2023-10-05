@@ -489,8 +489,15 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
         // dataQuery.rows.forEach((row, index) => {})
 
+        const groundDataQuery = await pool.query(`
+            SELECT time AT TIME ZONE 'Asia/Kolkata',
+            ground_ghi, ground_poa, ground_generation
+            FROM ground_data
+            WHERE site_id=$1 AND time >= $2 AND time <= $3
+            order by time asc
+        `, [siteId, formattedStartDate, formattedEndDate])
 
-        res.send(genDataQuery.rows)
+        res.send(groundDataQuery.rows)
         
     } catch (err) {
         console.log(err);
