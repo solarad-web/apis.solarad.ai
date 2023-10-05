@@ -498,64 +498,76 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         `, [siteId, formattedStartDate, formattedEndDate])
 
         //current row
-// Row {
-//  Block: '96',
-//  Time: '2023-10-07 23:45:00+05:30',
-//  'Gen Final': '0.0',
-//  'GHI Final': '0.0',
-//  'POA Final': '0.0',
-//  AC_POWER_SUM: undefined,
-//  'Ground GHI': undefined,
-//  'Ground POA': undefined,
-//  'GHI Rev1': undefined,
-//  'GHI Rev0': '0.0',
-//  'Gen Rev0': '0.0',
-//  'Gen Rev1': undefined,
-//  'GHI Rev2': undefined,
-//  'Gen Rev2': undefined,
-//  'GHI Rev3': undefined,
-//  'Gen Rev3': undefined,
-//  'GHI Rev4': undefined,
-//  'Gen Rev4': undefined,
-//  'GHI Rev5': undefined,
-//  'Gen Rev5': undefined,
-//  'GHI Rev6': undefined,
-//  'Gen Rev6': undefined,
-//  'GHI Rev7': undefined,
-//  'Gen Rev7': undefined,
-//  'GHI Rev8': undefined,
-//  'Gen Rev8': undefined,
-//  'GHI Rev9': undefined,
-//  'Gen Rev9': undefined
-//  }
-        // const mergedData = [];
-        // for(let i = 0; i < groundDataQuery.rows.length; i++){
-        //     const groundRow = groundDataQuery.rows[i];
-        //     const genRow = genDataQuery.rows[i];
-        //     const ghiRow = ghiDataQuery.rows[i];
-        //     const poaRow = poaDataQuery.rows[i];
+        // Row {
+        //  Block: '96',
+        //  Time: '2023-10-07 23:45:00+05:30',
+        //  'Gen Final': '0.0',
+        //  'GHI Final': '0.0',
+        //  'POA Final': '0.0',
+        //  AC_POWER_SUM: undefined,
+        //  'Ground GHI': undefined,
+        //  'Ground POA': undefined,
+        //  'GHI Rev1': undefined,
+        //  'GHI Rev0': '0.0',
+        //  'Gen Rev0': '0.0',
+        //  'Gen Rev1': undefined,
+        //  'GHI Rev2': undefined,
+        //  'Gen Rev2': undefined,
+        //  'GHI Rev3': undefined,
+        //  'Gen Rev3': undefined,
+        //  'GHI Rev4': undefined,
+        //  'Gen Rev4': undefined,
+        //  'GHI Rev5': undefined,
+        //  'Gen Rev5': undefined,
+        //  'GHI Rev6': undefined,
+        //  'Gen Rev6': undefined,
+        //  'GHI Rev7': undefined,
+        //  'Gen Rev7': undefined,
+        //  'GHI Rev8': undefined,
+        //  'Gen Rev8': undefined,
+        //  'GHI Rev9': undefined,
+        //  'Gen Rev9': undefined
+        //  }
+        const mergedData = [];
+        for (let i = 0; i < groundDataQuery.rows.length; i++) {
+            const groundRow = groundDataQuery.rows[i];
+            const genRow = genDataQuery.rows[i];
+            const ghiRow = ghiDataQuery.rows[i];
+            // const poaRow = poaDataQuery.rows[i];
 
-        //     const rowToMerge = {
-        //         'Time': groundRow.timezone,
-        //         'Ground GHI': groundRow.ground_ghi,
-        //         'Ground POA': groundRow.ground_poa,
-        //         'AC_POWER_SUM': groundRow.ground_generation,
-        //     }
+            const rowToMerge = {
+                'Time': groundRow.timezone,
+                'Ground GHI': groundRow.ground_ghi,
+                'Ground POA': groundRow.ground_poa,
+                'AC_POWER_SUM': groundRow.ground_generation,
+                // 'POA Final': poaRow.value,
+            }
 
-        //     for(let j=0; j<=9; j++){
-        //         if(ghiRow[((i*10)+j)].revision_number === `Rev${j}` && ghiRow[((i*10)+j)].timezone === rowToMerge['Time'])rowToMerge[`GHI Rev${j}`] = ghiRow[((i*10)+j)].value;
-        //         else rowToMerge[`GHI Rev${j}`] = null;
-        //         if(genRow[((i*10)+j)].revision_number === `Rev${j}` && genRow[((i*10)+j)].timezone === rowToMerge['Time'])rowToMerge[`Gen Rev${j}`] = genRow[((i*10)+j)].value;
-        //         else rowToMerge[`Gen Rev${j}`] = null;
-        //         if(genRow[((i*10)+j)].revision_number === `Rev${j}` && genRow[((i*10)+j)].timezone === rowToMerge['Time'])rowToMerge[`Gen Rev${j}`] = genRow[((i*10)+j)].value;
-        //         else rowToMerge[`Gen Rev${j}`] = null;
-        //     }
+            for (let j = 0; j <= 9; j++) {
+                if (ghiRow[((i * 10) + j)].revision_number === `Rev${j}` && ghiRow[((i * 10) + j)].timezone === rowToMerge['Time']) {
+                    rowToMerge[`GHI Rev${j}`] = ghiRow[((i * 10) + j)].value;
+                    if(ghiRow[((i * 10) + j)].value != null)rowToMerge['GHI Final'] = ghiRow[((i * 10) + j)].value;
+                }
+                else rowToMerge[`GHI Rev${j}`] = null;
+                if (genRow[((i * 10) + j)].revision_number === `Rev${j}` && genRow[((i * 10) + j)].timezone === rowToMerge['Time']) {
+                    rowToMerge[`Gen Rev${j}`] = genRow[((i * 10) + j)].value;
+                    if(genRow[((i * 10) + j)].value != null)rowToMerge['Gen Final'] = genRow[((i * 10) + j)].value;
+                }
+                else rowToMerge[`Gen Rev${j}`] = null;
+
+                //for block
+                if (genRow[((i * 10) + j)].revision_number === `Rev${j}` && genRow[((i * 10) + j)].timezone === rowToMerge['Time']) {
+                    rowToMerge[`Block`] = genRow[((i * 10) + j)].block;
+                }
+                else rowToMerge[`Gen Rev${j}`] = null;
+            }
 
 
-        // }
+            mergedData.push(rowToMerge);
+        }
 
-        res.send(genDataQuery.rows)
-        
+        res.send(mergedData)
+
     } catch (err) {
         console.log(err);
         next(err);
