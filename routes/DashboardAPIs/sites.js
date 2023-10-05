@@ -407,8 +407,8 @@ route.get('/getforecast', async (req, res, next) => {
                             .on('end', () => resolve(rows))
                             .on('error', reject);
                     });
-                    console.log(fileData)
-                    mergedData = mergedData.concat(fileData);
+                    console.log(fileData[0])
+                    mergedData = mergedData.concat(fileData)
                 }
             }
         }
@@ -457,7 +457,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
         const siteId = siteIdQuery.rows[0].id;
 
-        const dataQuery = await pool.query(`SELECT * FROM forecast_prod WHERE site_id=$1 AND time >= $2 AND time <= $3`, [siteId, startMoment, endMoment])
+        const dataQuery = await pool.query(`SELECT time AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata', * FROM forecast_prod WHERE site_id=$1 AND time >= $2 AND time <= $3 order by time asc`, [siteId, startMoment, endMoment])
 
         res.send(dataQuery.rows);
         
