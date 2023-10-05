@@ -556,9 +556,9 @@ route.get('/getforecastFromDb', async (req, res, next) => {
                 }
                 else rowToMerge[`Gen Rev${j}`] = null;
 
-                // if (ghiDataQuery.rows[((i * 10) + j)]) {
+                if (ghiDataQuery.rows[((i * 10) + j)]) {
                     rowToMerge[`Block`] = ghiDataQuery.rows[((i * 10) + j)]['block'];
-                // }
+                }
             }
 
             mergedData.push(rowToMerge);
