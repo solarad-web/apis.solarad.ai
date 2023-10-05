@@ -466,7 +466,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             revision_number, forecast_variable, value
             FROM forecast_prod 
             WHERE site_id=$1 AND time >= $2 AND time <= $3
-            order by time asc, block asc, revision_number asc
+            order by time asc, block asc, revision_number asc, forecast_variable asc
         `, [siteId, formattedStartDate, formattedEndDate])
 
         // dataQuery.rows.forEach((row, index) => {})
