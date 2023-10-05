@@ -402,15 +402,12 @@ route.get('/getforecast', async (req, res, next) => {
                                 headersToConcat.forEach(header => {
                                     filteredRow[header] = row[header];
                                 });
-                                if(index === 0) {
-                                    console.log(filteredRow)
-                                }
                                 rows.push(filteredRow);
                             })
                             .on('end', () => resolve(rows))
                             .on('error', reject);
                     });
-
+                    console.log(fileData)
                     mergedData = mergedData.concat(fileData);
                 }
             }
