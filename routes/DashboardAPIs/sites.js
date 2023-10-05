@@ -182,12 +182,12 @@ route.get('/getforecast', async (req, res, next) => {
         }
 
         //get folder from id 1 of prod_foldername_current_date
-        const query = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client]);
-        let folder = isDemoClient ? 'ml_forecasts' : query.rows[0].forecast_type;
+        const query = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client])
+        let folder = isDemoClient ? 'ml_forecasts' : query.rows[0].forecast_type
 
-        let mergedData = [];
-        let headersToConcat = [];
-        let maxHeaders = 0;
+        let mergedData = []
+        let headersToConcat = []
+        let maxHeaders = 0
 
         for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, 'days')) {
             let formattedDate = date.format(outputFormat);
@@ -398,7 +398,7 @@ route.get('/getforecast', async (req, res, next) => {
                         fileSystem.createReadStream(filepath)
                             .pipe(csv())
                             .on('data', (row) => {
-
+                                console.log(row[0])
                                 const filteredRow = {};
                                 headersToConcat.forEach(header => {
                                     filteredRow[header] = row[header];
@@ -454,11 +454,11 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             isDemoClient = true;
         }
 
-        const siteIdQuery = await pool.query(`SELECT id FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client]);
+        const siteIdQuery = await pool.query(`SELECT id FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client])
 
         const siteId = siteIdQuery.rows[0].id;
 
-        const dataQuery = await pool.query(`SELECT * FROM forecast_prod WHERE site_id=$1 AND time >= $2 AND time <= $3`, [siteId, startMoment, endMoment]);
+        const dataQuery = await pool.query(`SELECT * FROM forecast_prod WHERE site_id=$1 AND time >= $2 AND time <= $3`, [siteId, startMoment, endMoment])
 
         res.send(dataQuery.rows);
         
