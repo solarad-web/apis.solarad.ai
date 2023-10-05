@@ -446,6 +446,8 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
         const startMoment = moment(startDate).utcOffset('+0530');
         const endMoment = moment(endDate).utcOffset('+0530');
+        const formattedStartDate = startMoment.format('YYYY-MM-DD HH:mm:ssZ');
+        const formattedEndDate = endMoment.format('YYYY-MM-DD HH:mm:ssZ');
 
         if (client === 'Demo' && site === 'Demo-Site') {
             client = process.env.DEMO_COMPANY;
@@ -464,11 +466,11 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             FROM forecast_prod 
             WHERE site_id=$1 AND time >= $2 AND time <= $3 AND revision_number = 'Rev0' AND forecast_variable = 'Gen'
             order by time asc
-        `, [siteId, startDate, endDate])
+        `, [siteId, formattedStartDate, formattedEndDate])
 
 
 
-        res.send(dataQuery.rows);
+        res.send(dataQuery.rows)
         
     } catch (err) {
         console.log(err);
