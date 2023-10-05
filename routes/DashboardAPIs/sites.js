@@ -545,22 +545,22 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
             for (let j = 0; j <= 9; j++) {
                 console.log(ghiRow[((i * 10) + j)])
-                if (ghiRow[((i * 10) + j)]['revision_number'] === `Rev${j}` && ghiRow[((i * 10) + j)]['timezone'] === rowToMerge['Time']) {
-                    rowToMerge[`GHI Rev${j}`] = ghiRow[((i * 10) + j)].value;
-                    if(ghiRow[((i * 10) + j)].value != null)rowToMerge['GHI Final'] = ghiRow[((i * 10) + j)].value;
-                }
-                else rowToMerge[`GHI Rev${j}`] = null;
-                if (genRow[((i * 10) + j)]['revision_number'] === `Rev${j}` && genRow[((i * 10) + j)]['timezone'] === rowToMerge['Time']) {
-                    rowToMerge[`Gen Rev${j}`] = genRow[((i * 10) + j)].value;
-                    if(genRow[((i * 10) + j)]['value'] != null)rowToMerge['Gen Final'] = genRow[((i * 10) + j)]['value'];
-                }
-                else rowToMerge[`Gen Rev${j}`] = null;
+                // if (ghiRow[((i * 10) + j)]['revision_number'] === `Rev${j}` && ghiRow[((i * 10) + j)]['timezone'] === rowToMerge['Time']) {
+                //     rowToMerge[`GHI Rev${j}`] = ghiRow[((i * 10) + j)].value;
+                //     if(ghiRow[((i * 10) + j)].value != null)rowToMerge['GHI Final'] = ghiRow[((i * 10) + j)].value;
+                // }
+                // else rowToMerge[`GHI Rev${j}`] = null;
+                // if (genRow[((i * 10) + j)]['revision_number'] === `Rev${j}` && genRow[((i * 10) + j)]['timezone'] === rowToMerge['Time']) {
+                //     rowToMerge[`Gen Rev${j}`] = genRow[((i * 10) + j)].value;
+                //     if(genRow[((i * 10) + j)]['value'] != null)rowToMerge['Gen Final'] = genRow[((i * 10) + j)]['value'];
+                // }
+                // else rowToMerge[`Gen Rev${j}`] = null;
 
-                //for block
-                if (genRow[((i * 10) + j)]['revision_number'] === `Rev${j}` && genRow[((i * 10) + j)]['timezone'] === rowToMerge['Time']) {
-                    rowToMerge[`Block`] = genRow[((i * 10) + j)]['block'];
-                }
-                else rowToMerge[`Gen Rev${j}`] = null;
+                // //for block
+                // if (genRow[((i * 10) + j)]['revision_number'] === `Rev${j}` && genRow[((i * 10) + j)]['timezone'] === rowToMerge['Time']) {
+                //     rowToMerge[`Block`] = genRow[((i * 10) + j)]['block'];
+                // }
+                // else rowToMerge[`Gen Rev${j}`] = null;
             }
 
 
