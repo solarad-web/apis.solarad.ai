@@ -537,7 +537,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             // const poaRow = poaDataQuery.rows[i];
 
             const rowToMerge = {
-                'Time': groundRow.timezone,
+                'Time': moment(groundRow.timezone).format('YYYY-MM-DD HH:mm:ssZ'),
                 'Ground GHI': groundRow.ground_ghi,
                 'Ground POA': groundRow.ground_poa,
                 'AC_POWER_SUM': groundRow.ground_generation,
@@ -556,7 +556,6 @@ route.get('/getforecastFromDb', async (req, res, next) => {
                 }
                 else rowToMerge[`Gen Rev${j}`] = null;
 
-                //for block
                 if (ghiDataQuery.rows[((i * 10) + j)] && ghiDataQuery.rows[((i * 10) + j)]['revision_number'] === `Rev${j}`) {
                     rowToMerge[`Block`] = ghiDataQuery.rows[((i * 10) + j)]['block'];
                 }
