@@ -529,16 +529,32 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 //  'Gen Rev9': undefined
 //  }
         // const mergedData = [];
-        // let currRev = 0;
-        // let currRow = {}
-        // for(let i = 0; i < genDataQuery.rows.length; i++){
-        //     const row = genDataQuery.rows[i];
-            
+        // for(let i = 0; i < groundDataQuery.rows.length; i++){
+        //     const groundRow = groundDataQuery.rows[i];
+        //     const genRow = genDataQuery.rows[i];
+        //     const ghiRow = ghiDataQuery.rows[i];
+        //     const poaRow = poaDataQuery.rows[i];
 
-        //     currRev++;
+        //     const rowToMerge = {
+        //         'Time': groundRow.timezone,
+        //         'Ground GHI': groundRow.ground_ghi,
+        //         'Ground POA': groundRow.ground_poa,
+        //         'AC_POWER_SUM': groundRow.ground_generation,
+        //     }
+
+        //     for(let j=0; j<=9; j++){
+        //         if(ghiRow[((i*10)+j)].revision_number === `Rev${j}` && ghiRow[((i*10)+j)].timezone === rowToMerge['Time'])rowToMerge[`GHI Rev${j}`] = ghiRow[((i*10)+j)].value;
+        //         else rowToMerge[`GHI Rev${j}`] = null;
+        //         if(genRow[((i*10)+j)].revision_number === `Rev${j}` && genRow[((i*10)+j)].timezone === rowToMerge['Time'])rowToMerge[`Gen Rev${j}`] = genRow[((i*10)+j)].value;
+        //         else rowToMerge[`Gen Rev${j}`] = null;
+        //         if(genRow[((i*10)+j)].revision_number === `Rev${j}` && genRow[((i*10)+j)].timezone === rowToMerge['Time'])rowToMerge[`Gen Rev${j}`] = genRow[((i*10)+j)].value;
+        //         else rowToMerge[`Gen Rev${j}`] = null;
+        //     }
+
+
         // }
 
-        res.send(groundDataQuery.rows)
+        res.send(genDataQuery.rows)
         
     } catch (err) {
         console.log(err);
