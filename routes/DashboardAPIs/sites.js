@@ -544,6 +544,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             }
 
             for (let j = 0; j <= 9; j++) {
+                console.log(genDataQuery.rows[((i * 10) + j)])
                 if (ghiDataQuery.rows[((i * 10) + j)]['revision_number'] === `Rev${j}` && ghiDataQuery.rows[((i * 10) + j)]['timezone'] === rowToMerge['Time']) {
                     rowToMerge[`GHI Rev${j}`] = ghiDataQuery.rows[((i * 10) + j)].value;
                     if(ghiDataQuery.rows[((i * 10) + j)].value != null)rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value;
