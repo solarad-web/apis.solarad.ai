@@ -211,6 +211,8 @@ route.get('/getforecast', async (req, res, next) => {
                     });
             }
 
+            console.log("headers to concat ", headersToConcat)
+
             if (fileSystem.existsSync(filepath)) {
                 if (isDemoClient) {
                     const random = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(2);
@@ -398,12 +400,12 @@ route.get('/getforecast', async (req, res, next) => {
                         fileSystem.createReadStream(filepath)
                             .pipe(csv())
                             .on('data', (row) => {
-                                console.log(row[0])
                                 const filteredRow = {};
                                 headersToConcat.forEach(header => {
                                     filteredRow[header] = row[header];
                                 });
                                 rows.push(filteredRow);
+                                console.log("row ", row)
                             })
                             .on('end', () => resolve(rows))
                             .on('error', reject);
