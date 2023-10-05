@@ -572,7 +572,6 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
         res.send(csvData);
 
-        res.send(mergedData)
 
 
     } catch (err) {
