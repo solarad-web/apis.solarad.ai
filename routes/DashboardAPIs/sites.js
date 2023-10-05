@@ -544,19 +544,19 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             }
 
             for (let j = 0; j <= 9; j++) {
-                if (ghiDataQuery.rows[((i * 10) + j)]['revision_number'] === `Rev${j}`) {
+                if (ghiDataQuery.rows[((i * 10) + j)] && ghiDataQuery.rows[((i * 10) + j)]['revision_number'] === `Rev${j}`) {
                     rowToMerge[`GHI Rev${j}`] = ghiDataQuery.rows[((i * 10) + j)].value;
                     if(ghiDataQuery.rows[((i * 10) + j)].value != null)rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value;
                 }
                 else rowToMerge[`GHI Rev${j}`] = null;
-                if (genDataQuery.rows[((i * 10) + j)]['revision_number'] === `Rev${j}`) {
+                if (genDataQuery.rows[((i * 10) + j)] && genDataQuery.rows[((i * 10) + j)]['revision_number'] === `Rev${j}`) {
                     rowToMerge[`Gen Rev${j}`] = genDataQuery.rows[((i * 10) + j)].value;
                     if(genDataQuery.rows[((i * 10) + j)]['value'] != null)rowToMerge['Gen Final'] = genDataQuery.rows[((i * 10) + j)]['value'];
                 }
                 else rowToMerge[`Gen Rev${j}`] = null;
 
                 //for block
-                if (ghiDataQuery.rows[((i * 10) + j)]['revision_number'] === `Rev${j}`) {
+                if (ghiDataQuery.rows[((i * 10) + j)] && ghiDataQuery.rows[((i * 10) + j)]['revision_number'] === `Rev${j}`) {
                     rowToMerge[`Block`] = ghiDataQuery.rows[((i * 10) + j)]['block'];
                 }
                 else rowToMerge[`Gen Rev${j}`] = null;
