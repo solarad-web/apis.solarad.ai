@@ -435,6 +435,39 @@ route.get('/getforecast', async (req, res, next) => {
 })
 
 
+route.get('/getforecastFromDb', async (req, res, next) => {
+    try {
+        var client = req.query.client;
+        var site = req.query.site;
+        let isDemoClient = false;
+        const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        const outputFormat = 'YYYY-MM-DD';
+        const today = moment();
+        const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
+        const startMoment = moment(startDate).utcOffset('+0530');
+        const endMoment = moment(endDate).utcOffset('+0530');
+
+        if (client === 'Demo' && site === 'Demo-Site') {
+            client = process.env.DEMO_COMPANY;
+            site = process.env.DEMO_SITE;
+            isDemoClient = true;
+        }
+
+        const siteIdQuery = await pool.query(`SELECT id FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client]);
+
+        const siteId = siteIdQuery.rows[0].id;
+
+        const dataQuery = await pool.query(`SELECT * FROM forecast_data WHERE site_id=$1 AND time >= $2 AND time <= $3`, [siteId, startMoment, endMoment]);
+
+        res.send(dataQuery.rows);
+        
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
+
 //done
 //done
 route.get('/get-utility-sites', async (req, res) => {
