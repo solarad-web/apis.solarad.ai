@@ -444,8 +444,8 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         const outputFormat = 'YYYY-MM-DD';
         const today = moment();
         const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
-        const startMoment = moment(startDate);
-        const endMoment = moment(endDate);
+        const startMoment = moment(startDate).utcOffset('+0000');
+        const endMoment = moment(endDate).utcOffset('+0000');
 
         if (client === 'Demo' && site === 'Demo-Site') {
             client = process.env.DEMO_COMPANY;
@@ -458,12 +458,9 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         const siteId = siteIdQuery.rows[0].id;
 
         const dataQuery = await pool.query(`
-           SELECT  
-           time AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata' as time, 
-           block, revision_number, forecast_variable, value
-          FROM forecast_prod 
-          WHERE site_id=$1 AND time >= $2 AND time <= $3
-          order by time asc
+        SELECT * 
+        FROM forecast_prod 
+        WHERE site_id=$1 AND time >= $2 AND time <= $3
         `, [siteId, startMoment, endMoment]);
 
 
