@@ -545,24 +545,23 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             }
 
             for (let j = 0; j <= 9; j++) {
-                mergedData.push(genDataQuery.rows[((i * 10) + j)])
-                // if (ghiDataQuery.rows[((i * 10) + j)]) {
-                //     rowToMerge[`GHI Rev${j}`] = ghiDataQuery.rows[((i * 10) + j)].value;
-                //     if (ghiDataQuery.rows[((i * 10) + j)].value != null) rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value;
-                // }
-                // else rowToMerge[`GHI Rev${j}`] = null;
-                // if (genDataQuery.rows[((i * 10) + j)]) {
-                //     rowToMerge[`Gen Rev${j}`] = genDataQuery.rows[((i * 10) + j)].value;
-                //     if (genDataQuery.rows[((i * 10) + j)]['value'] != null) rowToMerge['Gen Final'] = genDataQuery.rows[((i * 10) + j)]['value'];
-                // }
-                // else rowToMerge[`Gen Rev${j}`] = null;
+                if (ghiDataQuery.rows[((i * 10) + j)]) {
+                    rowToMerge[`GHI Rev${j}`] = ghiDataQuery.rows[((i * 10) + j)].value;
+                    if (ghiDataQuery.rows[((i * 10) + j)].value != null) rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value;
+                }
+                else rowToMerge[`GHI Rev${j}`] = null;
+                if (genDataQuery.rows[((i * 10) + j)]) {
+                    rowToMerge[`Gen Rev${j}`] = genDataQuery.rows[((i * 10) + j)].value;
+                    if (genDataQuery.rows[((i * 10) + j)]['value'] != null) rowToMerge['Gen Final'] = genDataQuery.rows[((i * 10) + j)]['value'];
+                }
+                else rowToMerge[`Gen Rev${j}`] = null;
 
-                // if (ghiDataQuery.rows[((i * 10) + j)]) {
-                //     rowToMerge[`Block`] = ghiDataQuery.rows[((i * 10) + j)]['block'];
-                // }
+                if (ghiDataQuery.rows[((i * 10) + j)]) {
+                    rowToMerge[`Block`] = ghiDataQuery.rows[((i * 10) + j)]['block'];
+                }
             }
 
-            // mergedData.push(rowToMerge);
+            mergedData.push(rowToMerge);
         }
 
         // const json2csvParser = new Parser();
