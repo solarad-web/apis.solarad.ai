@@ -399,11 +399,14 @@ route.get('/getforecast', async (req, res, next) => {
                         const rows = [];
                         fileSystem.createReadStream(filepath)
                             .pipe(csv())
-                            .on('data', (row) => {
+                            .on('data', (row, index) => {
                                 const filteredRow = {};
                                 headersToConcat.forEach(header => {
                                     filteredRow[header] = row[header];
                                 });
+                                if(index === 0) {
+                                    console.log(filteredRow)
+                                }
                                 rows.push(filteredRow);
                             })
                             .on('end', () => resolve(rows))
