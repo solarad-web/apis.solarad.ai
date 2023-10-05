@@ -458,7 +458,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
         const siteId = siteIdQuery.rows[0].id;
 
-        const dataQuery = await pool.query(`SELECT * FROM forecast_data WHERE site_id=$1 AND time >= $2 AND time <= $3`, [siteId, startMoment, endMoment]);
+        const dataQuery = await pool.query(`SELECT * FROM forecast_prod WHERE site_id=$1 AND time >= $2 AND time <= $3`, [siteId, startMoment, endMoment]);
 
         res.send(dataQuery.rows);
         
