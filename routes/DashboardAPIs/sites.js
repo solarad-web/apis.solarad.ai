@@ -466,7 +466,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
     WITH PivotData AS (
         SELECT
             block,
-            (time - interval '5 hours 30 minutes') as time,
+            (time + interval '5 hours 30 minutes') as time,
             site_id,
             CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "GHI Rev0",
             CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev1' THEN Value ELSE NULL END AS "GHI Rev1",
@@ -495,7 +495,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
     
     SELECT
         p.block AS "Block",
-        (p.time - interval '5 hours 30 minutes') as "Time",
+        (p.time + interval '5 hours 30 minutes') as "Time",
         MAX(p."GHI Rev0") AS "GHI Rev0",
         MAX(p."GHI Rev1") AS "GHI Rev1",
         MAX(p."GHI Rev2") AS "GHI Rev2",
