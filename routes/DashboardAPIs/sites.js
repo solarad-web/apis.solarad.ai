@@ -517,15 +517,15 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             MAX(p."Gen Rev8") AS "Gen Rev8",
             MAX(p."Gen Rev9") AS "Gen Rev9"
 
-            g."Ground Generation" AS "AC_POWER_SUM",
-            g."Ground Ghi" AS "Ground GHI",
-            g."Ground Poa" AS "Ground POA"
+            g.ground_generation AS "AC_POWER_SUM",
+            g.ground_ghi AS "Ground GHI",
+            g.ground_poa AS "Ground POA"
     
             FROM PivotData p
-            LEFT JOIN ground_data g ON p.Time = g.Time
-            WHERE g."Site ID" = $4 AND g.Time >= $5 AND g.Time <= $6
-            GROUP BY p.Block, p.Time, g."Ground Generation", g."Ground Ghi", g."Ground Poa"
-            ORDER BY p.Block, p.Time;
+            LEFT JOIN ground_data g ON p.time = g.time
+            WHERE g.site_id = $4 AND g.time >= $5 AND g.time <= $6
+            GROUP BY p.block, p.time, g.ground_generation, g.ground_ghi, g.ground_poa
+            ORDER BY p.block, p.time;
         
         `, [siteId, formattedStartDate, formattedEndDate, siteId, formattedStartDate, formattedEndDate])
 
