@@ -530,49 +530,58 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         //  'Gen Rev9': undefined
         //  }
         const mergedData = []
-        for (let i = 0; i < groundDataQuery.rows.length; i++) {
-            const groundRow = groundDataQuery.rows[i];
-            const genRow = genDataQuery.rows[i];
-            const ghiRow = ghiDataQuery.rows[i];
-            // const poaRow = poaDataQuery.rows[i];
-
-            const rowToMerge = {
-                'Time': moment(groundRow.timezone).format('YYYY-MM-DD HH:mm:ssZ'),
-                'Ground GHI': groundRow.ground_ghi,
-                'Ground POA': groundRow.ground_poa,
-                'AC_POWER_SUM': groundRow.ground_generation,
-                // 'POA Final': poaRow.value,
-            }
-
-            for (let j = 0; j <= 9; j++) {
-                if (ghiDataQuery.rows[((i * 10) + j)]) {
-                    rowToMerge[`GHI Rev${j}`] = ghiDataQuery.rows[((i * 10) + j)].value
-                    if (ghiDataQuery.rows[((i * 10) + j)].value != null) rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value
-                }
-                else rowToMerge[`GHI Rev${j}`] = null;
-                if (genDataQuery.rows[((i * 10) + j)]) {
-                    rowToMerge[`Gen Rev${j}`] = genDataQuery.rows[((i * 10) + j)].value;
-                    if (genDataQuery.rows[((i * 10) + j)]['value'] != null) rowToMerge['Gen Final'] = genDataQuery.rows[((i * 10) + j)]['value'];
-                }
-                else rowToMerge[`Gen Rev${j}`] = null;
-
-                if (ghiDataQuery.rows[((i * 10) + j)]) {
-                    rowToMerge[`Block`] = ghiDataQuery.rows[((i * 10) + j)]['block'];
-                }
-            }
-
-            mergedData.push(rowToMerge);
-        }
-
-        const json2csvParser = new Parser();
-        const csvData = json2csvParser.parse(mergedData);
-
-        // Set response headers for CSV and send the data
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
-        res.send(csvData);
 
 
+        // genDataQuery.rows.forEach((row, index) => {
+        //     const rowToPush = {
+        //         'Block': row.block,
+        //         'Time': moment(row.time).format('YYYY-MM-DD HH:mm:ssZ'),
+        //     }
+        // })
+
+        // for (let i = 0; i < groundDataQuery.rows.length; i++) {
+        //     const groundRow = groundDataQuery.rows[i];
+        //     const genRow = genDataQuery.rows[i];
+        //     const ghiRow = ghiDataQuery.rows[i];
+        //     // const poaRow = poaDataQuery.rows[i];
+
+        //     const rowToMerge = {
+        //         'Time': moment(groundRow.timezone).format('YYYY-MM-DD HH:mm:ssZ'),
+        //         'Ground GHI': groundRow.ground_ghi,
+        //         'Ground POA': groundRow.ground_poa,
+        //         'AC_POWER_SUM': groundRow.ground_generation,
+        //         // 'POA Final': poaRow.value,
+        //     }
+
+        //     for (let j = 0; j <= 9; j++) {
+        //         if (ghiDataQuery.rows[((i * 10) + j)]) {
+        //             rowToMerge[`GHI Rev${j}`] = ghiDataQuery.rows[((i * 10) + j)].value
+        //             if (ghiDataQuery.rows[((i * 10) + j)].value != null) rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value
+        //         }
+        //         else rowToMerge[`GHI Rev${j}`] = null;
+        //         if (genDataQuery.rows[((i * 10) + j)]) {
+        //             rowToMerge[`Gen Rev${j}`] = genDataQuery.rows[((i * 10) + j)].value
+        //             if (genDataQuery.rows[((i * 10) + j)]['value'] != null) rowToMerge['Gen Final'] = genDataQuery.rows[((i * 10) + j)]['value']
+        //         }
+        //         else rowToMerge[`Gen Rev${j}`] = null;
+
+        //         if (ghiDataQuery.rows[((i * 10) + j)]) {
+        //             rowToMerge[`Block`] = ghiDataQuery.rows[((i * 10) + j)]['block']
+        //         }
+        //     }
+
+        //     mergedData.push(rowToMerge)
+        // }
+
+        // const json2csvParser = new Parser()
+        // const csvData = json2csvParser.parse(mergedData)
+
+        // // Set response headers for CSV and send the data
+        // res.setHeader('Content-Type', 'text/csv');
+        // res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
+        // res.send(csvData);
+
+        res.send(genDataQuery.rows)
 
     } catch (err) {
         console.log(err);
