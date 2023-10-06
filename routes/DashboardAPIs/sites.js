@@ -437,19 +437,19 @@ route.get('/getforecast', async (req, res, next) => {
 
 route.get('/getforecastFromDb', async (req, res, next) => {
     try {
-        var client = req.query.client;
-        var site = req.query.site;
-        let isDemoClient = false;
-        const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
-        const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
-        const outputFormat = 'YYYY-MM-DD';
-        const today = moment();
-        const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
-        const startMoment = moment(startDate).subtract(5, 'hours').subtract(30, 'minutes');
-        const endMoment = moment(endDate).subtract(5, 'hours').subtract(30, 'minutes');
+        var client = req.query.client
+        var site = req.query.site
+        let isDemoClient = false
+        const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)')
+        const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)')
+        const outputFormat = 'YYYY-MM-DD'
+        const today = moment()
+        const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ')
+        const startMoment = moment(startDate).subtract(5, 'hours').subtract(30, 'minutes')
+        const endMoment = moment(endDate).subtract(5, 'hours').subtract(30, 'minutes')
 
-        const formattedStartDate = startMoment.format('YYYY-MM-DD HH:mm:ssZ');
-        const formattedEndDate = endMoment.format('YYYY-MM-DD HH:mm:ssZ');
+        const formattedStartDate = startMoment.format('YYYY-MM-DD HH:mm:ssZ')
+        const formattedEndDate = endMoment.format('YYYY-MM-DD HH:mm:ssZ')
 
         if (client === 'Demo' && site === 'Demo-Site') {
             client = process.env.DEMO_COMPANY;
@@ -462,78 +462,74 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         const siteId = siteIdQuery.rows[0].id
 
         const query = await pool.query(`
-        WITH PivotData AS (
-            SELECT 
-                block,
-                time,
-                site_id,
-                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "GHI Rev0",
-                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev1' THEN Value ELSE NULL END AS "GHI Rev1",
-                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev2' THEN Value ELSE NULL END AS "GHI Rev2",
-                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev3' THEN Value ELSE NULL END AS "GHI Rev3",
-                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev4' THEN Value ELSE NULL END AS "GHI Rev4",
-                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev5' THEN Value ELSE NULL END AS "GHI Rev5",
-                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev6' THEN Value ELSE NULL END AS "GHI Rev6",
-                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev7' THEN Value ELSE NULL END AS "GHI Rev7",
-                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev8' THEN Value ELSE NULL END AS "GHI Rev8",
-                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev9' THEN Value ELSE NULL END AS "GHI Rev9",
-                
-                -- Generate CASE statements for Gen Rev0 to Rev9
-                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "Gen Rev0",
-                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev1' THEN Value ELSE NULL END AS "Gen Rev1",
-                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev2' THEN Value ELSE NULL END AS "Gen Rev2",
-                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev3' THEN Value ELSE NULL END AS "Gen Rev3",
-                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev4' THEN Value ELSE NULL END AS "Gen Rev4",
-                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev5' THEN Value ELSE NULL END AS "Gen Rev5",
-                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev6' THEN Value ELSE NULL END AS "Gen Rev6",
-                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev7' THEN Value ELSE NULL END AS "Gen Rev7",
-                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev8' THEN Value ELSE NULL END AS "Gen Rev8",
-                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev9' THEN Value ELSE NULL END AS "Gen Rev9"
-            FROM forecast_prod
-            WHERE site_id = $1 AND time >= $2 AND time <= $3
-        )
-        
-        SELECT 
-            p.Block,
-            p.Time,
-            MAX(p."GHI Rev0") AS "GHI Rev0",
-            MAX(p."GHI Rev1") AS "GHI Rev1",
-            MAX(p."GHI Rev2") AS "GHI Rev2",
-            MAX(p."GHI Rev3") AS "GHI Rev3",
-            MAX(p."GHI Rev4") AS "GHI Rev4",
-            MAX(p."GHI Rev5") AS "GHI Rev5",
-            MAX(p."GHI Rev6") AS "GHI Rev6",
-            MAX(p."GHI Rev7") AS "GHI Rev7",
-            MAX(p."GHI Rev8") AS "GHI Rev8",
-            MAX(p."GHI Rev9") AS "GHI Rev9",
-            
-            MAX(p."Gen Rev0") AS "Gen Rev0",
-            MAX(p."Gen Rev1") AS "Gen Rev1",
-            MAX(p."Gen Rev2") AS "Gen Rev2",
-            MAX(p."Gen Rev3") AS "Gen Rev3",
-            MAX(p."Gen Rev4") AS "Gen Rev4",
-            MAX(p."Gen Rev5") AS "Gen Rev5",
-            MAX(p."Gen Rev6") AS "Gen Rev6",
-            MAX(p."Gen Rev7") AS "Gen Rev7",
-            MAX(p."Gen Rev8") AS "Gen Rev8",
-            MAX(p."Gen Rev9") AS "Gen Rev9"
+    WITH PivotData AS (
+        SELECT
+            block,
+            time,
+            site_id,
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "GHI Rev0",
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev1' THEN Value ELSE NULL END AS "GHI Rev1",
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev2' THEN Value ELSE NULL END AS "GHI Rev2",
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev3' THEN Value ELSE NULL END AS "GHI Rev3",
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev4' THEN Value ELSE NULL END AS "GHI Rev4",
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev5' THEN Value ELSE NULL END AS "GHI Rev5",
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev6' THEN Value ELSE NULL END AS "GHI Rev6",
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev7' THEN Value ELSE NULL END AS "GHI Rev7",
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev8' THEN Value ELSE NULL END AS "GHI Rev8",
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev9' THEN Value ELSE NULL END AS "GHI Rev9",
 
-            g.ground_generation AS "AC_POWER_SUM",
-            g.ground_ghi AS "Ground GHI",
-            g.ground_poa AS "Ground POA"
+            CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "Gen Rev0",
+            CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev1' THEN Value ELSE NULL END AS "Gen Rev1",
+            CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev2' THEN Value ELSE NULL END AS "Gen Rev2",
+            CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev3' THEN Value ELSE NULL END AS "Gen Rev3",
+            CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev4' THEN Value ELSE NULL END AS "Gen Rev4",
+            CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev5' THEN Value ELSE NULL END AS "Gen Rev5",
+            CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev6' THEN Value ELSE NULL END AS "Gen Rev6",
+            CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev7' THEN Value ELSE NULL END AS "Gen Rev7",
+            CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev8' THEN Value ELSE NULL END AS "Gen Rev8",
+            CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev9' THEN Value ELSE NULL END AS "Gen Rev9"
+        FROM forecast_prod
+        WHERE site_id = $1 AND time >= $2 AND time <= $3
+    )
     
-            FROM PivotData p
-            LEFT JOIN ground_data g ON p.time = g.time AND p.site_id = g.site_id
-            WHERE g.site_id = $4 AND g.time >= $5 AND g.time <= $6
-            GROUP BY p.block, p.time, g.ground_generation, g.ground_ghi, g.ground_poa
-            ORDER BY p.time ASC, p.block ASC
+    SELECT
+        p.block,
+        p.time,
+        MAX(p."GHI Rev0") AS "GHI Rev0",
+        MAX(p."GHI Rev1") AS "GHI Rev1",
+        MAX(p."GHI Rev2") AS "GHI Rev2",
+        MAX(p."GHI Rev3") AS "GHI Rev3",
+        MAX(p."GHI Rev4") AS "GHI Rev4",
+        MAX(p."GHI Rev5") AS "GHI Rev5",
+        MAX(p."GHI Rev6") AS "GHI Rev6",
+        MAX(p."GHI Rev7") AS "GHI Rev7",
+        MAX(p."GHI Rev8") AS "GHI Rev8",
+        MAX(p."GHI Rev9") AS "GHI Rev9",
         
-        `, [siteId, formattedStartDate, formattedEndDate, siteId, formattedStartDate, formattedEndDate])
+        MAX(p."Gen Rev0") AS "Gen Rev0",
+        MAX(p."Gen Rev1") AS "Gen Rev1",
+        MAX(p."Gen Rev2") AS "Gen Rev2",
+        MAX(p."Gen Rev3") AS "Gen Rev3",
+        MAX(p."Gen Rev4") AS "Gen Rev4",
+        MAX(p."Gen Rev5") AS "Gen Rev5",
+        MAX(p."Gen Rev6") AS "Gen Rev6",
+        MAX(p."Gen Rev7") AS "Gen Rev7",
+        MAX(p."Gen Rev8") AS "Gen Rev8",
+        MAX(p."Gen Rev9") AS "Gen Rev9",
+        
+        g.ground_generation AS "AC_POWER_SUM",
+        g.ground_ghi AS "Ground GHI",
+        g.ground_poa AS "Ground POA"
+    
+    FROM PivotData p
+    LEFT JOIN ground_data g ON p.time = g.time AND p.site_id = g.site_id
+    GROUP BY p.block, p.time, g.ground_generation, g.ground_ghi, g.ground_poa
+    ORDER BY p.time ASC, p.block ASC
 
-        
-        
+`, [siteId, formattedStartDate, formattedEndDate])
 
-        res.send(query.rows)
+
+    res.send(query.rows)
 
     } catch (err) {
         console.log(err);
