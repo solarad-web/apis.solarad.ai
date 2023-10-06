@@ -461,127 +461,78 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
         const siteId = siteIdQuery.rows[0].id
 
-        const genDataQuery = await pool.query(`
-            SELECT block,
-            time AT TIME ZONE 'Asia/Kolkata', 
-            revision_number, forecast_variable, value
-            FROM forecast_prod 
-            WHERE site_id=$1 AND time >= $2 AND time <= $3 AND forecast_variable = 'Gen'
-            order by time asc, block asc, revision_number asc, forecast_variable asc
-        `, [siteId, formattedStartDate, formattedEndDate])
-
-        const ghiDataQuery = await pool.query(`
-            SELECT block,
-            time AT TIME ZONE 'Asia/Kolkata',
-            revision_number, forecast_variable, value
+        const query = await pool.query(`
+        WITH PivotData AS (
+            SELECT 
+                Block,
+                Time,
+                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "GHI Rev0",
+                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev1' THEN Value ELSE NULL END AS "GHI Rev1",
+                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev2' THEN Value ELSE NULL END AS "GHI Rev2",
+                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev3' THEN Value ELSE NULL END AS "GHI Rev3",
+                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev4' THEN Value ELSE NULL END AS "GHI Rev4",
+                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev5' THEN Value ELSE NULL END AS "GHI Rev5",
+                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev6' THEN Value ELSE NULL END AS "GHI Rev6",
+                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev7' THEN Value ELSE NULL END AS "GHI Rev7",
+                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev8' THEN Value ELSE NULL END AS "GHI Rev8",
+                CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev9' THEN Value ELSE NULL END AS "GHI Rev9",
+                
+                -- Generate CASE statements for Gen Rev0 to Rev9
+                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "Gen Rev0",
+                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev1' THEN Value ELSE NULL END AS "Gen Rev1",
+                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev2' THEN Value ELSE NULL END AS "Gen Rev2",
+                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev3' THEN Value ELSE NULL END AS "Gen Rev3",
+                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev4' THEN Value ELSE NULL END AS "Gen Rev4",
+                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev5' THEN Value ELSE NULL END AS "Gen Rev5",
+                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev6' THEN Value ELSE NULL END AS "Gen Rev6",
+                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev7' THEN Value ELSE NULL END AS "Gen Rev7",
+                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev8' THEN Value ELSE NULL END AS "Gen Rev8",
+                CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev9' THEN Value ELSE NULL END AS "Gen Rev9"
             FROM forecast_prod
-            WHERE site_id=$1 AND time >= $2 AND time <= $3 AND forecast_variable = 'GHI'
-            order by time asc, block asc, revision_number asc, forecast_variable asc
-        `, [siteId, formattedStartDate, formattedEndDate])
+            WHERE site_id = $1 AND time >= $2 AND time <= $3
+        )
+        
+        SELECT 
+            p.Block,
+            p.Time,
+            MAX(p."GHI Rev0") AS "GHI Rev0",
+            MAX(p."GHI Rev1") AS "GHI Rev1",
+            MAX(p."GHI Rev2") AS "GHI Rev2",
+            MAX(p."GHI Rev3") AS "GHI Rev3",
+            MAX(p."GHI Rev4") AS "GHI Rev4",
+            MAX(p."GHI Rev5") AS "GHI Rev5",
+            MAX(p."GHI Rev6") AS "GHI Rev6",
+            MAX(p."GHI Rev7") AS "GHI Rev7",
+            MAX(p."GHI Rev8") AS "GHI Rev8",
+            MAX(p."GHI Rev9") AS "GHI Rev9",
+            
+            MAX(p."Gen Rev0") AS "Gen Rev0",
+            MAX(p."Gen Rev1") AS "Gen Rev1",
+            MAX(p."Gen Rev2") AS "Gen Rev2",
+            MAX(p."Gen Rev3") AS "Gen Rev3",
+            MAX(p."Gen Rev4") AS "Gen Rev4",
+            MAX(p."Gen Rev5") AS "Gen Rev5",
+            MAX(p."Gen Rev6") AS "Gen Rev6",
+            MAX(p."Gen Rev7") AS "Gen Rev7",
+            MAX(p."Gen Rev8") AS "Gen Rev8",
+            MAX(p."Gen Rev9") AS "Gen Rev9"
 
-        const poaDataQuery = await pool.query(`
-            SELECT block,
-            time AT TIME ZONE 'Asia/Kolkata',
-            revision_number, forecast_variable, value
-            FROM forecast_prod
-            WHERE site_id=$1 AND time >= $2 AND time <= $3 AND forecast_variable = 'POA'
-            order by time asc, block asc, revision_number asc, forecast_variable asc
-        `, [siteId, formattedStartDate, formattedEndDate])
+            g."Ground Generation" AS "AC_POWER_SUM",
+            g."Ground Ghi" AS "Ground GHI",
+            g."Ground Poa" AS "Ground POA"
+    
+            FROM PivotData p
+            LEFT JOIN ground_data g ON p.Time = g.Time
+            WHERE g."Site ID" = $4 AND g.Time >= $5 AND g.Time <= $6
+            GROUP BY p.Block, p.Time, g."Ground Generation", g."Ground Ghi", g."Ground Poa"
+            ORDER BY p.Block, p.Time;
+        
+        `, [siteId, formattedStartDate, formattedEndDate, siteId, formattedStartDate, formattedEndDate])
 
-        // dataQuery.rows.forEach((row, index) => {})
+        
+        
 
-        const groundDataQuery = await pool.query(`
-            SELECT time AT TIME ZONE 'Asia/Kolkata',
-            ground_ghi, ground_poa, ground_generation
-            FROM ground_data
-            WHERE site_id=$1 AND time >= $2 AND time <= $3
-            order by time asc
-        `, [siteId, formattedStartDate, formattedEndDate])
-
-        //current row
-        // Row {
-        //  Block: '96',
-        //  Time: '2023-10-07 23:45:00+05:30',
-        //  'Gen Final': '0.0',
-        //  'GHI Final': '0.0',
-        //  'POA Final': '0.0',
-        //  AC_POWER_SUM: undefined,
-        //  'Ground GHI': undefined,
-        //  'Ground POA': undefined,
-        //  'GHI Rev1': undefined,
-        //  'GHI Rev0': '0.0',
-        //  'Gen Rev0': '0.0',
-        //  'Gen Rev1': undefined,
-        //  'GHI Rev2': undefined,
-        //  'Gen Rev2': undefined,
-        //  'GHI Rev3': undefined,
-        //  'Gen Rev3': undefined,
-        //  'GHI Rev4': undefined,
-        //  'Gen Rev4': undefined,
-        //  'GHI Rev5': undefined,
-        //  'Gen Rev5': undefined,
-        //  'GHI Rev6': undefined,
-        //  'Gen Rev6': undefined,
-        //  'GHI Rev7': undefined,
-        //  'Gen Rev7': undefined,
-        //  'GHI Rev8': undefined,
-        //  'Gen Rev8': undefined,
-        //  'GHI Rev9': undefined,
-        //  'Gen Rev9': undefined
-        //  }
-        const mergedData = []
-
-
-        // genDataQuery.rows.forEach((row, index) => {
-        //     const rowToPush = {
-        //         'Block': row.block,
-        //         'Time': moment(row.time).format('YYYY-MM-DD HH:mm:ssZ'),
-        //     }
-        // })
-
-        // for (let i = 0; i < groundDataQuery.rows.length; i++) {
-        //     const groundRow = groundDataQuery.rows[i];
-        //     const genRow = genDataQuery.rows[i];
-        //     const ghiRow = ghiDataQuery.rows[i];
-        //     // const poaRow = poaDataQuery.rows[i];
-
-        //     const rowToMerge = {
-        //         'Time': moment(groundRow.timezone).format('YYYY-MM-DD HH:mm:ssZ'),
-        //         'Ground GHI': groundRow.ground_ghi,
-        //         'Ground POA': groundRow.ground_poa,
-        //         'AC_POWER_SUM': groundRow.ground_generation,
-        //         // 'POA Final': poaRow.value,
-        //     }
-
-        //     for (let j = 0; j <= 9; j++) {
-        //         if (ghiDataQuery.rows[((i * 10) + j)]) {
-        //             rowToMerge[`GHI Rev${j}`] = ghiDataQuery.rows[((i * 10) + j)].value
-        //             if (ghiDataQuery.rows[((i * 10) + j)].value != null) rowToMerge['GHI Final'] = ghiDataQuery.rows[((i * 10) + j)].value
-        //         }
-        //         else rowToMerge[`GHI Rev${j}`] = null;
-        //         if (genDataQuery.rows[((i * 10) + j)]) {
-        //             rowToMerge[`Gen Rev${j}`] = genDataQuery.rows[((i * 10) + j)].value
-        //             if (genDataQuery.rows[((i * 10) + j)]['value'] != null) rowToMerge['Gen Final'] = genDataQuery.rows[((i * 10) + j)]['value']
-        //         }
-        //         else rowToMerge[`Gen Rev${j}`] = null;
-
-        //         if (ghiDataQuery.rows[((i * 10) + j)]) {
-        //             rowToMerge[`Block`] = ghiDataQuery.rows[((i * 10) + j)]['block']
-        //         }
-        //     }
-
-        //     mergedData.push(rowToMerge)
-        // }
-
-        // const json2csvParser = new Parser()
-        // const csvData = json2csvParser.parse(mergedData)
-
-        // // Set response headers for CSV and send the data
-        // res.setHeader('Content-Type', 'text/csv');
-        // res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
-        // res.send(csvData);
-
-        res.send(genDataQuery.rows)
+        res.send(query.rows)
 
     } catch (err) {
         console.log(err);
@@ -778,3 +729,51 @@ function convertToCsv(data) {
 module.exports = route;
 
 
+
+
+// {
+        //  Block: '96',
+        //  Time: '2023-10-07 23:45:00+05:30',
+        //  'Gen Final': '0.0',
+        //  'GHI Final': '0.0',
+        //  'POA Final': '0.0',
+        //  AC_POWER_SUM: undefined,
+        //  'Ground GHI': undefined,
+        //  'Ground POA': undefined,
+        //  'GHI Rev1': undefined,
+        //  'GHI Rev0': '0.0',
+        //  'Gen Rev0': '0.0',
+        //  'Gen Rev1': undefined,
+        //  'GHI Rev2': undefined,
+        //  'Gen Rev2': undefined,
+        //  'GHI Rev3': undefined,
+        //  'Gen Rev3': undefined,
+        //  'GHI Rev4': undefined,
+        //  'Gen Rev4': undefined,
+        //  'GHI Rev5': undefined,
+        //  'Gen Rev5': undefined,
+        //  'GHI Rev6': undefined,
+        //  'Gen Rev6': undefined,
+        //  'GHI Rev7': undefined,
+        //  'Gen Rev7': undefined,
+        //  'GHI Rev8': undefined,
+        //  'Gen Rev8': undefined,
+        //  'GHI Rev9': undefined,
+        //  'Gen Rev9': undefined
+        //  }
+
+        // {
+        //     "block": 1,
+        //     "timezone": "2023-08-01T00:00:00.000Z",
+        //     "revision_number": "Rev0",
+        //     "forecast_variable": "Gen",
+        //     "value": 0
+        // }
+
+        // {
+        //     "block": 1,
+        //     "timezone": "2023-08-01T00:00:00.000Z",
+        //     "revision_number": "Rev0",
+        //     "forecast_variable": "Ghi",
+        //     "value": 0
+        // }
