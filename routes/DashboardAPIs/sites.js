@@ -544,8 +544,6 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
         const results = query.rows
 
-        console.log(siteId, formattedStartDate, formattedEndDate)
-        console.log(results)
         const json2csvParser = new Parser()
         const csvData = json2csvParser.parse(results)
 
