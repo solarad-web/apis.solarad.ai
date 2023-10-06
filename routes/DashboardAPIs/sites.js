@@ -466,7 +466,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
     WITH PivotData AS (
         SELECT
             block,
-            time AT TIME ZONE "Asia/Kolkata" AS time,
+            time,
             site_id,
             CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "GHI Rev0",
             CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev1' THEN Value ELSE NULL END AS "GHI Rev1",
@@ -495,7 +495,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
     
     SELECT
         p.block,
-        p.time AT TIME ZONE "Asia/Kolkata" AS time,
+        p.time,
         MAX(p."GHI Rev0") AS "GHI Rev0",
         MAX(p."GHI Rev1") AS "GHI Rev1",
         MAX(p."GHI Rev2") AS "GHI Rev2",
@@ -530,7 +530,15 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 `, [siteId, formattedStartDate, formattedEndDate])
 
 
-    res.send(query.rows)
+        const results = query.rows
+
+        const json2csvParser = new Parser();
+        const csvData = json2csvParser.parse(results);
+
+        // Set response headers for CSV and send the data
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
+        res.send(csvData);
 
     } catch (err) {
         console.log(err);
