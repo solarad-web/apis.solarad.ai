@@ -542,16 +542,16 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
 `, [siteId, formattedStartDate, formattedEndDate])
 
-
         const results = query.rows
 
-        const json2csvParser = new Parser();
-        const csvData = json2csvParser.parse(results);
+        console.log(results)
+        const json2csvParser = new Parser()
+        const csvData = json2csvParser.parse(results)
 
         // Set response headers for CSV and send the data
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv');
-        res.send(csvData);
+        res.setHeader('Content-Type', 'text/csv')
+        res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv')
+        res.send(csvData)
 
     } catch (err) {
         console.log(err);
