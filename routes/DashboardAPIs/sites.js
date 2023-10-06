@@ -467,7 +467,6 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         SELECT
             block,
             time,
-            site_id,
             CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "GHI Rev0",
             CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev1' THEN Value ELSE NULL END AS "GHI Rev1",
             CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev2' THEN Value ELSE NULL END AS "GHI Rev2",
@@ -494,8 +493,8 @@ route.get('/getforecastFromDb', async (req, res, next) => {
     )
     
     SELECT
-        p.block,
-        p.time,
+        p.block AS "Block",
+        p.time AS "Time",
         MAX(p."GHI Rev0") AS "GHI Rev0",
         MAX(p."GHI Rev1") AS "GHI Rev1",
         MAX(p."GHI Rev2") AS "GHI Rev2",
