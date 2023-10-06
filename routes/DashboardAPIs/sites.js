@@ -495,7 +495,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
     
     SELECT
         p.block,
-        p.time AS TIME ZONE "Asia/Kolkata" AS time,
+        p.time AT TIME ZONE "Asia/Kolkata" AS time,
         MAX(p."GHI Rev0") AS "GHI Rev0",
         MAX(p."GHI Rev1") AS "GHI Rev1",
         MAX(p."GHI Rev2") AS "GHI Rev2",
