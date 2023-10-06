@@ -529,7 +529,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         g.ground_poa AS "Ground POA"
     
     FROM PivotData p
-    LEFT JOIN ground_data g ON p.time = g.time AND p.site_id = g.site_id
+    LEFT JOIN ground_data g ON (p.time = g.time + interval '5 hours 30 minutes') AND p.site_id = g.site_id
     GROUP BY p.block, p.time, g.ground_generation, g.ground_ghi, g.ground_poa
     ORDER BY p.time ASC, p.block ASC
 
