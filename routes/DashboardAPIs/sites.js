@@ -464,8 +464,9 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         const query = await pool.query(`
         WITH PivotData AS (
             SELECT 
-                Block,
-                Time,
+                block,
+                time,
+                site_id,
                 CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "GHI Rev0",
                 CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev1' THEN Value ELSE NULL END AS "GHI Rev1",
                 CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'Rev2' THEN Value ELSE NULL END AS "GHI Rev2",
@@ -522,10 +523,10 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             g.ground_poa AS "Ground POA"
     
             FROM PivotData p
-            LEFT JOIN ground_data g ON p.time = g.time
+            LEFT JOIN ground_data g ON p.time = g.time AND p.site_id = g.site_id
             WHERE g.site_id = $4 AND g.time >= $5 AND g.time <= $6
             GROUP BY p.block, p.time, g.ground_generation, g.ground_ghi, g.ground_poa
-            ORDER BY p.block, p.time;
+            ORDER BY p.time ASC, p.block ASC
         
         `, [siteId, formattedStartDate, formattedEndDate, siteId, formattedStartDate, formattedEndDate])
 
