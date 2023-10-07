@@ -134,7 +134,7 @@ route.post('/add-site', async (req, res, next) => {
                     res.send("Site updated successfully");
                 }
                 else {
-                    const { rows } = await pool.query(`
+                    const query = await pool.query(`
         SELECT * FROM residential_sites
         WHERE sitename = $1
           AND company = $2
@@ -149,16 +149,17 @@ route.post('/add-site', async (req, res, next) => {
           AND ground_data_available = $11
       `, [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available]);
 
-                    if (rows.length > 0) {
+                    if (query.rows.length > 0) {
                         res.status(400).send('Site with these details already exists');
                         return;
                     }
-
+                 else {
                     await pool.query(`INSERT INTO residential_sites (sitename,  company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`, [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available])
-
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`, [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available])
+                 }
 
                     res.send("Sites added successfully");
+
                 }
             }
             catch (err) {
