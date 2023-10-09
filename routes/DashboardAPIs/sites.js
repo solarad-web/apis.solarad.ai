@@ -534,7 +534,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         MAX(p."GHI Rev4"), MAX(p."GHI Rev3"), MAX(p."GHI Rev2"), MAX(p."GHI Rev1"), MAX(p."GHI Rev0"), MAX(p."GHI two_days_ahead")) AS "GHI Final",
         COALESCE(MAX(p."Gen Rev9"), MAX(p."Gen Rev8"), MAX(p."Gen Rev7"), MAX(p."Gen Rev6"), MAX(p."Gen Rev5"), 
         MAX(p."Gen Rev4"), MAX(p."Gen Rev3"), MAX(p."Gen Rev2"), MAX(p."Gen Rev1"), MAX(p."Gen Rev0"), MAX(p."Gen two_days_ahead")) AS "Gen Final",
-        COALESCE(MAX(p."POA Rev0"), MAX(p."POA two_days_ahead")) AS "POA Final"
+        COALESCE(MAX(p."POA Rev0"), MAX(p."POA two_days_ahead")) AS "POA Final",
 
 
         g.ground_generation AS "AC_POWER_SUM",
