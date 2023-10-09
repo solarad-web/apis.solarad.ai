@@ -490,7 +490,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'Rev9' THEN Value ELSE NULL END AS "Gen Rev9",
 
             CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'two_days_ahead' THEN Value ELSE NULL END AS "Gen two_days_ahead",
-            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'two_days_ahead' THEN Value ELSE NULL END AS "GHI two_days_ahead"
+            CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'two_days_ahead' THEN Value ELSE NULL END AS "GHI two_days_ahead",
 
             CASE WHEN "forecast_variable" = 'POA' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "POA Rev0",
             CASE WHEN "forecast_variable" = 'POA' AND "revision_number" = 'two_days_ahead' THEN Value ELSE NULL END AS "POA two_days_ahead"
