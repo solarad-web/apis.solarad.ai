@@ -448,7 +448,6 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         const startMoment = moment(startDate).subtract(5, 'hours').subtract(30, 'minutes')
         const endMoment = moment(endDate).subtract(5, 'hours').subtract(30, 'minutes')
 
-        // .subtract(5, 'hours').subtract(30, 'minutes')
         const formattedStartDate = startMoment.format('YYYY-MM-DD HH:mm:ssZ')
         const formattedEndDate = endMoment.format('YYYY-MM-DD HH:mm:ssZ')
 
@@ -493,6 +492,9 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             CASE WHEN "forecast_variable" = 'Gen' AND "revision_number" = 'two_days_ahead' THEN Value ELSE NULL END AS "Gen two_days_ahead",
             CASE WHEN "forecast_variable" = 'GHI' AND "revision_number" = 'two_days_ahead' THEN Value ELSE NULL END AS "GHI two_days_ahead"
 
+            CASE WHEN "forecast_variable" = 'POA' AND "revision_number" = 'Rev0' THEN Value ELSE NULL END AS "POA Rev0",
+            CASE WHEN "forecast_variable" = 'POA' AND "revision_number" = 'two_days_ahead' THEN Value ELSE NULL END AS "POA two_days_ahead"
+
         FROM forecast_prod
         WHERE site_id = $1 AND time >= $2 AND time <= $3
     )
@@ -522,13 +524,17 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         MAX(p."Gen Rev8") AS "Gen Rev8",
         MAX(p."Gen Rev9") AS "Gen Rev9",
 
+        MAX(p."POA Rev0") AS "POA Rev0",
+
         MAX(p."GHI two_days_ahead") AS "GHI two_days_ahead",
         MAX(p."Gen two_days_ahead") AS "Gen two_days_ahead",
+        MAX(p."POA two_days_ahead") AS "POA two_days_ahead",
         
         COALESCE(MAX(p."GHI Rev9"), MAX(p."GHI Rev8"), MAX(p."GHI Rev7"), MAX(p."GHI Rev6"), MAX(p."GHI Rev5"),
         MAX(p."GHI Rev4"), MAX(p."GHI Rev3"), MAX(p."GHI Rev2"), MAX(p."GHI Rev1"), MAX(p."GHI Rev0"), MAX(p."GHI two_days_ahead")) AS "GHI Final",
         COALESCE(MAX(p."Gen Rev9"), MAX(p."Gen Rev8"), MAX(p."Gen Rev7"), MAX(p."Gen Rev6"), MAX(p."Gen Rev5"), 
         MAX(p."Gen Rev4"), MAX(p."Gen Rev3"), MAX(p."Gen Rev2"), MAX(p."Gen Rev1"), MAX(p."Gen Rev0"), MAX(p."Gen two_days_ahead")) AS "Gen Final",
+        COALESCE(MAX(p."POA Rev0"), MAX(p."POA two_days_ahead")) AS "POA Final"
 
 
         g.ground_generation AS "AC_POWER_SUM",
@@ -547,7 +553,6 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         const json2csvParser = new Parser()
         const csvData = json2csvParser.parse(results)
 
-        // Set response headers for CSV and send the data
         res.setHeader('Content-Type', 'text/csv')
         res.setHeader('Content-Disposition', 'attachment; filename=forecast.csv')
         res.send(csvData)
@@ -557,6 +562,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         next(err);
     }
 })
+
 
 //done
 //done
