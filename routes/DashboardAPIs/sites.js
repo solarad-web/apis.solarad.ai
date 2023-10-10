@@ -550,6 +550,11 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
         const results = query.rows
 
+        if(results.length === 0) {
+            res.send("No Data Found")
+            return
+        }
+
         const json2csvParser = new Parser()
         const csvData = json2csvParser.parse(results)
 
@@ -754,50 +759,3 @@ module.exports = route;
 
 
 
-
-// {
-        //  Block: '96',
-        //  Time: '2023-10-07 23:45:00+05:30',
-        //  'Gen Final': '0.0',
-        //  'GHI Final': '0.0',
-        //  'POA Final': '0.0',
-        //  AC_POWER_SUM: undefined,
-        //  'Ground GHI': undefined,
-        //  'Ground POA': undefined,
-        //  'GHI Rev1': undefined,
-        //  'GHI Rev0': '0.0',
-        //  'Gen Rev0': '0.0',
-        //  'Gen Rev1': undefined,
-        //  'GHI Rev2': undefined,
-        //  'Gen Rev2': undefined,
-        //  'GHI Rev3': undefined,
-        //  'Gen Rev3': undefined,
-        //  'GHI Rev4': undefined,
-        //  'Gen Rev4': undefined,
-        //  'GHI Rev5': undefined,
-        //  'Gen Rev5': undefined,
-        //  'GHI Rev6': undefined,
-        //  'Gen Rev6': undefined,
-        //  'GHI Rev7': undefined,
-        //  'Gen Rev7': undefined,
-        //  'GHI Rev8': undefined,
-        //  'Gen Rev8': undefined,
-        //  'GHI Rev9': undefined,
-        //  'Gen Rev9': undefined
-        //  }
-
-        // {
-        //     "block": 1,
-        //     "timezone": "2023-08-01T00:00:00.000Z",
-        //     "revision_number": "Rev0",
-        //     "forecast_variable": "Gen",
-        //     "value": 0
-        // }
-
-        // {
-        //     "block": 1,
-        //     "timezone": "2023-08-01T00:00:00.000Z",
-        //     "revision_number": "Rev0",
-        //     "forecast_variable": "Ghi",
-        //     "value": 0
-        // }
