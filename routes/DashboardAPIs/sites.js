@@ -440,11 +440,9 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         var client = req.query.client
         var site = req.query.site
         let isDemoClient = false
-        const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)')
-        const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)')
-        const outputFormat = 'YYYY-MM-DD'
-        const today = moment()
-        const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ')
+        const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)').startOf('day');
+        const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)').endOf('day');
+        
         const startMoment = moment(startDate).subtract(5, 'hours').subtract(30, 'minutes')
         const endMoment = moment(endDate).subtract(5, 'hours').subtract(30, 'minutes')
 
