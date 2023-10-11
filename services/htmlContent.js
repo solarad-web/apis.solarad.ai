@@ -1,4 +1,4 @@
-export const magicLinkHTMLContent = (token, fname) => {
+const magicLinkHTMLContent = (token, fname) => {
     return `
     <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -202,7 +202,7 @@ Verify Email
 
 
 
-export const magicLinkByAdminHTMLContent = (email, password, fname) => {
+const magicLinkByAdminHTMLContent = (email, password, fname) => {
     return `
     <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -407,7 +407,7 @@ Log Into Dashboard
 
 
 
-export const sendResetPasswordHTMLContent = (email, fname, token) => {
+const sendResetPasswordHTMLContent = (email, fname, token) => {
     return `
     <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -603,3 +603,10 @@ Reset Password
 </body>
         `
 }
+
+
+module.exports = {
+    magicLinkHTMLContent,
+    magicLinkByAdminHTMLContent,
+    sendResetPasswordHTMLContent
+};
