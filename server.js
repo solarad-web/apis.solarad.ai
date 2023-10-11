@@ -94,9 +94,10 @@ async function checkLiveAvailability(allSites) {
   }
 }
 
+
 async function checkForecastAvailability(allSites) {
 
-  const missingSites = [];
+  const missingSites = []
 
   for (let i = 0; i < allSites.length; i++) {
     if (allSites[i].show_forecast === 'True') {
@@ -135,117 +136,117 @@ async function checkForecastAvailability(allSites) {
 }
 
 
-app.get('/addForecastDataToDB', async (req, res, next) => {
-  try {
-      const clients = {
-          'CleanTech': ['Hatkarwadi'],
-          'HeroFutureEnergies': ['Barod', 'Ichhawar'],
-          'O2Power': ['Gorai'],
-          'Sunsure': ['Banda'],
-          'Avaada': ['Pavagada-1', 'Bhadla-2'],
-          "BrookfieldRenewable": ["Jodhpur"],
-          "HeroFutureEnergies": ["Ichhawar", "Barod", "Bhadla", "Siddipet"],
-          'Refex': ['Bhilai'],
-          'Sprng': ['Arinsun'],
-          'Vibrant': ['Savner']
-      }
+// app.get('/addForecastDataToDB', async (req, res, next) => {
+//   try {
+//       const clients = {
+//           'CleanTech': ['Hatkarwadi'],
+//           'HeroFutureEnergies': ['Barod', 'Ichhawar'],
+//           'O2Power': ['Gorai'],
+//           'Sunsure': ['Banda'],
+//           'Avaada': ['Pavagada-1', 'Bhadla-2'],
+//           "BrookfieldRenewable": ["Jodhpur"],
+//           "HeroFutureEnergies": ["Ichhawar", "Barod", "Bhadla", "Siddipet"],
+//           'Refex': ['Bhilai'],
+//           'Sprng': ['Arinsun'],
+//           'Vibrant': ['Savner']
+//       }
 
-      for (const [client, value] of Object.entries(clients)) {
+//       for (const [client, value] of Object.entries(clients)) {
 
-          for (const site of value) {
-              let dates = fileSystem.readdirSync(`/home/Forecast/${client}/ml_forecasts/`)
-              if (fileSystem.existsSync(`/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}`)) {
-              for (const csvPath of dates) {
-              let filepath = csvPath
+//           for (const site of value) {
+//               let dates = fileSystem.readdirSync(`/home/Forecast/${client}/ml_forecasts/`)
+//               if (fileSystem.existsSync(`/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}`)) {
+//               for (const csvPath of dates) {
+//               let filepath = csvPath
 
-              //get modelname from /home/ec2-user/efs_solaradoutput/records_ml/clients/${client}/${site}/${site}_best_model_runs.csv
-              const siteIdQuery = await pool.query("SELECT id FROM utility_sites WHERE sitename = $1 AND company = $2", [site, client]);
-              const siteId = siteIdQuery.rows[0].id;
-              let modelname = null;
-              const modelFile = `/home/ec2-user/efs_solaradoutput/records_ml/clients/${client}/${site}/${site}_best_model_runs.csv`;
+//               //get modelname from /home/ec2-user/efs_solaradoutput/records_ml/clients/${client}/${site}/${site}_best_model_runs.csv
+//               const siteIdQuery = await pool.query("SELECT id FROM utility_sites WHERE sitename = $1 AND company = $2", [site, client]);
+//               const siteId = siteIdQuery.rows[0].id;
+//               let modelname = null;
+//               const modelFile = `/home/ec2-user/efs_solaradoutput/records_ml/clients/${client}/${site}/${site}_best_model_runs.csv`;
                   
 
-              //get previous date
-              const dateParts = date.split('-');
-              const year = dateParts[0];
-              const month = dateParts[1];
-              const day = dateParts[2];
-              const prevDate = moment(`${year}-${month}-${day}`).subtract(1, 'days').format('YYYY-MM-DD');
+//               //get previous date
+//               const dateParts = date.split('-');
+//               const year = dateParts[0];
+//               const month = dateParts[1];
+//               const day = dateParts[2];
+//               const prevDate = moment(`${year}-${month}-${day}`).subtract(1, 'days').format('YYYY-MM-DD');
 
-              const readableStreamForModel = fileSystem.createReadStream(modelFile)
+//               const readableStreamForModel = fileSystem.createReadStream(modelFile)
 
-              if(fileSystem.existsSync(modelFile)) {
-                  readableStreamForModel
-                  .pipe(csv())
-                  .on('data', async (row) => {
-                      if(row['site_id'] === siteId && row['train_date'] === prevDate) {
-                          modelname = row['model'];
-                      }
-                  })
-                  .on('end', () => {
-                      console.log(`CSV file successfully processed for ${site} and ${client}`);
-                  });
-              }
+//               if(fileSystem.existsSync(modelFile)) {
+//                   readableStreamForModel
+//                   .pipe(csv())
+//                   .on('data', async (row) => {
+//                       if(row['site_id'] === siteId && row['train_date'] === prevDate) {
+//                           modelname = row['model'];
+//                       }
+//                   })
+//                   .on('end', () => {
+//                       console.log(`CSV file successfully processed for ${site} and ${client}`);
+//                   });
+//               }
 
 
-              const readableStream = fileSystem.createReadStream(filepath)
+//               const readableStream = fileSystem.createReadStream(filepath)
 
-              //if filepath does not exist then skip
-              if (!fileSystem.existsSync(filepath)) {
-                  console.log("File does not exist");
-                  res.send("File does not exist");
-                  return;
-              }
+//               //if filepath does not exist then skip
+//               if (!fileSystem.existsSync(filepath)) {
+//                   console.log("File does not exist");
+//                   res.send("File does not exist");
+//                   return;
+//               }
 
-              readableStream
-                  .pipe(csv())
-                  .on('data', async (row) => {
-                      const time = row['time'];
-                      const block = row['block'];
-                      const gen_final = parseFloat(row['Gen Final']);
-                      const ghi_final = parseFloat(row['GHI Final']);
-                      const poa_final = parseFloat(row['POA Final']);
-                      const ghi_rev1 = parseFloat(row['Gen Rev0']);
-                      const ghi_rev0 = parseFloat(row['GHI Rev0']);
-                      const gen_rev0 = parseFloat(row['Gen Rev1']);
-                      const gen_rev1 = parseFloat(row['GHI Rev1']);
-                      const ghi_rev2 = parseFloat(row['Gen Rev2']);
-                      const gen_rev2 = parseFloat(row['GHI Rev2']);
-                      const ghi_rev3 = parseFloat(row['Gen Rev3']);
-                      const gen_rev3 = parseFloat(row['GHI Rev3']);
-                      const ghi_rev4 = parseFloat(row['Gen Rev4']);
-                      const gen_rev4 = parseFloat(row['GHI Rev4']);
-                      const ghi_rev5 = parseFloat(row['Gen Rev5']);
-                      const gen_rev5 = parseFloat(row['GHI Rev5']);
-                      const ghi_rev6 = parseFloat(row['Gen Rev6']);
-                      const gen_rev6 = parseFloat(row['GHI Rev6']);
-                      const ghi_rev7 = parseFloat(row['Gen Rev7']);
-                      const gen_rev7 = parseFloat(row['GHI Rev7']);
-                      const ghi_rev8 = parseFloat(row['Gen Rev8']);
-                      const gen_rev8 = parseFloat(row['GHI Rev8']);
-                      const ghi_rev9 = parseFloat(row['Gen Rev9']);
-                      const gen_rev9 = parseFloat(row['GHI Rev9']);
+//               readableStream
+//                   .pipe(csv())
+//                   .on('data', async (row) => {
+//                       const time = row['time'];
+//                       const block = row['block'];
+//                       const gen_final = parseFloat(row['Gen Final']);
+//                       const ghi_final = parseFloat(row['GHI Final']);
+//                       const poa_final = parseFloat(row['POA Final']);
+//                       const ghi_rev1 = parseFloat(row['Gen Rev0']);
+//                       const ghi_rev0 = parseFloat(row['GHI Rev0']);
+//                       const gen_rev0 = parseFloat(row['Gen Rev1']);
+//                       const gen_rev1 = parseFloat(row['GHI Rev1']);
+//                       const ghi_rev2 = parseFloat(row['Gen Rev2']);
+//                       const gen_rev2 = parseFloat(row['GHI Rev2']);
+//                       const ghi_rev3 = parseFloat(row['Gen Rev3']);
+//                       const gen_rev3 = parseFloat(row['GHI Rev3']);
+//                       const ghi_rev4 = parseFloat(row['Gen Rev4']);
+//                       const gen_rev4 = parseFloat(row['GHI Rev4']);
+//                       const ghi_rev5 = parseFloat(row['Gen Rev5']);
+//                       const gen_rev5 = parseFloat(row['GHI Rev5']);
+//                       const ghi_rev6 = parseFloat(row['Gen Rev6']);
+//                       const gen_rev6 = parseFloat(row['GHI Rev6']);
+//                       const ghi_rev7 = parseFloat(row['Gen Rev7']);
+//                       const gen_rev7 = parseFloat(row['GHI Rev7']);
+//                       const ghi_rev8 = parseFloat(row['Gen Rev8']);
+//                       const gen_rev8 = parseFloat(row['GHI Rev8']);
+//                       const ghi_rev9 = parseFloat(row['Gen Rev9']);
+//                       const gen_rev9 = parseFloat(row['GHI Rev9']);
                       
-                      //
-                      await pool.query("INSERT INTO forecast_temp (site_id, block, time, gen_final, ghi_final, poa_final, ghi_rev1, ghi_rev0, gen_rev0, gen_rev1, ghi_rev2, gen_rev2, ghi_rev3, gen_rev3, ghi_rev4, gen_rev4, ghi_rev5, gen_rev5, ghi_rev6, gen_rev6, ghi_rev7, gen_rev7, ghi_rev8, gen_rev8, ghi_rev9, gen_rev9, model_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 , $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)", [siteId, block, time, gen_final, ghi_final, poa_final, ghi_rev1, ghi_rev0, gen_rev0, gen_rev1, ghi_rev2, gen_rev2, ghi_rev3, gen_rev3, ghi_rev4, gen_rev4, ghi_rev5, gen_rev5, ghi_rev6, gen_rev6, ghi_rev7, gen_rev7, ghi_rev8, gen_rev8, ghi_rev9, gen_rev9, modelname]);
-                  }
-                  )
-                  .on('end', () => {
-                      console.log(`CSV file successfully processed for ${site} and ${client}`);
-                  });
-                }
-              }
-          }
-      }
+//                       //
+//                       await pool.query("INSERT INTO forecast_temp (site_id, block, time, gen_final, ghi_final, poa_final, ghi_rev1, ghi_rev0, gen_rev0, gen_rev1, ghi_rev2, gen_rev2, ghi_rev3, gen_rev3, ghi_rev4, gen_rev4, ghi_rev5, gen_rev5, ghi_rev6, gen_rev6, ghi_rev7, gen_rev7, ghi_rev8, gen_rev8, ghi_rev9, gen_rev9, model_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 , $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)", [siteId, block, time, gen_final, ghi_final, poa_final, ghi_rev1, ghi_rev0, gen_rev0, gen_rev1, ghi_rev2, gen_rev2, ghi_rev3, gen_rev3, ghi_rev4, gen_rev4, ghi_rev5, gen_rev5, ghi_rev6, gen_rev6, ghi_rev7, gen_rev7, ghi_rev8, gen_rev8, ghi_rev9, gen_rev9, modelname]);
+//                   }
+//                   )
+//                   .on('end', () => {
+//                       console.log(`CSV file successfully processed for ${site} and ${client}`);
+//                   });
+//                 }
+//               }
+//           }
+//       }
 
-      res.send("Done");
+//       res.send("Done");
 
-  } catch (err) {
-      console.log(err);
-      return;
-  }
-}
-);
+//   } catch (err) {
+//       console.log(err);
+//       return;
+//   }
+// }
+// );
 
 
 
