@@ -408,7 +408,6 @@ route.get('/getforecast', async (req, res, next) => {
                             .on('end', () => resolve(rows))
                             .on('error', reject);
                     });
-                    console.log(fileData[0])
                     mergedData = mergedData.concat(fileData)
                 }
             }
