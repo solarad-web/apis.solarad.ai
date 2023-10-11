@@ -1,5 +1,5 @@
 const { magicLinkHTMLContent, magicLinkByAdminHTMLContent, sendResetPasswordHTMLContent } = require("./htmlContent")
-
+import nodemailer from 'nodemailer'
 
 
 const transporter = nodemailer.createTransport({
