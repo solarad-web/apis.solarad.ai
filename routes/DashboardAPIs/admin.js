@@ -280,12 +280,13 @@ route.get('/addNewCompany', async (req, res, next) => {
     try {
         const company = req.query.company;
 
-        const response = await pool.query(`INSERT INTO companies (company) VALUES ($1)`, [company]);
-        res.send(response);
+        await pool.query(`INSERT INTO companies (company) VALUES ($1)`, [company]);
+        res.status(200).send('Company added successfully');
     }
     catch(err) {
         console.log(err)
-        next(err)
+        res.status(500).send(err.message)
+        // next(err)
     }
 })
 
