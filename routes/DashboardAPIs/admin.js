@@ -275,7 +275,9 @@ route.get('/updateFolderCurrDate', async (req, res, next) => {
     }
 })
 
-//add a new company to companies table
+
+//done
+//done
 route.get('/addNewCompany', async (req, res, next) => {
     try {
         const company = req.query.company;
