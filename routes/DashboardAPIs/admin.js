@@ -281,11 +281,11 @@ route.get('/addNewCompany', async (req, res, next) => {
         const company = req.query.company;
 
         await pool.query(`INSERT INTO companies (company) VALUES ($1)`, [company]);
-        res.status(200).send('Company added successfully');
+        res.send({message: 'Company added Successfully', statusCode: 200});
     }
     catch(err) {
         console.log(err)
-        res.status(201).send(err.message)
+        res.status(200).send({message: 'Company already exists', statusCode: 400});
         // next(err)
     }
 })
