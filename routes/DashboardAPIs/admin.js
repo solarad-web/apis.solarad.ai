@@ -275,6 +275,20 @@ route.get('/updateFolderCurrDate', async (req, res, next) => {
     }
 })
 
+//add a new company to companies table
+route.get('/addNewCompany', async (req, res, next) => {
+    try {
+        const company = req.query.company;
+
+        const response = await pool.query(`INSERT INTO companies (company) VALUES ($1)`, [company]);
+        res.send(response);
+    }
+    catch(err) {
+        console.log(err)
+        next(err)
+    }
+})
+
 async function generateHash(password) {
     try {
         const salt = await bcrypt.genSalt(11);
