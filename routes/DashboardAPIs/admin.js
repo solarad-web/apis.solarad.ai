@@ -285,7 +285,7 @@ route.get('/addNewCompany', async (req, res, next) => {
     }
     catch(err) {
         console.log(err)
-        res.status(200).send(err.message)
+        res.status(201).send(err.message)
         // next(err)
     }
 })
