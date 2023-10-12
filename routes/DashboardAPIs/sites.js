@@ -223,7 +223,7 @@ route.get('/getforecast', async (req, res, next) => {
                                 const filteredRow = {};
                                 fileHeaders.forEach(header => {
                                     const rowTime = moment(filteredRow['Time'], 'YYYY-MM-DD HH:mm:ssZ');
-                                    if (date.isSameOrBefore(currentTime)) {
+                                    // if (date.isSameOrBefore(currentTime)) {
                                         if (header === 'Ground GHI') {
                                             filteredRow[header] = (row['Ground GHI'] * random).toFixed(2);
                                         }
@@ -303,88 +303,88 @@ route.get('/getforecast', async (req, res, next) => {
                                             filteredRow[header] = (row['GHI Rev9'] * random).toFixed(2);
                                         }
                                         else filteredRow[header] = row[header];
-                                    }
-                                    else {
-                                        if (header === 'Ground GHI') {
-                                            filteredRow[header] = 0;
-                                        }
-                                        else if (header === 'Ground POA') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'AC_POWER_SUM') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Rev0') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Rev1') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Rev2') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Rev3') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Rev4') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Rev5') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Rev6') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Rev7') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Rev8') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Rev9') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Final') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'POA Final') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'Gen Final') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Rev0') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Rev1') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Rev2') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Rev3') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Rev4') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Rev5') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Rev6') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Rev7') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Rev8') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else if (header === 'GHI Rev9') {
-                                            filteredRow[header] = 0
-                                        }
-                                        else filteredRow[header] = row[header];
-                                    }
+                                    // }
+                                    // else {
+                                    //     if (header === 'Ground GHI') {
+                                    //         filteredRow[header] = 0;
+                                    //     }
+                                    //     else if (header === 'Ground POA') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'AC_POWER_SUM') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Rev0') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Rev1') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Rev2') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Rev3') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Rev4') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Rev5') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Rev6') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Rev7') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Rev8') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Rev9') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Final') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'POA Final') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'Gen Final') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Rev0') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Rev1') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Rev2') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Rev3') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Rev4') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Rev5') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Rev6') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Rev7') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Rev8') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else if (header === 'GHI Rev9') {
+                                    //         filteredRow[header] = 0
+                                    //     }
+                                    //     else filteredRow[header] = row[header];
+                                    // }
                                 });
                                 rows.push(filteredRow);
                             })
@@ -395,7 +395,7 @@ route.get('/getforecast', async (req, res, next) => {
                 }
                 else {
                     const fileData = await new Promise((resolve, reject) => {
-                        const rows = [];
+                        const rows = []
                         fileSystem.createReadStream(filepath)
                             .pipe(csv())
                             .on('data', (row, index) => {
