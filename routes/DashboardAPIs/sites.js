@@ -30,6 +30,7 @@ route.get("/config", async (req, res, next) => {
                 'company': 'Demo',
                 'site': 'Demo-Site',
                 'state': 'Chhattisgarh',
+                'capacity': '50',
                 'ground_data_available': 'True',
                 'show_ghi': 'True',
                 'show_poa': 'True',
