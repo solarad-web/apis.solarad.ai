@@ -29,6 +29,7 @@ route.get("/config", async (req, res, next) => {
             sitesArr.push({
                 'company': 'Demo',
                 'site': 'Demo-Site',
+                'state': 'Chhattisgarh',
                 'ground_data_available': 'True',
                 'show_ghi': 'True',
                 'show_poa': 'True',

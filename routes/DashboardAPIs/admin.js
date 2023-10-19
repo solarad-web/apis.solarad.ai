@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const bcrypt = require("bcrypt");
 const pool = require("../../config/db");
-route.use(express.json());
+route.use(express.json())
 const { sendMagicLinkEmailByAdmin } = require("../../services/mailer");
 
 //done
