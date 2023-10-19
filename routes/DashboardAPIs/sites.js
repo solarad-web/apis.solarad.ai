@@ -169,189 +169,93 @@ route.get('/data', async (req, res, next) => {
 //done
 route.get('/getforecast', async (req, res, next) => {
     try {
-        var client = req.query.client;
-        var site = req.query.site;
-        let isDemoClient = false;
-        const startDate = moment(req.query.startDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
-        const endDate = moment(req.query.endDate, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
-        const outputFormat = 'YYYY-MM-DD';
-        const today = moment();
-        const currentTime = moment().format('YYYY-MM-DD HH:mm:ssZ');
+        const { client: queryClient, site: querySite, startDate: start, endDate: end } = req.query;
 
-        if (client === 'Demo' && site === 'Demo-Site') {
+        let client = queryClient;
+        let site = querySite;
+        const isDemoClient = (queryClient === 'Demo' && querySite === 'Demo-Site');
+
+        if (isDemoClient) {
             client = process.env.DEMO_COMPANY;
             site = process.env.DEMO_SITE;
-            isDemoClient = true;
         }
 
-        //get folder from id 1 of prod_foldername_current_date
-        const query = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client])
-        let folder = isDemoClient ? 'ml_forecasts' : query.rows[0].forecast_type
+        const startDate = moment(start, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        const endDate = moment(end, 'ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+        const outputFormat = 'YYYY-MM-DD';
+        const today = moment();
 
-        let mergedData = []
-        let headersToConcat = []
-        let maxHeaders = 0
+        const query = await pool.query(`SELECT forecast_type FROM utility_sites WHERE sitename=$1 AND company=$2`, [site, client]);
+        const folder = isDemoClient ? 'ml_forecasts' : query.rows[0].forecast_type;
+
+        let mergedData = [];
+        let headersToConcat = [];
+        let maxHeaders = 0;
+
+        const headersToModify = [
+            'Ground GHI', 'Ground POA', 'AC_POWER_SUM', 'Gen Rev0', 'Gen Rev1',
+            'Gen Rev2', 'Gen Rev3', 'Gen Rev4', 'Gen Rev5', 'Gen Rev6', 'Gen Rev7',
+            'Gen Rev8', 'Gen Rev9', 'GHI Final', 'POA Final', 'Gen Final', 'GHI Rev0',
+            'GHI Rev1', 'GHI Rev2', 'GHI Rev3', 'GHI Rev4', 'GHI Rev5', 'GHI Rev6',
+            'GHI Rev7', 'GHI Rev8', 'GHI Rev9'
+        ];
 
         for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, 'days')) {
-            let formattedDate = date.format(outputFormat);
-            //check if date is equal to current date
-            let filepath = `/home/Forecast/${client}/ml_forecasts/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
-
-            if (!isDemoClient && date.isSame(today, 'day')) {
-                filepath = `/home/Forecast/${client}/${folder}/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
-            }
-            let fileHeaders = [];
-            if (fileSystem.existsSync(filepath)) {
-                const sampleReadStream = fileSystem.createReadStream(filepath);
-                sampleReadStream
-                    .pipe(csv())
-                    .on('headers', (headers) => {
-                        fileHeaders = headers;
-                        if (maxHeaders < fileHeaders.length) {
-                            headersToConcat = headers;
-                            maxHeaders = fileHeaders.length;
-                        }
-                    });
-            }
+            const formattedDate = date.format(outputFormat);
+            const isCurrentDay = date.isSame(today, 'day');
+            const basepath = `/home/Forecast/${client}/${isDemoClient ? 'ml_forecasts' : (isCurrentDay ? folder : 'ml_forecasts')}`;
+            const filepath = `${basepath}/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
 
             if (fileSystem.existsSync(filepath)) {
-                if (isDemoClient) {
-                    const random = (Math.random() * (1.1 - 0.9) + 0.9).toFixed(2);
-                    const fileData = await new Promise((resolve, reject) => {
-                        const rows = [];
-                        fileSystem.createReadStream(filepath)
-                            .pipe(csv())
-                            .on('data', (row) => {
-                                const filteredRow = {};
-                                fileHeaders.forEach(header => {
-                                    const rowTime = moment(filteredRow['Time'], 'YYYY-MM-DD HH:mm:ssZ');
-                                    // if (date.isSameOrBefore(currentTime)) {
-                                        if (header === 'Ground GHI') {
-                                            filteredRow[header] = (row['Ground GHI'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Ground POA') {
-                                            filteredRow[header] = (row['Ground POA'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'AC_POWER_SUM') {
-                                            filteredRow[header] = (row['AC_POWER_SUM'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Rev0') {
-                                            filteredRow[header] = (row['Gen Rev0'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Rev1') {
-                                            filteredRow[header] = (row['Gen Rev1'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Rev2') {
-                                            filteredRow[header] = (row['Gen Rev2'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Rev3') {
-                                            filteredRow[header] = (row['Gen Rev3'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Rev4') {
-                                            filteredRow[header] = (row['Gen Rev4'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Rev5') {
-                                            filteredRow[header] = (row['Gen Rev5'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Rev6') {
-                                            filteredRow[header] = (row['Gen Rev6'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Rev7') {
-                                            filteredRow[header] = (row['Gen Rev7'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Rev8') {
-                                            filteredRow[header] = (row['Gen Rev8'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Rev9') {
-                                            filteredRow[header] = (row['Gen Rev9'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Final') {
-                                            filteredRow[header] = (row['GHI Final'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'POA Final') {
-                                            filteredRow[header] = (row['POA Final'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'Gen Final') {
-                                            filteredRow[header] = (row['Gen Final'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Rev0') {
-                                            filteredRow[header] = (row['GHI Rev0'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Rev1') {
-                                            filteredRow[header] = (row['GHI Rev1'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Rev2') {
-                                            filteredRow[header] = (row['GHI Rev2'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Rev3') {
-                                            filteredRow[header] = (row['GHI Rev3'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Rev4') {
-                                            filteredRow[header] = (row['GHI Rev4'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Rev5') {
-                                            filteredRow[header] = (row['GHI Rev5'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Rev6') {
-                                            filteredRow[header] = (row['GHI Rev6'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Rev7') {
-                                            filteredRow[header] = (row['GHI Rev7'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Rev8') {
-                                            filteredRow[header] = (row['GHI Rev8'] * random).toFixed(2);
-                                        }
-                                        else if (header === 'GHI Rev9') {
-                                            filteredRow[header] = (row['GHI Rev9'] * random).toFixed(2);
-                                        }
-                                        else filteredRow[header] = row[header];
-                                });
-                                rows.push(filteredRow);
-                            })
-                            .on('end', () => resolve(rows))
-                            .on('error', reject);
-                    });
-                    mergedData = mergedData.concat(fileData);
-                }
-                else {
-                    const fileData = await new Promise((resolve, reject) => {
-                        const rows = []
-                        fileSystem.createReadStream(filepath)
-                            .pipe(csv())
-                            .on('data', (row, index) => {
-                                const filteredRow = {};
-                                headersToConcat.forEach(header => {
+                const random = isDemoClient ? (Math.random() * (1.1 - 0.9) + 0.9).toFixed(2) : null;
+
+                const fileData = await new Promise((resolve, reject) => {
+                    const rows = [];
+                    fileSystem.createReadStream(filepath)
+                        .pipe(csv())
+                        .on('headers', (headers) => {
+                            if (maxHeaders < headers.length) {
+                                headersToConcat = headers;
+                                maxHeaders = headers.length;
+                            }
+                        })
+                        .on('data', (row) => {
+                            const filteredRow = {};
+
+                            headersToConcat.forEach(header => {
+                                if (isDemoClient && headersToModify.includes(header)) {
+                                    filteredRow[header] = (row[header] * random).toFixed(2);
+                                } else {
                                     filteredRow[header] = row[header];
-                                });
-                                rows.push(filteredRow);
-                            })
-                            .on('end', () => resolve(rows))
-                            .on('error', reject);
-                    });
-                    mergedData = mergedData.concat(fileData)
-                }
+                                }
+                            });
+
+                            rows.push(filteredRow);
+                        })
+                        .on('end', () => resolve(rows))
+                        .on('error', reject);
+                });
+
+                mergedData = [...mergedData, ...fileData];
             }
         }
 
-        if (mergedData.length === 0) {
-            res.send("Files not found");
-            return;
+        if (!mergedData.length) {
+            return res.send("Files not found");
         }
 
         res.setHeader('Content-disposition', `attachment; filename=Solarad_${site}_${client}_Forecast_Merged.csv`);
         res.setHeader('Content-type', 'text/csv');
-
         res.write(headersToConcat.join(',') + '\n');
-        mergedData.forEach(row => {
-            res.write(headersToConcat.map(header => row[header]).join(',') + '\n');
-        });
+        mergedData.forEach(row => res.write(headersToConcat.map(header => row[header]).join(',') + '\n'));
         res.end();
 
     } catch (err) {
         console.log(err);
         next(err);
     }
-})
+});
+
 
 
 route.get('/getforecastFromDb', async (req, res, next) => {
