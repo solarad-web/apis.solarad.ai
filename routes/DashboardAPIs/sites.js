@@ -33,7 +33,7 @@ route.get("/config", async (req, res, next) => {
                 'capacity': '50',
                 'ground_data_available': 'True',
                 'show_ghi': 'True',
-                'forecast_startDate': '2023-08-01',
+                'forecast_startdate': '2023-08-01',
                 'show_poa': 'True',
                 'show_forecast': 'True',
                 'lat': '28.7041',
