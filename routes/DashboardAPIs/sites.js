@@ -4,10 +4,9 @@ const dotenv = require("dotenv")
 const moment = require('moment-timezone')
 dotenv.config()
 const fastcsv = require('fast-csv')
-
 const axios = require('axios')
 const csvParser = require('csv-parser')
-const { Parser } = require('json2csv');
+const { Parser } = require('json2csv')
 const createCsvWriter = require('csv-writer').createObjectCsvWriter
 const fileSystem = require("fs")
 const csv = require('csv-parser')
