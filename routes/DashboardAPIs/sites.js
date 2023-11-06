@@ -89,14 +89,6 @@ route.get("/config", async (req, res, next) => {
         console.error('Error fetching data from the API:', error)
         next(error)
     }
-    finally {
-        try {
-          await pool.end();
-          console.log('Pool has ended');
-        } catch (endErr) {
-          console.error('Error while ending the pool', endErr);
-        }
-      }
 })
 
 //done
@@ -171,14 +163,6 @@ route.get('/data', async (req, res, next) => {
         console.log(err);
         next(err);
     }
-    finally {
-        try {
-          await pool.end();
-          console.log('Pool has ended');
-        } catch (endErr) {
-          console.error('Error while ending the pool', endErr);
-        }
-      }
 })
 
 //done
@@ -270,14 +254,6 @@ route.get('/getforecast', async (req, res, next) => {
         console.log(err);
         next(err);
     }
-    finally {
-        try {
-          await pool.end();
-          console.log('Pool has ended');
-        } catch (endErr) {
-          console.error('Error while ending the pool', endErr);
-        }
-      }
 });
 
 
@@ -411,14 +387,6 @@ route.get('/getforecastFromDb', async (req, res, next) => {
         console.log(err);
         next(err);
     }
-    finally {
-        try {
-          await pool.end();
-          console.log('Pool has ended');
-        } catch (endErr) {
-          console.error('Error while ending the pool', endErr);
-        }
-      }
 })
 
 
@@ -449,14 +417,6 @@ route.get('/get-utility-sites', async (req, res) => {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
     }
-    finally {
-        try {
-          await pool.end();
-          console.log('Pool has ended');
-        } catch (endErr) {
-          console.error('Error while ending the pool', endErr);
-        }
-      }
 })
 
 //done
@@ -485,16 +445,7 @@ route.get('/get-residential-sites', async (req, res) => {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
     }
-    finally {
-        try {
-          await pool.end();
-          console.log('Pool has ended');
-        } catch (endErr) {
-          console.error('Error while ending the pool', endErr);
-        }
-      }
 })
-
 
 
 
@@ -530,14 +481,6 @@ route.get('/get-all-sites', async (req, res) => {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
     }
-    finally {
-        try {
-          await pool.end();
-          console.log('Pool has ended');
-        } catch (endErr) {
-          console.error('Error while ending the pool', endErr);
-        }
-      }
 })
 
 //done
@@ -623,14 +566,6 @@ route.get('/convertHourlyToDailyOpenMeteo', async (req, res, next) => {
         console.log(err);
         next(err);
     }
-    finally {
-        try {
-          await pool.end();
-          console.log('Pool has ended');
-        } catch (endErr) {
-          console.error('Error while ending the pool', endErr);
-        }
-      }
 });
 
 

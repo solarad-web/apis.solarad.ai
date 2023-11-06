@@ -20,29 +20,16 @@ app.get("/health", (req, res) => {
   res.sendStatus(200)
 })
 
-app.get('/dbtest', async (req, res) => {
-  try {
-    pool.query('SELECT NOW()', (err, result) => {
-      if (err) {
-        console.log(err)
-        res.status(500).send('Something went wrong')
-      }
-      else {
-        res.send(result.rows)
-      }
-    })
-  }
-  catch (err) {
-    console.log(err)
-  }
-  finally {
-    try {
-      await pool.end();
-      console.log('Pool has ended');
-    } catch (endErr) {
-      console.error('Error while ending the pool', endErr);
+app.get('/dbtest', (req, res) => {
+  pool.query('SELECT NOW()', (err, result) => {
+    if (err) {
+      console.log(err)
+      res.status(500).send('Something went wrong')
     }
-  }
+    else {
+      res.send(result.rows)
+    }
+  })
 })
 
 //use api routes
