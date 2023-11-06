@@ -1,4 +1,4 @@
-docker build --no-cache -t apis.solarad.ai .
+docker build --no-cache -t apis.solarad.ai:v1 .
 
 docker run --rm -p 80:3000 \
   --pid=host \
