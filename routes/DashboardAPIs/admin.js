@@ -2,11 +2,11 @@ const Router = require("express");
 const route = Router();
 const express = require("express");
 const dotenv = require("dotenv");
-dotenv.config();
-const bcrypt = require("bcrypt");
-const pool = require("../../config/db");
+dotenv.config()
+const bcrypt = require("bcrypt")
+const pool = require("../../config/db")
 route.use(express.json())
-const { sendMagicLinkEmailByAdmin } = require("../../services/mailer");
+const { sendMagicLinkEmailByAdmin } = require("../../services/mailer")
 
 //done
 //done
@@ -21,6 +21,14 @@ route.get('/getCompanies', async (req, res, next) => {
     catch (err) {
         console.log(err);
         next(err);
+    }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
     }
 })
 
@@ -38,6 +46,14 @@ route.get("/getConfig", async (req, res, next) => {
     catch (err) {
         console.log(err);
         next(err);
+    }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
     }
 })
 
@@ -84,6 +100,14 @@ route.post("/add-site", async (req, res, next) => {
         console.log(err)
         next(err)
     }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
+    }
 })
 
 //done
@@ -105,6 +129,14 @@ route.get("/findSite", async (req, res, next) => {
     catch (err) {
         console.log(err);
         next(err);
+    }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
     }
 })
 
@@ -151,6 +183,14 @@ route.post("/updateSite", async (req, res, next) => {
         console.log(err);
         next(err);
     }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
+    }
 })
 
 
@@ -179,6 +219,14 @@ route.get("/deleteSite", async (req, res, next) => {
     catch (err) {
         console.log(err);
         next(err);
+    }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
     }
 })
 
@@ -210,6 +258,14 @@ route.get("/addUser", async (req, res, next) => {
         console.log(err);
         next(err);
     }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
+    }
 })
 
 //done
@@ -235,6 +291,14 @@ route.get('/updateUser', async (req, res, next) => {
         console.log(err);
         next(err);
     }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
+    }
 })
 
 
@@ -256,6 +320,14 @@ route.get('/getFolderCurrDate', async (req, res, next) => {
         console.log(err);
         next(err);
     }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
+    }
 })
 
 //done
@@ -273,6 +345,14 @@ route.get('/updateFolderCurrDate', async (req, res, next) => {
         console.log(err);
         next(err);
     }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
+    }
 })
 
 
@@ -283,12 +363,20 @@ route.get('/addNewCompany', async (req, res, next) => {
         const company = req.query.company;
 
         await pool.query(`INSERT INTO companies (company) VALUES ($1)`, [company]);
-        res.send({message: 'Company added Successfully', statusCode: 200});
+        res.send({ message: 'Company added Successfully', statusCode: 200 });
     }
-    catch(err) {
+    catch (err) {
         console.log(err)
-        res.status(200).send({message: 'Company already exists', statusCode: 400});
+        res.status(200).send({ message: 'Company already exists', statusCode: 400 });
         // next(err)
+    }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
     }
 })
 

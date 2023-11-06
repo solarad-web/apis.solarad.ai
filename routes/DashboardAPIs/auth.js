@@ -38,6 +38,14 @@ route.get("/signUp", async (req, res, next) => {
         console.log(error.message);
         next(error);
     }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
+    }
 });
 
 
@@ -60,11 +68,11 @@ route.get("/signIn", async (req, res, next) => {
     try {
         bcrypt.compare(providedPwd, storedPassHash, (err, result) => {
             if (result) {
-                if(company === process.env.ADMIN_COMPANY){
+                if (company === process.env.ADMIN_COMPANY) {
                     res.status(200).send('Admin');
                     return;
                 }
-                else if(company === process.env.SUPERADMIN_COMPANY){
+                else if (company === process.env.SUPERADMIN_COMPANY) {
                     res.status(200).send('Super_Admin');
                     return;
                 }
@@ -76,6 +84,14 @@ route.get("/signIn", async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(err);
+    }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
     }
 })
 
@@ -104,6 +120,14 @@ route.get("/verifyEmail", async (req, res, next) => {
         console.log(error);
         next(error);
     }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
+    }
 });
 
 //done
@@ -129,6 +153,14 @@ route.get('/forgotPassword', async (req, res, next) => {
         console.log(error);
         next(error);
     }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
+    }
 })
 
 
@@ -148,6 +180,14 @@ route.get('/resetPassword', async (req, res, next) => {
     } catch (err) {
         console.log(err)
         next(err);
+    }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
     }
 })
 

@@ -75,9 +75,7 @@ route.get("/", async (req, res, next) => {
 //done
 route.get('/export-csv', async (req, res) => {
     try {
-        const client = await pool.connect()
-
-        const queryResult = await client.query('SELECT * FROM residential_sites WHERE company = $1', ['Fenice'])
+        const queryResult = await pool.query('SELECT * FROM residential_sites WHERE company = $1', ['Fenice'])
 
         const csvStream = fastcsv.format({ headers: true });
 
@@ -91,7 +89,7 @@ route.get('/export-csv', async (req, res) => {
         queryResult.rows.forEach(row => csvStream.write(row));
         csvStream.end();
 
-        client.release();
+        // client.release();
 
         res.setHeader('Content-Disposition', 'attachment; filename="residential_sites.csv"');
         res.setHeader('Content-Type', 'text/csv');
@@ -100,6 +98,14 @@ route.get('/export-csv', async (req, res) => {
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
+    }
+    finally {
+        try {
+            await pool.end();
+            console.log('Pool has ended');
+        } catch (endErr) {
+            console.error('Error while ending the pool', endErr);
+        }
     }
 })
 
@@ -139,11 +145,11 @@ route.post('/add-site', async (req, res, next) => {
                   AND tilt_angle = $10
                   AND ground_data_available = $11
               `, [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available]);
-        
-                            if (query.rows.length > 0) {
-                                res.status(400).send('Site with these details already exists');
-                                return;
-                            }
+
+                if (query.rows.length > 0) {
+                    res.status(400).send('Site with these details already exists');
+                    return;
+                }
 
                 const latLonrows = await pool.query(`SELECT * FROM residential_sites WHERE lat = $1 AND lon = $2`, [lat, lon]);
 
@@ -163,6 +169,14 @@ route.post('/add-site', async (req, res, next) => {
             catch (err) {
                 console.log(err.message);
                 next(err);
+            }
+            finally {
+                try {
+                    await pool.end();
+                    console.log('Pool has ended');
+                } catch (endErr) {
+                    console.error('Error while ending the pool', endErr);
+                }
             }
 
         } else {
