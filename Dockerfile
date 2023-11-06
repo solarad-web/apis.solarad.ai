@@ -6,8 +6,11 @@ RUN mkdir -p /home/csv
 
 WORKDIR /home/node/app
 
+
+
 COPY package*.json ./
 RUN npm install
+
 
 
 COPY server.js ./
