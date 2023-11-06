@@ -1,6 +1,6 @@
-docker build --no-cache -t fenice-api .
+docker build --no-cache -t apis.solarad.ai .
 
 docker run --rm -p 80:3000 \
   --pid=host \
   -v /home/ec2-user/efs-solarad-output:/home/ \
-  -it fenice-api
+  -it apis.solarad.ai:v1
