@@ -1,20 +1,20 @@
 FROM node:16-alpine
 
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
-RUN mkdir -p /home/Fenice
-RUN mkdir -p /home/csv
+RUN mkdir -p /app/node_modules && chown -R node:node /home/node/app
+RUN mkdir -p /app/Fenice
+RUN mkdir -p /app/csv
 
-WORKDIR /home/node/app
+WORKDIR /app
 
+ADD ./routes /app/routes
+ADD ./services /app/services
+ADD ./config /app/config
 
-
-COPY package*.json ./
+COPY package*.json /app
 RUN npm install
 
-
-
-COPY server.js ./
-COPY .env ./
+COPY server.js /app
+COPY .env /app
 
 USER node
 

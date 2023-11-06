@@ -108,7 +108,7 @@ route.get('/data', async (req, res, next) => {
         }
 
         var timeframe = req.query.timeframe;
-        let filepath = `/home/csv/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
+        let filepath = `/home/Forecast/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
 
         res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
         res.setHeader('Content-type', 'text/csv');
