@@ -108,7 +108,7 @@ route.get('/data', async (req, res, next) => {
         }
 
         var timeframe = req.query.timeframe;
-        let filepath = `/home/Forecast/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
+        let filepath = `/home/csv/clients/${client}/${timeframe.toLowerCase()}/Solarad_${site}_${client}_${timeframe}.csv`;
 
         res.setHeader('Content-disposition', `attachment; filename=${filepath.split(`${timeframe.toLowerCase()}/`)[1]}`);
         res.setHeader('Content-type', 'text/csv');
@@ -203,7 +203,7 @@ route.get('/getforecast', async (req, res, next) => {
         for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, 'days')) {
             const formattedDate = date.format(outputFormat);
             const isCurrentDay = date.isSame(today, 'day');
-            const basepath = `/home/Forecast/${client}/${isDemoClient ? 'ml_forecasts' : (isCurrentDay ? folder : 'ml_forecasts')}`;
+            const basepath = `/home/csv/clients/${client}/${isDemoClient ? 'ml_forecasts' : (isCurrentDay ? folder : 'ml_forecasts')}`;
             const filepath = `${basepath}/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
 
             if (fileSystem.existsSync(filepath)) {
