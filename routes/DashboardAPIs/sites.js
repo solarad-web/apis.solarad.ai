@@ -329,7 +329,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
             FROM ground_prod
             WHERE site_id = $1 AND time >= $2 AND time < $3
             GROUP BY site_id, time
-        ),
+        )
         
         SELECT
             p.block AS "Block",
