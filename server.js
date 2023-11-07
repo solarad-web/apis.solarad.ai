@@ -54,7 +54,7 @@ app.use((err, req, res, next) => {
 });
 
 
-const PORT = 80;
+const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || `localhost`;
 
 app.listen(PORT, () => {
