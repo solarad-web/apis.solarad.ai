@@ -19,6 +19,7 @@ route.get("/", async (req, res, next) => {
     let providedApiKey = req.header("api_key");
     const storedApiKey = process.env.API_KEY;
     let queryDate = req.query.date;
+    let lastNRows = req.query.last_n_values;
     let isPresentDateQuery = false;
 
     if (queryDate === 'today') {
@@ -73,7 +74,19 @@ route.get("/", async (req, res, next) => {
                         }
                     })
                     .on('data', (data) => {
-                        if (queryDate === undefined || data['Time'].includes(queryDate)) {
+                        if (lastNRows !== undefined) {
+                            unchangedResults.push(data);
+                            if (unchangedResults.length > lastNRows) {
+                                unchangedResults.shift();
+                            }
+
+                            delete data[`ENTRY_TIME`];
+                            results.push(data);
+                            if (results.length > lastNRows) {
+                                results.shift();
+                            }
+                        }
+                        else if (queryDate === undefined || data['Time'].includes(queryDate)) {
                             if (isPresentDateQuery && isFutureTime(data['Time'])) {
                                 return;
                             }
@@ -109,6 +122,7 @@ function isFutureTime(timeString) {
     // Compare the two times
     return time > now;
 }
+
 
 
 //done
