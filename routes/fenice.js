@@ -18,6 +18,27 @@ route.use(express.json())
 route.get("/", async (req, res, next) => {
     let providedApiKey = req.header("api_key");
     const storedApiKey = process.env.API_KEY;
+    let queryDate = req.query.date;
+    let isPresentDateQuery = false;
+
+    if (queryDate === 'today') {
+        isPresentDateQuery = true;
+        let today = new Date();
+        let dd = today.getDate();
+        let mm = today.getMonth() + 1;
+
+        const yyyy = today.getFullYear();
+        if (dd < 10) {
+            dd = `0${dd}`;
+        }
+        if (mm < 10) {
+            mm = `0${mm}`;
+        }
+        today = `${yyyy}-${mm}-${dd}`;
+        queryDate = today;
+    }
+
+
 
 
     try {
@@ -43,6 +64,7 @@ route.get("/", async (req, res, next) => {
                 const results = [];
                 const unchangedResults = [];
                 let columnExists = false;
+
                 fileSystem.createReadStream(filePath)
                     .pipe(csv())
                     .on('headers', (headers) => {
@@ -51,9 +73,16 @@ route.get("/", async (req, res, next) => {
                         }
                     })
                     .on('data', (data) => {
-                        unchangedResults.push(data);
-                        delete data[`ENTRY_TIME`];
-                        results.push(data);
+                        if (queryDate === undefined || data['Time'].includes(queryDate)) {
+                            if (isPresentDateQuery && isFutureTime(data['Time'])) {
+                                return;
+                            }
+                            else {
+                                unchangedResults.push(data);
+                                delete data[`ENTRY_TIME`];
+                                results.push(data);
+                            }
+                        }
                     })
                     .on('end', () => {
                         const modifiedCsv = columnExists ? convertToCsv(results) : convertToCsv(unchangedResults);
@@ -69,6 +98,17 @@ route.get("/", async (req, res, next) => {
         next(err);
     }
 })
+
+function isFutureTime(timeString) {
+    // Parse the time string into a Date object
+    const time = new Date(timeString);
+
+    // Get the current time
+    const now = new Date();
+
+    // Compare the two times
+    return time > now;
+}
 
 
 //done
@@ -139,11 +179,11 @@ route.post('/add-site', async (req, res, next) => {
                   AND tilt_angle = $10
                   AND ground_data_available = $11
               `, [sitename, company, lat, lon, ele, capacity, country, timezone, mount_config, tilt_angle, ground_data_available]);
-        
-                            if (query.rows.length > 0) {
-                                res.status(400).send('Site with these details already exists');
-                                return;
-                            }
+
+                if (query.rows.length > 0) {
+                    res.status(400).send('Site with these details already exists');
+                    return;
+                }
 
                 const latLonrows = await pool.query(`SELECT * FROM residential_sites WHERE lat = $1 AND lon = $2`, [lat, lon]);
 
