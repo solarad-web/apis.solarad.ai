@@ -10,10 +10,10 @@ app.use(cors())
 
 
 //get All Routes
-const fenice = require('./routes/fenice')
-const dashboardData = require('./routes/DashboardAPIs/sites')
-const dashboardLogin = require('./routes/DashboardAPIs/auth')
-const dashboardAdmin = require('./routes/DashboardAPIs/admin')
+const { feniceRoute } = require('./routes/fenice')
+const { sitesRoute } = require('./routes/DashboardAPIs/sites')
+const { authRoute } = require('./routes/DashboardAPIs/auth')
+const { adminRoute } = require('./routes/DashboardAPIs/admin')
 
 
 app.get("/health", (req, res) => {
@@ -33,10 +33,10 @@ app.get('/dbtest', (req, res) => {
 })
 
 //use api routes
-app.use("/fenice", fenice)
-app.use("/dashboard/sites", dashboardData)
-app.use("/dashboard/auth", dashboardLogin)
-app.use("/dashboard/admin", dashboardAdmin)
+app.use("/fenice", feniceRoute)
+app.use("/dashboard/sites", sitesRoute)
+app.use("/dashboard/auth", authRoute)
+app.use("/dashboard/admin", adminRoute)
 
 
 

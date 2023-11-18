@@ -1,5 +1,5 @@
 const Router = require("express");
-const route = Router();
+const authRoute = Router();
 
 const dotenv = require("dotenv");
 dotenv.config();
@@ -12,7 +12,7 @@ const { sendMagicLinkEmail, sendResetPasswordLink } = require("../../services/ma
 
 //done
 //done
-route.get("/signUp", async (req, res, next) => {
+authRoute.get("/signUp", async (req, res, next) => {
     const email = req.query.email;
     const fname = req.query.fname;
     const lname = req.query.lname;
@@ -43,7 +43,7 @@ route.get("/signUp", async (req, res, next) => {
 
 //done
 //done
-route.get("/signIn", async (req, res, next) => {
+authRoute.get("/signIn", async (req, res, next) => {
     const email = req.query.email;
     const providedPwd = req.query.pwd;
 
@@ -82,7 +82,7 @@ route.get("/signIn", async (req, res, next) => {
 
 //done
 //done
-route.get("/verifyEmail", async (req, res, next) => {
+authRoute.get("/verifyEmail", async (req, res, next) => {
     const token = req.query.token;
     if (token == null) return res.sendStatus(401);
 
@@ -108,7 +108,7 @@ route.get("/verifyEmail", async (req, res, next) => {
 
 //done
 //done
-route.get('/forgotPassword', async (req, res, next) => {
+authRoute.get('/forgotPassword', async (req, res, next) => {
     try {
         const email = req.query.email;
 
@@ -134,7 +134,7 @@ route.get('/forgotPassword', async (req, res, next) => {
 
 //done
 //done
-route.get('/resetPassword', async (req, res, next) => {
+authRoute.get('/resetPassword', async (req, res, next) => {
     try {
         const token = req.query.token;
         if (token == null) return res.sendStatus(401);
@@ -171,7 +171,7 @@ async function generateHash(password) {
 
 
 module.exports = {
-    route,
+    authRoute,
     generateHash
 };
 

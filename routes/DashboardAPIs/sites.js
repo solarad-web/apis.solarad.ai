@@ -1,5 +1,5 @@
 const Router = require('express')
-const route = Router()
+const sitesRoute = Router()
 const dotenv = require("dotenv")
 const moment = require('moment-timezone')
 dotenv.config()
@@ -14,7 +14,7 @@ const pool = require('../../config/db')
 
 //done
 //done
-route.get("/config", async (req, res, next) => {
+sitesRoute.get("/config", async (req, res, next) => {
     try {
         const email = req.query.email;
         const resJson = await pool.query('SELECT company FROM user_details WHERE user_email = $1', [email])
@@ -93,7 +93,7 @@ route.get("/config", async (req, res, next) => {
 
 //done
 //done
-route.get('/data', async (req, res, next) => {
+sitesRoute.get('/data', async (req, res, next) => {
     try {
         var client = req.query.client;
         var site = req.query.site;
@@ -167,7 +167,7 @@ route.get('/data', async (req, res, next) => {
 
 //done
 //done
-route.get('/getforecast', async (req, res, next) => {
+sitesRoute.get('/getforecast', async (req, res, next) => {
     try {
         const { client: queryClient, site: querySite, startDate: start, endDate: end } = req.query;
 
@@ -258,7 +258,7 @@ route.get('/getforecast', async (req, res, next) => {
 
 
 
-route.get('/getforecastFromDb', async (req, res, next) => {
+sitesRoute.get('/getforecastFromDb', async (req, res, next) => {
     try {
         var client = req.query.client
         var site = req.query.site
@@ -399,7 +399,7 @@ route.get('/getforecastFromDb', async (req, res, next) => {
 
 //done
 //done
-route.get('/get-utility-sites', async (req, res) => {
+sitesRoute.get('/get-utility-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT id, created_at, * FROM utility_sites order by id asc')
 
@@ -428,7 +428,7 @@ route.get('/get-utility-sites', async (req, res) => {
 
 //done
 //done
-route.get('/get-residential-sites', async (req, res) => {
+sitesRoute.get('/get-residential-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT * FROM residential_sites')
 
@@ -458,7 +458,7 @@ route.get('/get-residential-sites', async (req, res) => {
 
 //done
 //done
-route.get('/get-all-sites', async (req, res) => {
+sitesRoute.get('/get-all-sites', async (req, res) => {
     try {
         const queryResult = await pool.query('SELECT DISTINCT user_email FROM user_details');
         const emails = queryResult.rows.map(row => row.user_email);
@@ -492,7 +492,7 @@ route.get('/get-all-sites', async (req, res) => {
 
 //done
 //done
-route.get('/convertHourlyToDailyOpenMeteo', async (req, res, next) => {
+sitesRoute.get('/convertHourlyToDailyOpenMeteo', async (req, res, next) => {
     try {
         const lat = req.query.lat;
         const lon = req.query.lon;
@@ -584,7 +584,7 @@ function convertToCsv(data) {
 
 
 module.exports = {
-    route,
+    sitesRoute,
     convertToCsv
 }
 

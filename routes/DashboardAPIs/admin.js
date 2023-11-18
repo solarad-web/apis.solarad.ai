@@ -1,16 +1,16 @@
 const Router = require("express");
-const route = Router();
+const adminRoute = Router();
 const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
 const bcrypt = require("bcrypt");
 const pool = require("../../config/db");
-route.use(express.json())
+adminRoute.use(express.json())
 const { sendMagicLinkEmailByAdmin } = require("../../services/mailer");
 const { generateHash } = require('./auth.js');
 //done
 //done
-route.get('/getCompanies', async (req, res, next) => {
+adminRoute.get('/getCompanies', async (req, res, next) => {
     try {
         const row = await pool.query(`SELECT company FROM companies`);
 
@@ -26,7 +26,7 @@ route.get('/getCompanies', async (req, res, next) => {
 
 //done
 //done
-route.get("/getConfig", async (req, res, next) => {
+adminRoute.get("/getConfig", async (req, res, next) => {
     try {
         let company = req.query.company;
         const query = await pool.query(`SELECT * FROM utility_sites WHERE company=$1 AND show_dashboard=$2`, [company, true])
@@ -43,7 +43,7 @@ route.get("/getConfig", async (req, res, next) => {
 
 //done
 //done
-route.post("/add-site", async (req, res, next) => {
+adminRoute.post("/add-site", async (req, res, next) => {
     try {
         const data = req.body;
 
@@ -88,7 +88,7 @@ route.post("/add-site", async (req, res, next) => {
 
 //done
 //done
-route.get("/findSite", async (req, res, next) => {
+adminRoute.get("/findSite", async (req, res, next) => {
     try {
         const site = req.query.site;
         const company = req.query.company;
@@ -110,7 +110,7 @@ route.get("/findSite", async (req, res, next) => {
 
 //done
 //done
-route.post("/updateSite", async (req, res, next) => {
+adminRoute.post("/updateSite", async (req, res, next) => {
     try {
         const data = req.body;
         let site_id = data.id;
@@ -156,7 +156,7 @@ route.post("/updateSite", async (req, res, next) => {
 
 //done
 //done
-route.get("/deleteSite", async (req, res, next) => {
+adminRoute.get("/deleteSite", async (req, res, next) => {
     try {
         const site = req.query.site;
         const company = req.query.company;
@@ -184,7 +184,7 @@ route.get("/deleteSite", async (req, res, next) => {
 
 //done
 //done
-route.get("/addUser", async (req, res, next) => {
+adminRoute.get("/addUser", async (req, res, next) => {
     try {
         const email = req.query.email;
         const company = req.query.company;
@@ -214,7 +214,7 @@ route.get("/addUser", async (req, res, next) => {
 
 //done
 //done
-route.get('/updateUser', async (req, res, next) => {
+adminRoute.get('/updateUser', async (req, res, next) => {
     try {
         const email = req.query.email;
         const company = req.query.company;
@@ -241,7 +241,7 @@ route.get('/updateUser', async (req, res, next) => {
 //done
 //done
 //get foldername for curr date
-route.get('/getFolderCurrDate', async (req, res, next) => {
+adminRoute.get('/getFolderCurrDate', async (req, res, next) => {
     try {
         const company = req.query.company;
         const sitename = req.query.sitename;
@@ -260,7 +260,7 @@ route.get('/getFolderCurrDate', async (req, res, next) => {
 
 //done
 //done
-route.get('/updateFolderCurrDate', async (req, res, next) => {
+adminRoute.get('/updateFolderCurrDate', async (req, res, next) => {
     try {
         const folder = req.query.folder;
         const sitename = req.query.sitename;
@@ -278,7 +278,7 @@ route.get('/updateFolderCurrDate', async (req, res, next) => {
 
 //done
 //done
-route.get('/addNewCompany', async (req, res, next) => {
+adminRoute.get('/addNewCompany', async (req, res, next) => {
     try {
         const company = req.query.company;
 
@@ -305,4 +305,4 @@ route.get('/addNewCompany', async (req, res, next) => {
 
 
 
-module.exports = route;
+module.exports = {adminRoute};
