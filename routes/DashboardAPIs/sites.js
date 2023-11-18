@@ -575,7 +575,7 @@ route.get('/convertHourlyToDailyOpenMeteo', async (req, res, next) => {
     }
 });
 
-
+//test done
 function convertToCsv(data) {
     const header = Object.keys(data[0]).join(',') + '\n';
     const rows = data.map((row) => Object.values(row).join(',') + '\n');
@@ -583,7 +583,10 @@ function convertToCsv(data) {
 }
 
 
-module.exports = route;
+module.exports = {
+    route,
+    convertToCsv
+}
 
 
 

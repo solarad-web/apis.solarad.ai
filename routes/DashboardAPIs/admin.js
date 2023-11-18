@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 const pool = require("../../config/db");
 route.use(express.json())
 const { sendMagicLinkEmailByAdmin } = require("../../services/mailer");
-
+const { generateHash } = require('./auth.js');
 //done
 //done
 route.get('/getCompanies', async (req, res, next) => {
@@ -292,18 +292,16 @@ route.get('/addNewCompany', async (req, res, next) => {
     }
 })
 
-async function generateHash(password) {
-    try {
-        const salt = await bcrypt.genSalt(11);
-        const hash = await bcrypt.hash(password, salt);
-        return hash;
-    } catch (error) {
-        console.log(error.message);
-        throw new Error('Hash generation failed');
-    }
-}
-
-
+// async function generateHash(password) {
+//     try {
+//         const salt = await bcrypt.genSalt(11);
+//         const hash = await bcrypt.hash(password, salt);
+//         return hash;
+//     } catch (error) {
+//         console.log(error.message);
+//         throw new Error('Hash generation failed');
+//     }
+// }
 
 
 

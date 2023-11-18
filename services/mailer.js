@@ -3,65 +3,73 @@ const nodemailer = require("nodemailer");
 
 
 const transporter = nodemailer.createTransport({
-    host: process.env.BREVO_HOST,
-    port: process.env.BREVO_PORT,
-    secure: false,
-    auth: {
-      user: process.env.BREVO_USER,
-      pass: process.env.BREVO_PWD,
-    },
-  })
+  host: process.env.BREVO_HOST,
+  port: process.env.BREVO_PORT,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_PWD,
+  },
+})
 
 
 
 async function sendMagicLinkEmail({ email, token, fname }) {
+  
+  const html = magicLinkHTMLContent(token, fname);
 
-      const html = magicLinkHTMLContent(token, fname);
+  try {
+    let info = await transporter.sendMail({
+      from: process.env.FROM_EMAIL,
+      to: email,
+      subject: "Finish Logging In",
+      html: html,
+    });
 
-      let info = await transporter.sendMail({
-        from: process.env.FROM_EMAIL,
-        to: email,
-        subject: "Finish Logging In",
-        html: html
-      });
-    
-      console.log(info)
+    console.log(info);
+
+    if (info.response.slice(0, 3) !== "250") {
+      throw new Error("Failed to send magic link email");
+    }
+  } catch (error) {
+    console.error("Error sending magic link email:", error);
+    throw error;
+  }
 }
-
 
 
 async function sendMagicLinkEmailByAdmin({ email, password, fname }) {
 
-    const html = magicLinkByAdminHTMLContent(email, password, fname)
+  const html = magicLinkByAdminHTMLContent(email, password, fname)
 
-    let info = await transporter.sendMail({
-        from: process.env.FROM_EMAIL,
-        to: email,
-        subject: "Account Created",
-        html: html
-      })
-    
-      console.log(info)
+  let info = await transporter.sendMail({
+    from: process.env.FROM_EMAIL,
+    to: email,
+    subject: "Account Created",
+    html: html
+  })
+
+  console.log(info)
 }
 
 
 async function sendResetPasswordLink({ email, fname, token }) {
 
-    const html = sendResetPasswordHTMLContent(email, fname, token)
+  const html = sendResetPasswordHTMLContent(email, fname, token)
 
-    let info = await transporter.sendMail({
-        from: process.env.FROM_EMAIL,
-        to: email,
-        subject: "Reset Your Password",
-        html: html
-      })
-    
-    console.log(info)
+  let info = await transporter.sendMail({
+    from: process.env.FROM_EMAIL,
+    to: email,
+    subject: "Reset Your Password",
+    html: html
+  })
+
+  console.log(info)
 }
 
 
 module.exports = {
-    sendResetPasswordLink,
-    sendMagicLinkEmail,
-    sendMagicLinkEmailByAdmin
+  sendResetPasswordLink,
+  sendMagicLinkEmail,
+  sendMagicLinkEmailByAdmin
 }
