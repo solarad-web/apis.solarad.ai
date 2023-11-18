@@ -436,34 +436,31 @@ sitesRoute.get('/getCombinedForecast', async (req, res, next) => {
 
 async function mergeCsvStrings(csv1, csv2) {
     // Split the CSV into lines
-    const lines1 = csv1.split('\n');
-    const lines2 = csv2.split('\n');
+    const lines1 = csv1.trim().split(/\r?\n/);
+    const lines2 = csv2.trim().split(/\r?\n/);
 
     // Extract headers
     const headers1 = lines1[0].split(',');
     const headers2 = lines2[0].split(',');
 
-    // Find the union of headers if they are different
-    const allHeaders = [...new Set([...headers1, ...headers2])];
-    
-    // Function to align rows to the new headers
-    function alignRowToHeaders(row, headers) {
+    // Function to reorder columns in a row to match headers1
+    function reorderColumns(row, fromHeaders, toHeaders) {
         const rowData = row.split(',');
-        const alignedRow = allHeaders.map(header => {
-            const index = headers.indexOf(header);
-            return index !== -1 ? rowData[index] : ''; // Fill missing data with empty string
+        const reorderedRow = toHeaders.map(header => {
+            const index = fromHeaders.indexOf(header);
+            return index !== -1 ? rowData[index] : ''; // Fill missing data with empty string if not found
         });
-        return alignedRow.join(',');
+        return reorderedRow.join(',');
     }
 
-    // Align data rows
-    const data1 = lines1.slice(1).map(row => alignRowToHeaders(row, headers1));
-    const data2 = lines2.slice(1).map(row => alignRowToHeaders(row, headers2));
+    // Reorder the data of csv2 to match the headers of csv1
+    const reorderedData2 = lines2.slice(1).map(row => reorderColumns(row, headers2, headers1));
 
     // Merge the data
-    const combinedData = [allHeaders.join(','), ...data1, ...data2].join('\n');
+    const combinedData = [lines1[0], ...lines1.slice(1), ...reorderedData2].join('\n');
     return combinedData;
 }
+
 
 
 
