@@ -435,31 +435,42 @@ sitesRoute.get('/getCombinedForecast', async (req, res, next) => {
 });
 
 async function mergeCsvStrings(csv1, csv2) {
-    // Split the CSV into lines
-    const lines1 = csv1.trim().split(/\r?\n/);
-    const lines2 = csv2.trim().split(/\r?\n/);
+    try {
+        // Split the CSV into lines
+        const lines1 = csv1.trim().split(/\r?\n/);
+        const lines2 = csv2.trim().split(/\r?\n/);
 
-    // Extract headers
-    const headers1 = lines1[0].split(',');
-    const headers2 = lines2[0].split(',');
+        // Extract headers
+        const headers1 = lines1[0].split(',');
+        const headers2 = lines2[0].split(',');
 
-    // Function to reorder columns in a row to match headers1
-    function reorderColumns(row, fromHeaders, toHeaders) {
-        const rowData = row.split(',');
-        const reorderedRow = toHeaders.map(header => {
-            const index = fromHeaders.indexOf(header);
-            return index !== -1 ? rowData[index] : ''; // Fill missing data with empty string if not found
-        });
-        return reorderedRow.join(',');
+        // Create a map of headers in csv1 for easy lookup
+        const headerMap = headers1.reduce((acc, header, index) => {
+            acc[header] = index;
+            return acc;
+        }, {});
+
+        // Function to reorder columns in a row to match headers1
+        function reorderColumns(row, fromHeaders) {
+            const rowData = row.split(',');
+            return headers1.map(header => {
+                const index = fromHeaders.indexOf(header);
+                return index !== -1 ? rowData[index] : ''; // Fill missing data with empty string if not found
+            }).join(',');
+        }
+
+        // Reorder the data of csv2 to match the headers of csv1
+        const reorderedData2 = lines2.slice(1).map(row => reorderColumns(row, headers2));
+
+        // Merge the data
+        const combinedData = [lines1[0], ...lines1.slice(1), ...reorderedData2].join('\n');
+        return combinedData;
+    } catch (error) {
+        console.error('Error merging CSV files:', error);
+        throw error; // Re-throw the error for further handling if needed
     }
-
-    // Reorder the data of csv2 to match the headers of csv1
-    const reorderedData2 = lines2.slice(1).map(row => reorderColumns(row, headers2, headers1));
-
-    // Merge the data
-    const combinedData = [lines1[0], ...lines1.slice(1), ...reorderedData2].join('\n');
-    return combinedData;
 }
+
 
 
 
