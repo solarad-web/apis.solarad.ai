@@ -439,17 +439,29 @@ async function mergeCsvStrings(csv1, csv2) {
     const lines1 = csv1.split('\n');
     const lines2 = csv2.split('\n');
 
-    // Check if there is any data
-    if (lines1.length === 0) return csv2;
-    if (lines2.length === 0) return csv1;
+    // Extract headers
+    const headers1 = lines1[0].split(',');
+    const headers2 = lines2[0].split(',');
 
-    // Assuming the first line contains headers, and they are the same for both CSVs
-    const headers1 = lines1[0];
-    const data1 = lines1.slice(1);
-    const data2 = lines2.slice(1); // Skipping headers from the second CSV
+    // Find the union of headers if they are different
+    const allHeaders = [...new Set([...headers1, ...headers2])];
+    
+    // Function to align rows to the new headers
+    function alignRowToHeaders(row, headers) {
+        const rowData = row.split(',');
+        const alignedRow = allHeaders.map(header => {
+            const index = headers.indexOf(header);
+            return index !== -1 ? rowData[index] : ''; // Fill missing data with empty string
+        });
+        return alignedRow.join(',');
+    }
+
+    // Align data rows
+    const data1 = lines1.slice(1).map(row => alignRowToHeaders(row, headers1));
+    const data2 = lines2.slice(1).map(row => alignRowToHeaders(row, headers2));
 
     // Merge the data
-    const combinedData = [headers1, ...data1, ...data2].join('\n');
+    const combinedData = [allHeaders.join(','), ...data1, ...data2].join('\n');
     return combinedData;
 }
 
