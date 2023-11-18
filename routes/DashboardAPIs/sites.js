@@ -11,6 +11,7 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter
 const fileSystem = require("fs")
 const csv = require('csv-parser')
 const pool = require('../../config/db')
+const axios = require('axios')
 
 //done
 //done
@@ -395,6 +396,64 @@ sitesRoute.get('/getforecastFromDb', async (req, res, next) => {
         next(err);
     }
 })
+
+
+
+sitesRoute.get('/getCombinedForecast', async (req, res, next) => {
+    try {
+        // Extract query parameters
+        const { startDate, endDate, givenDate, site, client } = req.query;
+
+        //get givenDate + 1 Date object
+        const givenDatePlusOne = new Date(givenDate)
+
+        givenDatePlusOne.setDate(givenDatePlusOne.getDate() + 1)
+
+        //convert the givenDatePlusOne to this format: Tue Oct 30 2023 00:00:00 GMT 0530 (India Standard Time)
+
+        const givenDatePlusOneFormatted = givenDatePlusOne.toString()
+
+
+
+        // Fetch data from /getForecast
+        const firstRange = await axios.get(`https://testapis.solarad.ai/dashboard/sites/getForecast?startDate=${startDate}&endDate=${givenDatePlusOneFormatted}&site=${site}&client=${client}`);
+        const firstRangeData = firstRange.data;
+        // Fetch data from /getForecastFromDb
+        const secondRange = await axios.get(`https://testapis.solarad.ai/dashboard/sites/getForecastFromDb?startDate=${givenDatePlusOne}&endDate=${endDate}&site=${site}&client=${client}`);
+        const secondRangeData = secondRange.data;
+        // Merge the data
+        const combinedData = await mergeCsvStrings(firstRangeData, secondRangeData);
+
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename=combined_forecast.csv`);
+        res.send(combinedData);
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+});
+
+async function mergeCsvStrings(csv1, csv2) {
+    // Split the CSV into lines
+    const lines1 = csv1.split('\n');
+    const lines2 = csv2.split('\n');
+
+    // Check if there is any data
+    if (lines1.length === 0) return csv2;
+    if (lines2.length === 0) return csv1;
+
+    // Assuming the first line contains headers, and they are the same for both CSVs
+    const headers1 = lines1[0];
+    const data1 = lines1.slice(1);
+    const data2 = lines2.slice(1); // Skipping headers from the second CSV
+
+    // Merge the data
+    const combinedData = [headers1, ...data1, ...data2].join('\n');
+    return combinedData;
+}
+
+
 
 
 //done
