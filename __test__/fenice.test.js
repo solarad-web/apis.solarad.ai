@@ -8,6 +8,8 @@ const {
     generateTodayDateString,
     isFutureTime
 } = require('../routes/fenice.js')
+
+const { generateHash } = require('../routes/DashboardAPIs/auth.js')
 const pool = require("../config/db");
 const { Readable } = require('stream');
 const fs = require('fs');
@@ -48,9 +50,9 @@ describe('checkApiKey', () => {
 
     // Returns true when providedApiKey and storedApiKey are valid and match.
     it('should return true when providedApiKey and storedApiKey are valid and match', async () => {
-        const providedApiKey = process.env.NONHASHEDAPIKEY;
-        const storedApiKey = process.env.API_KEY;
-
+        const providedApiKey = 'xyz';
+        const storedApiKey = await generateHash(providedApiKey);
+        
         const result = await checkApiKey(providedApiKey, storedApiKey);
 
         expect(result).toBe(true);
