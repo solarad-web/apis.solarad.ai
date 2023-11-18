@@ -11,7 +11,7 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter
 const fileSystem = require("fs")
 const csv = require('csv-parser')
 const pool = require('../../config/db')
-const axios = require('axios')
+
 
 //done
 //done
