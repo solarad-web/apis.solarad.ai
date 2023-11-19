@@ -434,37 +434,43 @@ sitesRoute.get('/getCombinedForecast', async (req, res, next) => {
     }
 });
 
-async function mergeCsvStrings(csv1, csv2) {
-    try {
-        const lines1 = csv1.trim().split(/\r?\n/);
-        const lines2 = csv2.trim().split(/\r?\n/);
+function csvToArrayOfObjects(csv, referenceHeaders) {
+    const lines = csv.trim().split(/\r?\n/);
+    const headers = lines[0].split(',');
 
-        const headers1 = lines1[0].split(',');
-        const headers2 = lines2[0].split(',');
+    const headerIndexMap = headers.reduce((acc, header, index) => {
+        acc[header] = index;
+        return acc;
+    }, {});
 
-        // Log headers for debugging
-        console.log("Headers1:", headers1);
-        console.log("Headers2:", headers2);
+    return lines.slice(1).map(line => {
+        const data = line.split(',');
+        return referenceHeaders.reduce((obj, header) => {
+            obj[header] = data[headerIndexMap[header]] || '';
+            return obj;
+        }, {});
+    });
+}
 
-        function reorderColumns(row, fromHeaders) {
-            const rowData = row.split(',');
-            return headers1.map(header => {
-                const index = fromHeaders.indexOf(header);
-                return index !== -1 ? rowData[index] : '';
-            }).join(',');
-        }
+function convertArrayToCsv(array) {
+    const headers = Object.keys(array[0]).join(',');
+    const rows = array.map(obj => headers.split(',').map(header => obj[header]).join(',')).join('\n');
+    return headers + '\n' + rows;
+}
 
-        const reorderedData2 = lines2.slice(1).map(row => reorderColumns(row, headers2));
+function mergeCsvStrings(csv1, csv2) {
+    // Determine the reference header order from csv1
+    const referenceHeaders = csv1.trim().split(/\r?\n/)[0].split(',');
 
-        // Log reordered data for debugging
-        console.log("Reordered Data2 Sample:", reorderedData2.slice(0, 5));
+    // Convert each CSV to an array of objects, normalizing the column order
+    const array1 = csvToArrayOfObjects(csv1, referenceHeaders);
+    const array2 = csvToArrayOfObjects(csv2, referenceHeaders);
 
-        const combinedData = [lines1[0], ...lines1.slice(1), ...reorderedData2].join('\n');
-        return combinedData;
-    } catch (error) {
-        console.error('Error merging CSV files:', error);
-        throw error;
-    }
+    // Merge the arrays
+    const mergedArray = [...array1, ...array2];
+
+    // Convert the merged array back to CSV
+    return convertArrayToCsv(mergedArray);
 }
 
 
