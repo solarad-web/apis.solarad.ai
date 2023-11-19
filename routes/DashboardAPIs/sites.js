@@ -11,6 +11,7 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter
 const fileSystem = require("fs")
 const csv = require('csv-parser')
 const pool = require('../../config/db')
+const Papa = require('papaparse');
 
 
 //done
@@ -199,11 +200,11 @@ sitesRoute.get('/getforecast', async (req, res, next) => {
             'Gen Rev8', 'Gen Rev9', 'GHI Final', 'POA Final', 'Gen Final', 'GHI Rev0',
             'GHI Rev1', 'GHI Rev2', 'GHI Rev3', 'GHI Rev4', 'GHI Rev5', 'GHI Rev6',
             'GHI Rev7', 'GHI Rev8', 'GHI Rev9'
-        ];
+        ]
 
         for (let date = startDate; date.isSameOrBefore(endDate); date.add(1, 'days')) {
-            const formattedDate = date.format(outputFormat);
-            const isCurrentDay = date.isSame(today, 'day');
+            const formattedDate = date.format(outputFormat)
+            const isCurrentDay = date.isSame(today, 'day')
             const basepath = `/home/csv/clients/${client}/${isDemoClient ? 'ml_forecasts' : (isCurrentDay ? folder : 'ml_forecasts')}`;
             const filepath = `${basepath}/Solarad_${site}_${client}_Forecast_${formattedDate}_ID.csv`;
 
@@ -221,11 +222,11 @@ sitesRoute.get('/getforecast', async (req, res, next) => {
                             }
                         })
                         .on('data', (row) => {
-                            const filteredRow = {};
+                            const filteredRow = {}
 
                             headersToConcat.forEach(header => {
                                 if (isDemoClient && headersToModify.includes(header)) {
-                                    filteredRow[header] = (row[header] * random).toFixed(2);
+                                    filteredRow[header] = (row[header] * random).toFixed(2)
                                 } else {
                                     filteredRow[header] = row[header];
                                 }
@@ -434,44 +435,56 @@ sitesRoute.get('/getCombinedForecast', async (req, res, next) => {
     }
 });
 
-function csvToArrayOfObjects(csv, referenceHeaders) {
-    const lines = csv.trim().split(/\r?\n/);
-    const headers = lines[0].split(',');
-
-    const headerIndexMap = headers.reduce((acc, header, index) => {
-        acc[header] = index;
-        return acc;
-    }, {});
-
-    return lines.slice(1).map(line => {
-        const data = line.split(',');
-        return referenceHeaders.reduce((obj, header) => {
-            obj[header] = data[headerIndexMap[header]] || '';
-            return obj;
-        }, {});
+function parseCsv(csvString) {
+    return new Promise((resolve, reject) => {
+        Papa.parse(csvString, {
+            header: true,
+            complete: results => resolve(results.data),
+            error: error => reject(error)
+        });
     });
 }
 
 function convertArrayToCsv(array) {
-    const headers = Object.keys(array[0]).join(',');
-    const rows = array.map(obj => headers.split(',').map(header => obj[header]).join(',')).join('\n');
-    return headers + '\n' + rows;
+    return Papa.unparse(array);
 }
 
-function mergeCsvStrings(csv1, csv2) {
-    // Determine the reference header order from csv1
-    const referenceHeaders = csv1.trim().split(/\r?\n/)[0].split(',');
+async function mergeCsvStrings(csv1, csv2) {
+    try {
+        // Parse each CSV to an array of objects
+        const array1 = await parseCsv(csv1);
+        const array2 = await parseCsv(csv2);
 
-    // Convert each CSV to an array of objects, normalizing the column order
-    const array1 = csvToArrayOfObjects(csv1, referenceHeaders);
-    const array2 = csvToArrayOfObjects(csv2, referenceHeaders);
+        // Determine reference headers from the first CSV
+        const referenceHeaders = Object.keys(array1[0] || {});
 
-    // Merge the arrays
-    const mergedArray = [...array1, ...array2];
+        // Normalize array2 to have the same column order as array1
+        const normalizedArray2 = array2.map(row => {
+            const newRow = {};
+            referenceHeaders.forEach(header => {
+                newRow[header] = row.hasOwnProperty(header) ? row[header] : '';
+            });
+            return newRow;
+        });
 
-    // Convert the merged array back to CSV
-    return convertArrayToCsv(mergedArray);
+        // Merge the arrays
+        const mergedArray = [...array1, ...normalizedArray2];
+
+        // Convert the merged array back to CSV
+        return convertArrayToCsv(mergedArray);
+    } catch (error) {
+        console.error('Error merging CSV files:', error);
+        throw error;
+    }
 }
+
+// Example usage:
+// mergeCsvStrings(csvString1, csvString2).then(mergedCsv => {
+//     console.log(mergedCsv);
+// }).catch(error => {
+//     console.error('Error merging CSVs:', error);
+// });
+
 
 
 
