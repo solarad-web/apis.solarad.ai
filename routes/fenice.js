@@ -40,7 +40,7 @@ const generateTodayDateString = () => {
 };
 
 //test done
-const processCsvData = (s3Params, lastNRows, queryDate, isPresentDateQuery) => {
+const processCsvData = (s3Params, lastNRows, queryDate) => {
   const results = [];
   const unchangedResults = [];
   let columnExists = false;
@@ -69,15 +69,11 @@ const processCsvData = (s3Params, lastNRows, queryDate, isPresentDateQuery) => {
               results.shift();
             }
           } else if (queryDate === undefined || data['Time'].includes(queryDate)) {
-            if (isPresentDateQuery) {
-              return;
-            } else {
-              unchangedResults.push(data);
-              if (columnExists) {
-                delete data['ENTRY_TIME'];
-              }
-              results.push(data);
+            unchangedResults.push(data);
+            if (columnExists) {
+              delete data['ENTRY_TIME'];
             }
+            results.push(data);
           }
         }
       })
@@ -96,10 +92,8 @@ feniceRoute.get('/', async (req, res, next) => {
     const providedApiKey = req.header('api_key');
     let queryDate = req.query.date;
     const lastNRows = req.query.last_n_values;
-    let isPresentDateQuery = false;
 
     if (queryDate === 'today') {
-      isPresentDateQuery = true
       const todayDateString = generateTodayDateString();
       queryDate = todayDateString;
     }
@@ -108,7 +102,7 @@ feniceRoute.get('/', async (req, res, next) => {
     const apiKeyResult = await checkApiKey(providedApiKey, storedApiKey)
 
     if (apiKeyResult) {
-      const site_id = req.query.site_id 
+      const site_id = req.query.site_id
       const filePath = `csv/clients/Fenice/subhourly/site_${site_id}.csv`
 
       const s3Bucket = 'solarad-output'
@@ -120,7 +114,7 @@ feniceRoute.get('/', async (req, res, next) => {
         return;
       }
 
-      const modifiedCsv = await processCsvData(s3Params, lastNRows, queryDate, isPresentDateQuery);
+      const modifiedCsv = await processCsvData(s3Params, lastNRows, queryDate);
 
       res.set('Content-Disposition', `attachment; filename=site_${site_id}.csv`);
       res.set('Content-Type', 'text/csv');
