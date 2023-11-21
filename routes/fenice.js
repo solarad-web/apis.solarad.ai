@@ -1,20 +1,20 @@
 const Router = require("express");
-const feniceRoute = Router();
+const route = Router();
 const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
-
+const AWS = require('aws-sdk');
 const fileSystem = require("fs");
 const csv = require('csv-parser');
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const pool = require("../config/db");
 
 const fastcsv = require('fast-csv');
 
-feniceRoute.use(express.json());
+route.use(express.json());
 
 //done
-//done
+
 const isFutureTime = (timeString) => {
   const time = new Date(timeString);
   const now = new Date();
@@ -45,28 +45,30 @@ const processCsvData = (filePath, lastNRows, queryDate, isPresentDateQuery) => {
         }
       })
       .on('data', (data) => {
-        if (lastNRows !== undefined) {
-          unchangedResults.push(data);
-          if (unchangedResults.length > lastNRows) {
-            unchangedResults.shift();
-          }
-
-          if (columnExists) {
-            delete data['ENTRY_TIME'];
-          }
-          results.push(data);
-          if (results.length > lastNRows) {
-            results.shift();
-          }
-        } else if (queryDate === undefined || data['Time'].includes(queryDate)) {
-          if (isPresentDateQuery && isFutureTime(data['Time'])) {
-            return;
-          } else {
+        if (!isFutureTime(data['Time'])) {
+          if (lastNRows !== undefined) {
             unchangedResults.push(data);
+            if (unchangedResults.length > lastNRows) {
+              unchangedResults.shift();
+            }
+
             if (columnExists) {
               delete data['ENTRY_TIME'];
             }
             results.push(data);
+            if (results.length > lastNRows) {
+              results.shift();
+            }
+          } else if (queryDate === undefined || data['Time'].includes(queryDate)) {
+            if (isPresentDateQuery) {
+              return;
+            } else {
+              unchangedResults.push(data);
+              if (columnExists) {
+                delete data['ENTRY_TIME'];
+              }
+              results.push(data);
+            }
           }
         }
       })
@@ -80,7 +82,7 @@ const processCsvData = (filePath, lastNRows, queryDate, isPresentDateQuery) => {
   });
 };
 
-feniceRoute.get('/', async (req, res, next) => {
+route.get('/', async (req, res, next) => {
   try {
     const providedApiKey = req.header('api_key');
     const queryDate = req.query.date;
@@ -93,25 +95,25 @@ feniceRoute.get('/', async (req, res, next) => {
       queryDate = todayDateString;
     }
 
-    const storedApiKey = process.env.API_KEY;
-    const apiKeyResult = await checkApiKey(providedApiKey, storedApiKey);
+    const storedApiKey = process.env.API_KEY
+    const apiKeyResult = await checkApiKey(providedApiKey, storedApiKey)
 
     if (apiKeyResult) {
-      const site_id = req.query.site_id;
-      const filePath = `/home/Fenice/site_${site_id}.csv`;
+      const site_id = req.query.site_id
+      const filePath = `csv/clients/Fenice/site_${site_id}.csv`
+      const s3Bucket = 'solarad-output'
+      const s3Params = { Bucket: s3Bucket, Key: filePath };
+      const s3Object = await s3.getObject(s3Params).promise();
 
-      if (!fileSystem.existsSync(filePath)) {
+      if (!s3Object.Body) {
         res.status(404).send('File not found');
         return;
       }
 
-      const stat = fileSystem.statSync(filePath);
+      const modifiedCsv = await processCsvData(s3Object.Body.toString(), lastNRows, queryDate, isPresentDateQuery);
 
       res.set('Content-Disposition', `attachment; filename=site_${site_id}.csv`);
       res.set('Content-Type', 'text/csv');
-      res.set('Content-Length', stat.size);
-
-      const modifiedCsv = await processCsvData(filePath, lastNRows, queryDate, isPresentDateQuery);
       res.send(modifiedCsv);
     } else {
       res.status(401).send('Unauthorized');
@@ -121,6 +123,7 @@ feniceRoute.get('/', async (req, res, next) => {
     next(err);
   }
 });
+
 
 
 
@@ -157,7 +160,7 @@ function generateCSV(rows) {
 }
 
 
-feniceRoute.get('/export-csv', async (req, res) => {
+route.get('/export-csv', async (req, res) => {
   try {
     const data = await fetchResidentialSites('Fenice');
     const csvStream = generateCSV(data);
@@ -174,10 +177,10 @@ feniceRoute.get('/export-csv', async (req, res) => {
 
 //test done
 async function checkApiKey(apiKey, storedApiKey) {
-  if (apiKey === null || apiKey === undefined || typeof(apiKey) !== 'string') {
+  if (apiKey === null || apiKey === undefined || typeof (apiKey) !== 'string') {
     return false;
   }
-  if (storedApiKey === null || storedApiKey === undefined || typeof(storedApiKey) !== 'string') {
+  if (storedApiKey === null || storedApiKey === undefined || typeof (storedApiKey) !== 'string') {
     return false;
   }
   return bcrypt.compare(apiKey, storedApiKey);
@@ -239,7 +242,7 @@ async function insertOrUpdateSite(req) {
 }
 
 
-feniceRoute.post('/add-site', async (req, res) => {
+route.post('/add-site', async (req, res) => {
   const providedApiKey = req.header("api_key");
 
   try {
@@ -271,7 +274,7 @@ function convertToCsv(data) {
 
 
 module.exports = {
-  feniceRoute,
+  route,
   convertToCsv,
   insertOrUpdateSite,
   checkApiKey,
