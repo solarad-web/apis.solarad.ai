@@ -40,13 +40,13 @@ const generateTodayDateString = () => {
 };
 
 //test done
-const processCsvData = (filePath, lastNRows, queryDate, isPresentDateQuery) => {
+const processCsvData = (s3Params, lastNRows, queryDate, isPresentDateQuery) => {
   const results = [];
   const unchangedResults = [];
   let columnExists = false;
 
   return new Promise((resolve, reject) => {
-    fileSystem.createReadStream(filePath)
+    s3.getObject(s3Params).createReadStream()
       .pipe(csv())
       .on('headers', (headers) => {
         if (headers.includes('ENTRY_TIME')) {
@@ -119,7 +119,7 @@ feniceRoute.get('/', async (req, res, next) => {
         return;
       }
 
-      const modifiedCsv = await processCsvData(s3Object.Body.toString(), lastNRows, queryDate, isPresentDateQuery);
+      const modifiedCsv = await processCsvData(s3Params, lastNRows, queryDate, isPresentDateQuery);
 
       res.set('Content-Disposition', `attachment; filename=site_${site_id}.csv`);
       res.set('Content-Type', 'text/csv');
