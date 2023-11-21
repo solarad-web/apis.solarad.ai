@@ -3,7 +3,7 @@ const feniceRoute = Router();
 const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
-import aws from 'aws-sdk';
+const aws = require('aws-sdk');
 const { S3 } = aws;
 const fileSystem = require("fs");
 const csv = require('csv-parser');
