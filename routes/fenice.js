@@ -1,5 +1,5 @@
 const Router = require("express");
-const route = Router();
+const feniceRoute = Router();
 const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -11,7 +11,7 @@ const pool = require("../config/db");
 
 const fastcsv = require('fast-csv');
 
-route.use(express.json());
+feniceRoute.use(express.json());
 
 //done
 
@@ -82,7 +82,7 @@ const processCsvData = (filePath, lastNRows, queryDate, isPresentDateQuery) => {
   });
 };
 
-route.get('/', async (req, res, next) => {
+feniceRoute.get('/', async (req, res, next) => {
   try {
     const providedApiKey = req.header('api_key');
     const queryDate = req.query.date;
@@ -160,7 +160,7 @@ function generateCSV(rows) {
 }
 
 
-route.get('/export-csv', async (req, res) => {
+feniceRoute.get('/export-csv', async (req, res) => {
   try {
     const data = await fetchResidentialSites('Fenice');
     const csvStream = generateCSV(data);
@@ -242,7 +242,7 @@ async function insertOrUpdateSite(req) {
 }
 
 
-route.post('/add-site', async (req, res) => {
+feniceRoute.post('/add-site', async (req, res) => {
   const providedApiKey = req.header("api_key");
 
   try {
@@ -274,7 +274,7 @@ function convertToCsv(data) {
 
 
 module.exports = {
-  route,
+  feniceRoute,
   convertToCsv,
   insertOrUpdateSite,
   checkApiKey,
