@@ -3,8 +3,15 @@ const feniceRoute = Router();
 const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
-const aws = require('aws-sdk');
-const { S3 } = aws;
+const AWS = require('aws-sdk');
+
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+  region: process.env.AWS_REGION
+});
+
+const { S3 } = AWS;
 const fileSystem = require("fs");
 const csv = require('csv-parser');
 const bcrypt = require("bcrypt");
@@ -92,7 +99,7 @@ feniceRoute.get('/', async (req, res, next) => {
     let isPresentDateQuery = false;
 
     if (queryDate === 'today') {
-      isPresentDateQuery = true;
+      isPresentDateQuery = true
       const todayDateString = generateTodayDateString();
       queryDate = todayDateString;
     }
