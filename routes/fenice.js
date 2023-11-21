@@ -44,8 +44,7 @@ const processCsvData = (s3Params, lastNRows, queryDate, isPresentDateQuery) => {
   const results = [];
   const unchangedResults = [];
   let columnExists = false;
-
-  console.log('here')
+  console.log(queryDate)
   return new Promise((resolve, reject) => {
     s3.getObject(s3Params).createReadStream()
       .pipe(csv())
@@ -109,10 +108,9 @@ feniceRoute.get('/', async (req, res, next) => {
     const apiKeyResult = await checkApiKey(providedApiKey, storedApiKey)
 
     if (apiKeyResult) {
-      const site_id = req.query.site_id
-      // s3://solarad-output/csv/clients/Fenice/subhourly/site_10.csv  
+      const site_id = req.query.site_id 
       const filePath = `csv/clients/Fenice/subhourly/site_${site_id}.csv`
-      console.log(filePath)
+
       const s3Bucket = 'solarad-output'
       const s3Params = { Bucket: s3Bucket, Key: filePath }
       const s3Object = await s3.getObject(s3Params).promise();
