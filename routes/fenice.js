@@ -3,7 +3,8 @@ const feniceRoute = Router();
 const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
-const AWS = require('aws-sdk');
+import aws from 'aws-sdk';
+const { S3 } = aws;
 const fileSystem = require("fs");
 const csv = require('csv-parser');
 const bcrypt = require("bcrypt");
@@ -11,6 +12,7 @@ const pool = require("../config/db");
 
 const fastcsv = require('fast-csv');
 
+const s3 = new S3();
 feniceRoute.use(express.json());
 
 //done
