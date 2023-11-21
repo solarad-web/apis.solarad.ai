@@ -109,7 +109,7 @@ feniceRoute.get('/', async (req, res, next) => {
 
     if (apiKeyResult) {
       const site_id = req.query.site_id
-      const filePath = `csv/clients/Fenice/site_${site_id}.csv`
+      const filePath = `csv/clients/Fenice/subhourly/site_${site_id}.csv`
       const s3Bucket = 'solarad-output'
       const s3Params = { Bucket: s3Bucket, Key: filePath };
       const s3Object = await s3.getObject(s3Params).promise();
