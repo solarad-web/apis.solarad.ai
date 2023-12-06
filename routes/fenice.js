@@ -89,9 +89,9 @@ const processCsvData = (s3Params, lastNRows, queryDate) => {
 
 feniceRoute.get('/', async (req, res, next) => {
   try {
-    const providedApiKey = req.header('api_key');
+    let providedApiKey = req.header('api_key');
     let queryDate = req.query.date;
-    const lastNRows = req.query.last_n_values;
+    let lastNRows = req.query.last_n_values;
 
     if (queryDate === 'today') {
       const todayDateString = generateTodayDateString();
