@@ -12,7 +12,7 @@ AWS.config.update({
 });
 
 const { S3 } = AWS;
-const fileSystem = require("fs");
+// const fileSystem = require("fs");
 const csv = require('csv-parser');
 const bcrypt = require("bcrypt");
 const pool = require("../config/db");
@@ -41,7 +41,7 @@ const generateTodayDateString = () => {
 
 //test done
 const processCsvData = (s3Params, lastNRows, queryDate) => {
-  const results = [];
+  const results = []
   const unchangedResults = [];
   let columnExists = false;
   console.log(queryDate)
@@ -55,8 +55,9 @@ const processCsvData = (s3Params, lastNRows, queryDate) => {
       })
       .on('data', (data) => {
         if (!isFutureTime(data['Time'])) {
+          console.log(data['Time'])
           if (lastNRows !== undefined) {
-            unchangedResults.push(data);
+            unchangedResults.push(data)
             if (unchangedResults.length > lastNRows) {
               unchangedResults.shift();
             }
@@ -64,16 +65,16 @@ const processCsvData = (s3Params, lastNRows, queryDate) => {
             if (columnExists) {
               delete data['ENTRY_TIME'];
             }
-            results.push(data);
+            results.push(data)
             if (results.length > lastNRows) {
               results.shift();
             }
           } else if (queryDate === undefined || data['Time'].includes(queryDate)) {
-            unchangedResults.push(data);
+            unchangedResults.push(data)
             if (columnExists) {
-              delete data['ENTRY_TIME'];
+              delete data['ENTRY_TIME']
             }
-            results.push(data);
+            results.push(data)
           }
         }
       })
